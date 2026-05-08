@@ -61,7 +61,7 @@ class RoadmapDOMRenderer {
     const { hex, rgb } = getPhaseColor(node.phase);
 
     const el = document.createElement('div');
-    el.className   = 'rm-section';
+    el.className   = 'rm-section rm-neon-node';
     el.id          = `node-${node.id}`;
     el.dataset.id  = node.id;
     el.dataset.ph  = node.phase;
@@ -74,10 +74,12 @@ class RoadmapDOMRenderer {
       top:        node.y + 'px',
       width:      node.w + 'px',
       height:     node.h + 'px',
-      background: `linear-gradient(180deg, rgba(${rgb},.95), rgba(${rgb},.78))`,
-      border:     `2px solid rgba(255,255,255,.9)`,
+      '--ph-hex': hex,
+      '--ph-rgb': rgb,
+      background: `linear-gradient(180deg, rgba(${rgb},.18), rgba(${rgb},.05))`,
+      border:     `2px solid ${hex}`,
       color:      '#fff',
-      boxShadow:  `0 8px 22px rgba(0,0,0,.28)`,
+      boxShadow:  `0 4px 15px rgba(${rgb},.22), 0 0 24px rgba(${rgb},.16), inset 0 0 12px rgba(${rgb},.1)`,
       fontFamily:      'Outfit, sans-serif',
       fontSize:        '.78rem',
       fontWeight:      '900',
@@ -92,7 +94,7 @@ class RoadmapDOMRenderer {
       zIndex:          '2',
       opacity:         '0',
       transform:       'translateY(4px)',
-      animation:       `rmFadeUp .45s ease ${(index * 0.035).toFixed(2)}s forwards`,
+      animation:       `rmFadeUp .45s ease ${(index * 0.035).toFixed(2)}s forwards, rmNodeGlow 3.4s ease-in-out ${(index * 0.05).toFixed(2)}s infinite`,
     });
 
     return el;
@@ -105,7 +107,7 @@ class RoadmapDOMRenderer {
     const { topicType, importance } = node.meta;
 
     const el = document.createElement('div');
-    el.className = `rm-topic rm-topic--${topicType} rm-topic--${importance}`;
+    el.className = `rm-topic rm-neon-node rm-topic--${topicType} rm-topic--${importance}`;
     el.id          = `node-${node.id}`;
     el.dataset.id  = node.id;
     el.dataset.ph  = node.phase;
@@ -229,6 +231,20 @@ class RoadmapDOMRenderer {
         will-change: transform, opacity;
         word-break: break-word;
       }
+      .rm-neon-node {
+        filter: drop-shadow(0 0 5px rgba(var(--ph-rgb), .18));
+      }
+      .rm-section.rm-neon-node {
+        animation-name: rmFadeUp, rmNodeGlow;
+        animation-duration: .45s, 3.4s;
+        animation-timing-function: ease, ease-in-out;
+        animation-iteration-count: 1, infinite;
+        animation-fill-mode: forwards, none;
+      }
+      @keyframes rmNodeGlow {
+        0%, 100% { filter: drop-shadow(0 0 4px rgba(var(--ph-rgb), .16)); }
+        50% { filter: drop-shadow(0 0 11px rgba(var(--ph-rgb), .32)); }
+      }
       .rm-node-label {
         flex: 1;
       }
@@ -242,6 +258,11 @@ class RoadmapDOMRenderer {
       .rm-opt-badge  { background: rgba(148,163,184,.18); color: #94a3b8; }
       .rm-tool-badge { background: rgba(251,191,36,.15);  color: #fbbf24; }
       .rm-proj-badge { background: rgba(52,211,153,.15);  color: #34d399; }
+      @media (prefers-reduced-motion: reduce) {
+        .rm-section.rm-neon-node {
+          animation: rmFadeUp .45s ease forwards;
+        }
+      }
     `;
     document.head.appendChild(style);
   }

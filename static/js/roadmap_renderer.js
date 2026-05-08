@@ -28,10 +28,11 @@ class RoadmapSVGRenderer {
       animDuration:    opts.animDuration    ?? '0.7s',
       flowStrokeW:     opts.flowStrokeW     ?? 2.5,
       branchStrokeW:   opts.branchStrokeW   ?? 1.6,
-      flowOpacity:     opts.flowOpacity     ?? 0.55,
-      branchOpacity:   opts.branchOpacity   ?? 0.45,
+      flowOpacity:     opts.flowOpacity     ?? 0.62,
+      branchOpacity:   opts.branchOpacity   ?? 0.5,
       dotRadius:       opts.dotRadius       ?? 4,
       arrowSize:       opts.arrowSize       ?? 7,
+      neonFlow:        opts.neonFlow        ?? false,
     };
   }
 
@@ -79,6 +80,20 @@ class RoadmapSVGRenderer {
     // Animated dot pulse for entry-dots (optional decoration)
     const style = this._el('style');
     style.textContent = `
+      .rm-neon-glow {
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        filter: url(#rm-neon-blur);
+        pointer-events: none;
+      }
+      .rm-neon-pulse {
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        filter: url(#rm-neon-sharp);
+        stroke-dasharray: 22 190;
+        animation: rm-neon-flow var(--flowDur, 2.8s) linear infinite;
+        pointer-events: none;
+      }
       .rm-path-flow {
         stroke-dasharray: 2000;
         stroke-dashoffset: 2000;
@@ -99,8 +114,57 @@ class RoadmapSVGRenderer {
       @keyframes rm-pop {
         to { opacity: 0.8; }
       }
+      @keyframes rm-neon-flow {
+        from { stroke-dashoffset: var(--flowStart, 220); }
+        to { stroke-dashoffset: var(--flowEnd, -220); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .rm-neon-pulse,
+        .rm-path-flow,
+        .rm-path-branch,
+        .rm-dot {
+          animation: none;
+        }
+      }
     `;
     defs.appendChild(style);
+
+    const blur = this._el('filter', {
+      id: 'rm-neon-blur',
+      x: '-35%',
+      y: '-35%',
+      width: '170%',
+      height: '170%',
+    });
+    blur.appendChild(this._el('feGaussianBlur', {
+      in: 'SourceGraphic',
+      stdDeviation: '4',
+      result: 'blur',
+    }));
+    const merge = this._el('feMerge');
+    merge.appendChild(this._el('feMergeNode', { in: 'blur' }));
+    merge.appendChild(this._el('feMergeNode', { in: 'SourceGraphic' }));
+    blur.appendChild(merge);
+    defs.appendChild(blur);
+
+    const sharp = this._el('filter', {
+      id: 'rm-neon-sharp',
+      x: '-20%',
+      y: '-20%',
+      width: '140%',
+      height: '140%',
+    });
+    sharp.appendChild(this._el('feGaussianBlur', {
+      in: 'SourceGraphic',
+      stdDeviation: '1.2',
+      result: 'soft',
+    }));
+    const sharpMerge = this._el('feMerge');
+    sharpMerge.appendChild(this._el('feMergeNode', { in: 'soft' }));
+    sharpMerge.appendChild(this._el('feMergeNode', { in: 'SourceGraphic' }));
+    sharp.appendChild(sharpMerge);
+    defs.appendChild(sharp);
+
     this.svg.appendChild(defs);
   }
 
@@ -138,6 +202,10 @@ class RoadmapSVGRenderer {
     const y2 = to.y;
     const d = `M${x1},${y1} L${x2},${y2}`;
 
+    if (this.opts.neonFlow) {
+      this._appendNeonGlow(d, color, this.opts.flowStrokeW + 6, 0.24);
+    }
+
     const path = this._el('path', {
       d,
       fill:               'none',
@@ -146,10 +214,14 @@ class RoadmapSVGRenderer {
       opacity:            this.opts.flowOpacity,
       'stroke-dasharray': '7 7',
       'marker-end':       `url(#arrow-${this._phaseNum(from)})`,
-      class:              '',
+      class:              this.opts.animatePaths ? 'rm-path-flow' : '',
       style:              `animation-delay:${delay}s`,
     });
     this.svg.appendChild(path);
+
+    if (this.opts.neonFlow) {
+      this._appendNeonPulse(d, color, this.opts.flowStrokeW + 1.4, delay, '2.9s', '260', '-260');
+    }
   }
 
   /**
@@ -182,7 +254,16 @@ class RoadmapSVGRenderer {
       class:             this.opts.animatePaths ? 'rm-path-branch' : '',
       style:             `--dur:0.45s;animation-delay:${delay}s`,
     });
+    if (this.opts.neonFlow) {
+      this._appendNeonGlow(d, color, this.opts.branchStrokeW + 5, 0.2);
+    }
     this.svg.appendChild(path);
+
+    if (this.opts.neonFlow) {
+      const directionStart = side === 'left' ? '-220' : '220';
+      const directionEnd = side === 'left' ? '220' : '-220';
+      this._appendNeonPulse(d, color, this.opts.branchStrokeW + 1.3, delay + 0.12, '2.35s', directionStart, directionEnd);
+    }
 
     // Entry dot where the path meets the topic node
     const dot = this._el('circle', {
@@ -194,6 +275,31 @@ class RoadmapSVGRenderer {
       style: `animation-delay:${delay + 0.3}s`,
     });
     this.svg.appendChild(dot);
+  }
+
+  _appendNeonGlow(d, color, width, opacity) {
+    const glow = this._el('path', {
+      d,
+      fill: 'none',
+      stroke: color,
+      'stroke-width': width,
+      opacity,
+      class: 'rm-neon-glow',
+    });
+    this.svg.appendChild(glow);
+  }
+
+  _appendNeonPulse(d, color, width, delay, duration, start, end) {
+    const pulse = this._el('path', {
+      d,
+      fill: 'none',
+      stroke: color,
+      'stroke-width': width,
+      opacity: '0.92',
+      class: 'rm-neon-pulse',
+      style: `animation-delay:${delay}s;--flowDur:${duration};--flowStart:${start};--flowEnd:${end};`,
+    });
+    this.svg.appendChild(pulse);
   }
 
   // ─── Utilities ─────────────────────────────────────────────────────────────

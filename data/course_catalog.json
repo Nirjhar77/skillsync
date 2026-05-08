@@ -252,7 +252,8 @@
         "cloud_computing": "intermediate",
         "git": "advanced",
         "linux": "advanced",
-        "mlops": "beginner"
+        "mlops": "beginner",
+        "monitoring": "beginner"
       }
     },
     "CS602": {
@@ -283,7 +284,8 @@
       "skills_covered": {
         "project_management": "advanced",
         "system_design": "advanced",
-        "communication": "advanced"
+        "communication": "advanced",
+        "research_methodology": "intermediate"
       }
     },
     "CS504": {
@@ -692,7 +694,8 @@
       "department": "Data Science",
       "skills_covered": {
         "mlops": "beginner",
-        "cloud_computing": "intermediate"
+        "cloud_computing": "intermediate",
+        "monitoring": "beginner"
       }
     },
     "DS703": {
@@ -828,7 +831,8 @@
       "skills_covered": {
         "machine_learning": "advanced",
         "python": "advanced",
-        "project_management": "advanced"
+        "project_management": "advanced",
+        "research_methodology": "intermediate"
       }
     }
   }

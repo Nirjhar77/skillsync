@@ -143,11 +143,11 @@ class RoadmapLayoutEngine {
 }
 
 const PhaseColors = {
-  1: { hex: '#16a34a', rgb: '22,163,74', name: 'Foundation' },
-  2: { hex: '#0ea5e9', rgb: '14,165,233', name: 'Core Skills' },
-  3: { hex: '#22c55e', rgb: '34,197,94', name: 'Build' },
-  4: { hex: '#f59e0b', rgb: '245,158,11', name: 'Portfolio' },
-  5: { hex: '#a855f7', rgb: '168,85,247', name: 'Job Prep' },
+  1: { hex: '#10b981', rgb: '16,185,129', name: 'Foundation', desc: 'Build your basics' },
+  2: { hex: '#3b82f6', rgb: '59,130,246', name: 'Core Skills', desc: 'Strengthen core skills' },
+  3: { hex: '#f97316', rgb: '249,115,22', name: 'Build', desc: 'Build practical skills' },
+  4: { hex: '#8b5cf6', rgb: '139,92,246', name: 'Portfolio', desc: 'Showcase your work' },
+  5: { hex: '#ef4444', rgb: '239,68,68', name: 'Job Prep', desc: 'Get ready for jobs' },
 };
 
 function getPhaseColor(phase) {

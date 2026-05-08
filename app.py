@@ -41,6 +41,7 @@ def create_app(config_class=Config):
     from routes.chatbot import chatbot_bp
     from routes.news import news_bp
     from routes.visual_learner import visual_learner_bp
+    from routes.study_planner import study_planner_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(profile_bp)
@@ -54,6 +55,7 @@ def create_app(config_class=Config):
     app.register_blueprint(chatbot_bp)
     app.register_blueprint(news_bp)
     app.register_blueprint(visual_learner_bp)
+    app.register_blueprint(study_planner_bp)
 
     # --- Create tables ---
     with app.app_context():

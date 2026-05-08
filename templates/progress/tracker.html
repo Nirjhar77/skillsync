@@ -1,119 +1,383 @@
 {% extends "base.html" %}
 {% block title %}Progress Tracker — SkillSync{% endblock %}
+{% block breadcrumbs %}<span>Progress</span>{% endblock %}
+
+{% block extra_css %}
+<style>
+.tracker-wrap { padding: 1.5rem 2rem; width: 100%; box-sizing: border-box; }
+
+/* ── Hero ── */
+.tracker-hero {
+    background: linear-gradient(135deg, var(--bg-card) 60%, rgba(0,212,255,.04));
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    padding: 2.2rem 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
+}
+.hero-ring { position: relative; flex-shrink: 0; width: 140px; height: 140px; }
+.hero-ring svg { width: 140px; height: 140px; transform: rotate(-90deg); }
+.hero-ring-text {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+}
+.hero-pct  { font-size: 2rem; font-weight: 900; color: var(--text-primary); line-height: 1; }
+.hero-done { font-size: .72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
+.hero-info { flex: 1; min-width: 240px; }
+.hero-career { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin-bottom: .35rem; }
+.hero-subtitle { font-size: .88rem; color: var(--text-muted); margin-bottom: 1.2rem; }
+.hero-stats { display: flex; gap: 2rem; flex-wrap: wrap; }
+.hero-stat { display: flex; flex-direction: column; }
+.hero-stat-val { font-size: 1.5rem; font-weight: 900; color: var(--text-primary); }
+.hero-stat-lbl { font-size: .72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+.hero-actions { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; }
+.btn-sm-outline {
+    border: 1px solid var(--border-subtle); background: none; color: var(--text-secondary);
+    border-radius: 8px; padding: .45rem .85rem; font-size: .8rem; font-weight: 600;
+    cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: .4rem;
+    transition: border-color .2s, color .2s;
+}
+.btn-sm-outline:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
+/* ── Filter tabs ── */
+.filter-bar { display: flex; gap: .5rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+.filter-tab {
+    border: 1px solid var(--border-subtle); background: var(--bg-elevated);
+    color: var(--text-muted); border-radius: 20px; padding: .35rem .85rem;
+    font-size: .78rem; font-weight: 600; cursor: pointer; transition: all .2s;
+}
+.filter-tab.active, .filter-tab:hover {
+    border-color: var(--accent-cyan); color: var(--accent-cyan);
+    background: rgba(0,212,255,.08);
+}
+
+/* ── Phase block ── */
+.phase-block { margin-bottom: 1.2rem; }
+.phase-header {
+    display: flex; align-items: center; gap: .85rem; cursor: pointer;
+    padding: .75rem 1rem;
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 14px; margin-bottom: .65rem; user-select: none;
+    transition: border-color .2s;
+}
+.phase-header:hover { border-color: rgba(0,212,255,.3); }
+.phase-num {
+    width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .78rem; font-weight: 800; color: #fff;
+}
+.phase-meta { flex: 1; min-width: 0; }
+.phase-title { font-size: .92rem; font-weight: 700; color: var(--text-primary); }
+.phase-desc  { font-size: .75rem; color: var(--text-muted); }
+.phase-bar-wrap { width: 100px; }
+.phase-bar-track { background: rgba(255,255,255,.06); border-radius: 4px; height: 5px; overflow: hidden; }
+.phase-bar-fill  { height: 100%; border-radius: 4px; transition: width 1s ease; }
+.phase-bar-pct   { font-size: .7rem; color: var(--text-muted); font-weight: 700; text-align: right; margin-top: .2rem; }
+.phase-chevron { color: var(--text-muted); transition: transform .3s; }
+.phase-header.collapsed .phase-chevron { transform: rotate(-90deg); }
+.phase-milestones { display: flex; flex-direction: column; gap: .55rem; padding-left: .5rem; }
+
+/* ── Milestone card ── */
+.ms-card {
+    background: var(--bg-card); border: 1px solid var(--border-subtle);
+    border-radius: 14px; padding: .85rem 1rem;
+    display: flex; align-items: flex-start; gap: .85rem;
+    transition: border-color .2s, opacity .2s;
+}
+.ms-card:hover { border-color: rgba(0,212,255,.2); }
+.ms-card.ms-done { opacity: .6; }
+.ms-check {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    border: 2px solid var(--border-subtle); background: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color .2s, background .2s; margin-top: 2px;
+}
+.ms-check.checked { border-color: #34d399; background: #34d39920; color: #34d399; }
+.ms-check:hover { border-color: #34d399; }
+.ms-body { flex: 1; min-width: 0; }
+.ms-title { font-size: .9rem; font-weight: 700; color: var(--text-primary); }
+.ms-done .ms-title { text-decoration: line-through; color: var(--text-muted); }
+.ms-desc  { font-size: .78rem; color: var(--text-muted); margin-top: .2rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ms-tags  { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .5rem; }
+.ms-tag   { border-radius: 20px; padding: .18rem .55rem; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+.tag-core       { background: rgba(0,212,255,.12); color: #00d4ff; }
+.tag-project    { background: rgba(124,111,255,.12); color: #a78bfa; }
+.tag-resource   { background: rgba(251,191,36,.12); color: #fbbf24; }
+.tag-checkpoint { background: rgba(52,211,153,.12); color: #34d399; }
+.tag-hours { background: rgba(255,255,255,.07); color: var(--text-muted); }
+.tag-done  { background: rgba(52,211,153,.1); color: #34d399; }
+.ms-link {
+    flex-shrink: 0; text-decoration: none;
+    background: linear-gradient(135deg, #00d4ff22, #7c6fff22);
+    border: 1px solid rgba(0,212,255,.2);
+    border-radius: 8px; padding: .35rem .65rem;
+    font-size: .75rem; font-weight: 700; color: var(--accent-cyan);
+    display: flex; align-items: center; gap: .3rem;
+    transition: opacity .2s;
+}
+.ms-link:hover { opacity: .8; }
+
+/* ── Global bar ── */
+.global-bar-wrap { margin-bottom: 1.2rem; }
+.global-bar-label { display: flex; justify-content: space-between; font-size: .75rem; color: var(--text-muted); font-weight: 600; margin-bottom: .4rem; }
+.global-bar-track { background: rgba(255,255,255,.06); border-radius: 8px; height: 8px; overflow: hidden; }
+.global-bar-fill  { height: 100%; border-radius: 8px; background: linear-gradient(90deg, #00d4ff, #7c6fff); transition: width 1s ease; }
+
+/* Light mode */
+body.theme-light .ms-card, body.theme-light .phase-header { background: #fff; }
+body.theme-light .phase-bar-track, body.theme-light .global-bar-track { background: rgba(0,0,0,.07); }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="page-container">
-    <div class="page-header">
-        <div class="roadmap-header-top">
-            <div>
-                <h1 class="page-title">
-                    <i data-lucide="trending-up" class="title-icon"></i>
-                    Progress Tracker
-                </h1>
-                <p class="page-subtitle">Your journey to becoming a <strong>{{ career.title }}</strong></p>
+<div class="tracker-wrap">
+
+    <!-- Hero -->
+    <div class="tracker-hero">
+        <div class="hero-ring">
+            <svg viewBox="0 0 140 140">
+                <defs><linearGradient id="rGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#00d4ff"/>
+                    <stop offset="100%" stop-color="#7c6fff"/>
+                </linearGradient></defs>
+                <circle cx="70" cy="70" r="56" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="12"/>
+                <circle cx="70" cy="70" r="56" fill="none" stroke="url(#rGrad)" stroke-width="12"
+                        stroke-linecap="round"
+                        stroke-dasharray="{{ (2 * 3.14159 * 56)|round(1) }}"
+                        stroke-dashoffset="{{ ((2 * 3.14159 * 56) * (1 - progress/100))|round(1) }}"
+                        id="hero-arc"/>
+            </svg>
+            <div class="hero-ring-text">
+                <span class="hero-pct" id="hero-pct-text">{{ progress }}%</span>
+                <span class="hero-done">Done</span>
             </div>
-            <div class="roadmap-stats">
-                <div class="stat-card glass-card">
-                    <div class="circular-progress" data-progress="{{ progress }}">
-                        <svg viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="42" class="progress-bg-circle"></circle>
-                            <circle cx="50" cy="50" r="42" class="progress-fill-circle" style="stroke-dashoffset: {{ 264 - (264 * progress / 100) }}"></circle>
-                        </svg>
-                        <span class="progress-center-text">{{ progress }}%</span>
-                    </div>
+        </div>
+        <div class="hero-info">
+            <div class="hero-career">{{ career.title }}</div>
+            <div class="hero-subtitle">Your personalised learning roadmap</div>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <span class="hero-stat-val" id="hero-completed">{{ completed_count }}</span>
+                    <span class="hero-stat-lbl">Completed</span>
                 </div>
-                <div class="stat-card glass-card">
-                    <span class="stat-value">{{ completed_count }}</span>
-                    <span class="stat-label">Completed</span>
+                <div class="hero-stat">
+                    <span class="hero-stat-val" id="hero-remaining">{{ total_count - completed_count }}</span>
+                    <span class="hero-stat-lbl">Remaining</span>
                 </div>
-                <div class="stat-card glass-card">
-                    <span class="stat-value">{{ total_count - completed_count }}</span>
-                    <span class="stat-label">Remaining</span>
+                <div class="hero-stat">
+                    <span class="hero-stat-val">{{ completed_hours }}h</span>
+                    <span class="hero-stat-lbl">Hours Done</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-val">{{ total_hours }}h</span>
+                    <span class="hero-stat-lbl">Total Est.</span>
                 </div>
             </div>
         </div>
+        <div class="hero-actions">
+            <a href="{{ url_for('career.roadmap_view', roadmap_id=roadmap.id) }}" class="btn-sm-outline" id="full-roadmap-btn">
+                <i data-lucide="map" style="width:13px;height:13px;"></i> Full Roadmap
+            </a>
+            <a href="{{ url_for('study_planner.index') }}" class="btn-sm-outline" id="study-planner-btn">
+                <i data-lucide="calendar-clock" style="width:13px;height:13px;"></i> Study Planner
+            </a>
+        </div>
     </div>
 
-    <!-- Milestone List -->
-    <div class="tracker-list">
-        {% for milestone in milestones %}
-        <div class="tracker-item glass-card {% if milestone.completed %}completed{% elif milestone.clicked %}clicked{% endif %}" id="tracker-{{ milestone.id }}">
-            <div class="tracker-status">
-                <button class="tracker-checkbox {% if milestone.completed %}checked{% endif %}"
-                        onclick="toggleTrackerMilestone({{ milestone.id }})"
-                        id="tracker-check-{{ milestone.id }}">
-                    {% if milestone.completed %}
-                    <i data-lucide="check-circle-2" class="check-icon"></i>
-                    {% else %}
-                    <i data-lucide="circle" class="check-icon"></i>
+    <!-- Global progress bar -->
+    <div class="global-bar-wrap">
+        <div class="global-bar-label">
+            <span>Overall Progress</span>
+            <span id="global-pct-label">{{ completed_count }} / {{ total_count }} milestones</span>
+        </div>
+        <div class="global-bar-track">
+            <div class="global-bar-fill" id="global-bar" style="width:{{ progress }}%;"></div>
+        </div>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="filter-bar">
+        <button class="filter-tab active" onclick="filterMilestones('all', this)" id="tab-all">All ({{ total_count }})</button>
+        <button class="filter-tab" onclick="filterMilestones('incomplete', this)" id="tab-incomplete">Incomplete</button>
+        <button class="filter-tab" onclick="filterMilestones('complete', this)" id="tab-complete">Completed</button>
+        <button class="filter-tab" onclick="filterMilestones('project', this)" id="tab-project">🛠 Projects</button>
+        <button class="filter-tab" onclick="filterMilestones('checkpoint', this)" id="tab-checkpoint">🏁 Checkpoints</button>
+    </div>
+
+    <!-- Phases -->
+    {% set phase_colors = ['#10b981','#3b82f6','#f97316','#8b5cf6','#ef4444'] %}
+    {% for phase_key, phase in phases.items() %}
+    {% set color = phase_colors[(loop.index0) % 5] %}
+    {% set phase_pct = ((phase.completed / phase.total) * 100)|int if phase.total > 0 else 0 %}
+    <div class="phase-block" id="phase-block-{{ phase_key }}">
+        <div class="phase-header" onclick="togglePhase({{ phase_key }})" id="phase-hdr-{{ phase_key }}">
+            <div class="phase-num" style="background:{{ color }}33; color:{{ color }}; border: 1px solid {{ color }}44;">{{ phase_key }}</div>
+            <div class="phase-meta">
+                <div class="phase-title">{{ phase.phase_title }}</div>
+                {% if phase.phase_description %}
+                <div class="phase-desc">{{ phase.phase_description }}</div>
+                {% endif %}
+            </div>
+            <div class="phase-bar-wrap">
+                <div class="phase-bar-track">
+                    <div class="phase-bar-fill" style="width:{{ phase_pct }}%; background:{{ color }};"></div>
+                </div>
+                <div class="phase-bar-pct">{{ phase.completed }}/{{ phase.total }}</div>
+            </div>
+            <i data-lucide="chevron-down" class="phase-chevron" style="width:18px;height:18px;"></i>
+        </div>
+        <div class="phase-milestones" id="phase-ms-{{ phase_key }}">
+            {% for m in phase.milestones %}
+            <div class="ms-card {% if m.completed %}ms-done{% endif %}"
+                 id="ms-{{ m.id }}"
+                 data-type="{{ m.card_type }}"
+                 data-done="{{ 'true' if m.completed else 'false' }}">
+                <button class="ms-check {% if m.completed %}checked{% endif %}"
+                        id="chk-{{ m.id }}"
+                        onclick="toggleMilestone({{ m.id }}, {{ phase_key }}, {{ phase.total }})"
+                        title="{{ 'Mark incomplete' if m.completed else 'Mark complete' }}">
+                    {% if m.completed %}
+                    <i data-lucide="check" style="width:14px;height:14px;"></i>
                     {% endif %}
                 </button>
-            </div>
-
-            <div class="tracker-content">
-                <div class="tracker-main">
-                    <h3 class="tracker-title {% if milestone.completed %}done{% endif %}">{{ milestone.title }}</h3>
-                    <p class="tracker-desc">{{ milestone.description }}</p>
-                    <div class="tracker-meta">
-                        <span class="meta-badge">
-                            <i data-lucide="clock" class="meta-icon"></i>
-                            {{ milestone.estimated_hours }}h estimated
+                <div class="ms-body">
+                    <div class="ms-title">{{ m.title }}</div>
+                    <div class="ms-desc">{{ m.description }}</div>
+                    <div class="ms-tags">
+                        <span class="ms-tag tag-{{ m.card_type }}">{{ m.card_type }}</span>
+                        <span class="ms-tag tag-hours">
+                            <i data-lucide="clock" style="width:10px;height:10px;display:inline;"></i>
+                            {{ m.estimated_hours }}h
                         </span>
-                        <span class="meta-badge type-{{ milestone.resource_type }}">
-                            {% if milestone.resource_type == 'youtube' %}
-                                <i data-lucide="play-circle" class="meta-icon"></i> YouTube
-                            {% elif milestone.resource_type == 'udemy' %}
-                                <i data-lucide="graduation-cap" class="meta-icon"></i> Udemy
-                            {% elif milestone.resource_type == 'project' %}
-                                <i data-lucide="code" class="meta-icon"></i> Project
-                            {% else %}
-                                <i data-lucide="file-text" class="meta-icon"></i> Article
-                            {% endif %}
-                        </span>
-                        {% if milestone.completed %}
-                        <span class="meta-badge badge-success">
-                            <i data-lucide="check" class="meta-icon"></i>
-                            Completed {{ milestone.completed_at.strftime('%b %d') if milestone.completed_at else '' }}
-                        </span>
+                        {% if m.completed %}
+                        <span class="ms-tag tag-done">✓ Done{% if m.completed_at %} · {{ m.completed_at.strftime('%b %d') }}{% endif %}</span>
                         {% endif %}
                     </div>
                 </div>
-
-                <div class="tracker-actions">
-                    {% if milestone.resource_url and milestone.resource_url.startswith('http') %}
-                    <a href="{{ url_for('progress.redirect_to_resource', milestone_id=milestone.id) }}" target="_blank" class="btn btn-accent btn-sm" id="tracker-link-{{ milestone.id }}">
-                        <i data-lucide="external-link" class="btn-icon"></i>
-                        <span>Start Learning</span>
-                    </a>
-                    {% endif %}
-                </div>
+                {% if m.resource_url and m.resource_url.startswith('http') %}
+                <a href="{{ url_for('progress.redirect_to_resource', milestone_id=m.id) }}"
+                   target="_blank" class="ms-link" id="link-{{ m.id }}">
+                    <i data-lucide="external-link" style="width:12px;height:12px;"></i> Learn
+                </a>
+                {% endif %}
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
-
-    <div class="tracker-footer">
-        <a href="{{ url_for('career.roadmap_view', roadmap_id=roadmap.id) }}" class="btn btn-secondary" id="view-roadmap-btn">
-            <i data-lucide="map" class="btn-icon"></i>
-            <span>View Full Roadmap</span>
-        </a>
-        <a href="{{ url_for('career.results') }}" class="btn btn-secondary" id="explore-careers-btn">
-            <i data-lucide="compass" class="btn-icon"></i>
-            <span>Explore Other Careers</span>
-        </a>
-    </div>
+    {% endfor %}
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-function toggleTrackerMilestone(milestoneId) {
-    fetch(`/progress/milestone/${milestoneId}/complete`, { method: 'POST' })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                // Reload the page to update all UI elements
-                location.reload();
-            }
-        });
+const TOTAL = {{ total_count }};
+let completed = {{ completed_count }};
+
+// ── Animate arc on load ─────────────────────────────────
+(function(){
+    const arc = document.getElementById('hero-arc');
+    if (!arc) return;
+    const circ = 2 * Math.PI * 56;
+    const pct  = {{ progress }};
+    const target = circ - (pct / 100) * circ;
+    arc.style.strokeDashoffset = circ;
+    setTimeout(() => {
+        arc.style.transition = 'stroke-dashoffset 1.3s cubic-bezier(.22,1,.36,1)';
+        arc.style.strokeDashoffset = target;
+    }, 200);
+})();
+
+// ── Toggle milestone ────────────────────────────────────
+async function toggleMilestone(id, phaseKey, phaseTotal) {
+    const card  = document.getElementById(`ms-${id}`);
+    const btn   = document.getElementById(`chk-${id}`);
+    const wasDone = card.dataset.done === 'true';
+
+    // Optimistic UI
+    applyToggle(id, !wasDone);
+
+    try {
+        const res  = await fetch(`/progress/milestone/${id}/complete`, { method: 'POST' });
+        const data = await res.json();
+        if (!data.success) { applyToggle(id, wasDone); return; } // rollback
+
+        completed = data.completed_count;
+        updateGlobalUI(data.progress, data.completed_count, data.total_count);
+    } catch (e) {
+        applyToggle(id, wasDone); // rollback on error
+    }
+}
+
+function applyToggle(id, isDone) {
+    const card = document.getElementById(`ms-${id}`);
+    const btn  = document.getElementById(`chk-${id}`);
+    if (!card) return;
+
+    card.dataset.done = isDone ? 'true' : 'false';
+    card.classList.toggle('ms-done', isDone);
+    btn.classList.toggle('checked', isDone);
+    btn.innerHTML = isDone ? '<i data-lucide="check" style="width:14px;height:14px;"></i>' : '';
+    lucide.createIcons({ nodes: [btn] });
+
+    // Update done tag
+    const tags = card.querySelector('.ms-tags');
+    const existingDone = tags.querySelector('.tag-done');
+    if (isDone && !existingDone) {
+        const t = document.createElement('span');
+        t.className = 'ms-tag tag-done'; t.textContent = '✓ Done';
+        tags.appendChild(t);
+    } else if (!isDone && existingDone) {
+        existingDone.remove();
+    }
+}
+
+function updateGlobalUI(pct, done, total) {
+    // Arc
+    const arc  = document.getElementById('hero-arc');
+    const circ = 2 * Math.PI * 56;
+    if (arc) { arc.style.transition = 'stroke-dashoffset .6s ease'; arc.style.strokeDashoffset = circ - (pct/100)*circ; }
+
+    // Texts
+    document.getElementById('hero-pct-text').textContent  = pct + '%';
+    document.getElementById('hero-completed').textContent = done;
+    document.getElementById('hero-remaining').textContent  = total - done;
+    document.getElementById('global-pct-label').textContent = `${done} / ${total} milestones`;
+
+    // Bar
+    const bar = document.getElementById('global-bar');
+    if (bar) bar.style.width = pct + '%';
+}
+
+// ── Filter tabs ──────────────────────────────────────────
+function filterMilestones(type, tabEl) {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    tabEl.classList.add('active');
+
+    document.querySelectorAll('.ms-card').forEach(card => {
+        const isDone = card.dataset.done === 'true';
+        const cType  = card.dataset.type;
+        let show = true;
+        if (type === 'incomplete') show = !isDone;
+        else if (type === 'complete')   show = isDone;
+        else if (type === 'project')    show = cType === 'project';
+        else if (type === 'checkpoint') show = cType === 'checkpoint';
+        card.style.display = show ? '' : 'none';
+    });
+}
+
+// ── Phase collapse ───────────────────────────────────────
+function togglePhase(key) {
+    const ms  = document.getElementById(`phase-ms-${key}`);
+    const hdr = document.getElementById(`phase-hdr-${key}`);
+    const hidden = ms.style.display === 'none';
+    ms.style.display  = hidden ? '' : 'none';
+    hdr.classList.toggle('collapsed', !hidden);
 }
 </script>
 {% endblock %}

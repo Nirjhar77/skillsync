@@ -12,11 +12,29 @@ from openai import OpenAI
 from engines.curriculum_engine import get_upcoming_courses, identify_skill_gaps, get_covered_skills
 
 
-def _get_client():
-    """Create a Groq client."""
-    api_key = current_app.config.get("GROQ_API_KEY", os.environ.get("GROQ_API_KEY", ""))
+def _get_client(key_type="journey"):
+    """
+    Create a Groq client using the appropriate dedicated API key.
+    key_type options:
+      - 'journey'  → GROQ_API_KEY_JOURNEY  (Start Journey: roadmaps, career suggestions)
+      - 'visual'   → GROQ_API_KEY_VISUAL   (Visual Guide ONLY)
+      - 'projects' → GROQ_API_KEY_PROJECTS (Projects & Chat/Tutor)
+    Falls back to the generic GROQ_API_KEY if the dedicated key is missing.
+    """
+    key_map = {
+        "journey":  "GROQ_API_KEY_JOURNEY",
+        "visual":   "GROQ_API_KEY_VISUAL",
+        "projects": "GROQ_API_KEY_PROJECTS",
+    }
+    config_key = key_map.get(key_type, "GROQ_API_KEY_JOURNEY")
+    api_key = (
+        current_app.config.get(config_key)
+        or os.environ.get(config_key)
+        or current_app.config.get("GROQ_API_KEY")
+        or os.environ.get("GROQ_API_KEY", "")
+    )
     if not api_key:
-        raise ValueError("GROQ_API_KEY is not set. Please add it to your .env file.")
+        raise ValueError(f"{config_key} (and fallback GROQ_API_KEY) are not set. Please add them to your .env file.")
     return Groq(api_key=api_key)
 
 
@@ -171,7 +189,7 @@ def generate_roadmap(profile, career_path, score_details, user_courses):
         str: Error message if any
     """
     try:
-        client = _get_client()
+        client = _get_client(key_type="journey")  # Key 1: Start Journey
         prompt = build_roadmap_prompt(profile, career_path, score_details, user_courses)
 
         completion = client.chat.completions.create(
@@ -183,7 +201,7 @@ def generate_roadmap(profile, career_path, score_details, user_courses):
                 }
             ],
             temperature=0.5,
-            max_tokens=8000,
+            max_tokens=4000,
             response_format={"type": "json_object"},
         )
 
@@ -203,7 +221,7 @@ def chat_with_context(roadmap, profile, career_path, user_message, chat_history=
     Send a contextual chat message about the roadmap.
     """
     try:
-        client = _get_client()
+        client = _get_client(key_type="projects")  # Key 3: Chat/Projects
 
         # Build context
         history_text = ""
@@ -255,7 +273,7 @@ def generate_tech_career_suggestions(profile, user_courses):
     Generate 3-5 hyper-personalized tech career suggestions for a tech student based on their courses.
     """
     try:
-        client = _get_client()
+        client = _get_client(key_type="journey")  # Key 1: Start Journey
 
         courses_list = [c.course_name for c in user_courses]
         courses_text = ", ".join(courses_list) if courses_list else "Basic core CS subjects"
@@ -319,7 +337,7 @@ def generate_career_suggestions(nt_profile):
         str: Error message if any
     """
     try:
-        client = _get_client()
+        client = _get_client(key_type="journey")  # Key 1: Start Journey
 
         interests = nt_profile.get_interests()
         existing_skills = nt_profile.get_existing_skills()
@@ -389,7 +407,7 @@ def generate_nontech_roadmap(nt_profile):
         str: Error message if any
     """
     try:
-        client = _get_client()
+        client = _get_client(key_type="journey")  # Key 1: Start Journey
 
         interests = nt_profile.get_interests()
         existing_skills = nt_profile.get_existing_skills()
@@ -465,7 +483,7 @@ def analyze_career_overview(career_path):
     Generate a detailed overview and insights for a specific career path.
     """
     try:
-        client = _get_client()
+        client = _get_client(key_type="journey")  # Key 1: Start Journey
 
         tools = career_path.get_recommended_tools()
         tools_text = ", ".join(tools) if tools else "Various industry tools"
@@ -538,7 +556,7 @@ Return ONLY valid JSON matching this exact schema:
 def generate_visual_guide(career_path):
     """Generate a structured visual knowledge graph for a career path."""
     try:
-        client = _get_client()
+        client = _get_client(key_type="visual")  # Key 2: Visual Guide ONLY
         tools = career_path.get_recommended_tools()
         tools_text = ", ".join(tools) if tools else "Various industry tools"
 
@@ -611,7 +629,7 @@ Return ONLY valid JSON (no markdown, no explanation):
 def explain_topic(career_title, topic_label, section_label=""):
     """Live AI explanation for a clicked topic node in the Visual Guide."""
     try:
-        client = _get_client()
+        client = _get_client(key_type="visual")  # Key 2: Visual Guide ONLY
         context = f" in the context of {section_label}" if section_label else ""
 
         prompt = f"""You are a top-tier tech educator explaining a topic on a career roadmap.
@@ -649,3 +667,152 @@ Return ONLY valid JSON:
     except Exception as e:
         traceback.print_exc()
         return None, f"Explanation failed: {str(e)}"
+
+
+def generate_weekly_checkin(profile, career_path, sessions_this_week, completed_this_week, total_hours_logged):
+    """
+    Generate an AI weekly check-in report based on the student's study sessions and milestone progress.
+    Uses Key 1 (Journey) since it's a roadmap-context function.
+    """
+    try:
+        client = _get_client(key_type="journey")  # Key 1: Start Journey
+
+        sessions_text = ""
+        if sessions_this_week:
+            for s in sessions_this_week:
+                ms_name = s.milestone.title if s.milestone else "General Study"
+                sessions_text += f"  - {s.session_date}: {s.hours_logged}h on '{ms_name}'"
+                if s.notes:
+                    sessions_text += f" — Notes: {s.notes}"
+                sessions_text += "\n"
+        else:
+            sessions_text = "  No sessions logged this week.\n"
+
+        completed_text = ""
+        if completed_this_week:
+            for m in completed_this_week:
+                completed_text += f"  - {m.title} (Phase {m.phase_number}: {m.phase_title})\n"
+        else:
+            completed_text = "  No milestones completed this week.\n"
+
+        prompt = f"""You are an encouraging and insightful career advisor reviewing a student's weekly study progress.
+
+=== STUDENT PROFILE ===
+- Major: {profile.major}
+- Semester: {profile.semester}
+- Target Career: {career_path.title if career_path else 'Not selected'}
+- Total Hours Logged All-Time: {total_hours_logged:.1f}h
+
+=== THIS WEEK'S STUDY SESSIONS ===
+{sessions_text}
+
+=== MILESTONES COMPLETED THIS WEEK ===
+{completed_text}
+
+=== YOUR TASK ===
+Write a personalized, warm, and data-driven weekly check-in report for this student.
+
+Return ONLY valid JSON matching this exact schema. No markdown, no extra text:
+{{
+  "summary": "2-3 sentence personalized summary of how their week went, referencing specific sessions/milestones",
+  "accomplishments": ["Specific thing they accomplished 1", "Specific thing 2", "Specific thing 3"],
+  "next_focus": ["Top priority milestone/skill to focus on next week 1", "Priority 2", "Priority 3"],
+  "velocity_note": "1-2 sentences on their pace — are they on track, ahead, or behind? Be specific.",
+  "motivational_message": "A short, punchy, personalized motivational message (1 sentence). Reference their career goal."
+}}"""
+
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=1000,
+            response_format={"type": "json_object"},
+        )
+
+        text = completion.choices[0].message.content.strip()
+        checkin_data = json.loads(text)
+        return checkin_data, None
+
+    except json.JSONDecodeError as e:
+        return None, f"Failed to parse check-in JSON: {str(e)}"
+    except Exception as e:
+        traceback.print_exc()
+        return None, f"Weekly check-in failed: {str(e)}"
+
+
+def generate_career_projects(profile, career_path, roadmap_data):
+    """
+    Generate beginner/intermediate/advanced portfolio projects for a career path.
+    Uses Key 3 (Projects & Chat) to keep it isolated from journey rate limits.
+    """
+    try:
+        client = _get_client(key_type="projects")  # Key 3: Projects & Chat
+
+        user_skills = [(s.skill_name, s.proficiency) for s in profile.skills]
+        career_title = career_path.title
+        tools = career_path.get_recommended_tools()
+        tools_text = ", ".join(tools) if tools else "Various industry tools"
+
+        # Extract milestone titles from the roadmap for context
+        milestone_titles = []
+        for phase in roadmap_data.get("phases", []):
+            for m in phase.get("milestones", []):
+                if m.get("card_type") in ("project", "core"):
+                    milestone_titles.append(m.get("title", ""))
+        milestones_text = ", ".join(milestone_titles[:15]) if milestone_titles else "Core skills for " + career_title
+
+        prompt = f"""You are a senior software engineer and career coach designing a portfolio project board.
+
+=== STUDENT PROFILE ===
+- Major: {profile.major}
+- Current Semester: {profile.semester}
+- Existing Skills: {', '.join(f'{s} ({p})' for s, p in user_skills) if user_skills else 'None listed'}
+
+=== TARGET CAREER: {career_title} ===
+- Key Tools: {tools_text}
+- Relevant Roadmap Skills: {milestones_text}
+
+=== YOUR TASK ===
+Generate exactly 9 portfolio projects (3 beginner, 3 intermediate, 3 advanced) that a student targeting this career should build.
+
+For each project:
+1. Make it specific, real, and buildable — not generic (e.g. NOT "To-Do App").
+2. Tailor it to the exact career path and tools.
+3. Include concrete features the student should implement.
+4. Specify what skills it demonstrates and why recruiters will care.
+
+Return ONLY valid JSON matching this exact schema. No markdown, no extra text:
+{{
+  "projects": [
+    {{
+      "title": "Specific project name",
+      "difficulty": "beginner|intermediate|advanced",
+      "summary": "2-sentence description of what this project is and what it does",
+      "features": ["Feature 1", "Feature 2", "Feature 3"],
+      "skills_used": ["Skill 1", "Skill 2"],
+      "deliverables": ["Deliverable 1", "Deliverable 2"],
+      "resource_url": "https://...",
+      "estimated_hours": <number>,
+      "portfolio_value": "1-2 sentences on why this impresses recruiters",
+      "order": <1-9>
+    }}
+  ]
+}}"""
+
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.6,
+            max_tokens=3000,
+            response_format={"type": "json_object"},
+        )
+
+        text = completion.choices[0].message.content.strip()
+        projects_data = json.loads(text)
+        return projects_data, None
+
+    except json.JSONDecodeError as e:
+        return None, f"Failed to parse projects JSON: {str(e)}"
+    except Exception as e:
+        traceback.print_exc()
+        return None, f"Projects generation failed: {str(e)}"

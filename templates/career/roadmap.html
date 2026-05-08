@@ -29,7 +29,7 @@
       <div class="loading-step active" id="step-1"><i data-lucide="user-check" class="step-icon"></i><span>Analyzing profile</span></div>
       <div class="loading-step" id="step-2"><i data-lucide="book-open" class="step-icon"></i><span>Checking curriculum</span></div>
       <div class="loading-step" id="step-3"><i data-lucide="brain" class="step-icon"></i><span>Generating roadmap</span></div>
-      <div class="loading-step" id="step-4"><i data-lucide="check-circle" class="step-icon"></i><span>Finalizing resources</span></div>
+      <div class="loading-step" id="step-4"><i data-lucide="folder-kanban" class="step-icon"></i><span>Generating projects</span></div>
     </div>
   </div>
 </div>
@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     { pct: 35, text: 'Checking curriculum coverage...', step: 1 },
     { pct: 55, text: 'Generating phased roadmap...', step: 2 },
     { pct: 75, text: 'Building milestones and resources...', step: 2 },
+    { pct: 88, text: 'Generating portfolio projects...', step: 3 },
   ];
   let currentStage = 0;
   let hasError = false;
@@ -91,6 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="rm-tabs" aria-label="Roadmap views">
     <span class="rm-tab active"><i data-lucide="list-checks"></i>Start Journey</span>
     <a href="{{ url_for('career.guide_view', roadmap_id=roadmap.id) }}" class="rm-tab"><i data-lucide="map"></i>Visual Guide</a>
+    <a href="{{ url_for('career.projects_view', roadmap_id=roadmap.id) }}" class="rm-tab"><i data-lucide="folder-kanban"></i>Projects</a>
   </div>
 
   <section class="rm-dashboard-head" id="rm-hero">
@@ -105,6 +107,12 @@ document.addEventListener('DOMContentLoaded', function() {
         <a href="#rm-phases" class="rm-btn rm-btn-secondary" onclick="smoothScrollTo('rm-phases')">
           <i data-lucide="rows-3"></i>View phases
         </a>
+        <a href="{{ url_for('career.projects_view', roadmap_id=roadmap.id) }}" class="rm-btn rm-btn-secondary">
+          <i data-lucide="folder-kanban"></i>View projects
+        </a>
+        <button class="rm-btn rm-btn-secondary" onclick="refreshEnrichedRoadmap()" id="refresh-roadmap-btn">
+          <i data-lucide="refresh-cw"></i>Refresh enriched plan
+        </button>
       </div>
     </div>
 
@@ -213,8 +221,53 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="phase-right">
           <span class="phase-prog-txt">{{ pdone }}/{{ ptotal }} complete</span>
           <div class="phase-prog-bar"><div class="phase-prog-fill" style="width:{{ ppct }}%;"></div></div>
+          {% set phase_title_lower = (phase.phase_title or '')|lower %}
+          {% if 'build' in phase_title_lower or 'practice' in phase_title_lower or 'portfolio' in phase_title_lower %}
+          <a href="{{ url_for('career.projects_view', roadmap_id=roadmap.id) }}" class="rm-btn rm-btn-small rm-btn-secondary phase-project-link">
+            <i data-lucide="folder-kanban"></i>Project board
+          </a>
+          {% endif %}
         </div>
       </div>
+
+      {% if phase.learning_goals or phase.key_skills or phase.phase_resources %}
+      <div class="phase-enrichment">
+        {% if phase.learning_goals %}
+        <div class="phase-info-box">
+          <span class="project-label">Learning goals</span>
+          <ul class="phase-mini-list">
+            {% for goal in phase.learning_goals %}
+            <li>{{ goal }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+        {% if phase.key_skills %}
+        <div class="phase-info-box">
+          <span class="project-label">Key skills</span>
+          <div class="rm-chip-row">
+            {% for skill in phase.key_skills %}
+            <span class="rm-chip">{{ skill }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+        {% if phase.phase_resources %}
+        <div class="phase-info-box">
+          <span class="project-label">Best resources</span>
+          <div class="phase-resource-list">
+            {% for res in phase.phase_resources[:3] %}
+              {% if res.url %}
+              <a href="{{ res.url }}" target="_blank" class="phase-resource-link"><i data-lucide="external-link"></i>{{ res.title or res.url }}</a>
+              {% else %}
+              <span class="phase-resource-link">{{ res.title }}</span>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
 
       <div class="milestone-grid">
         {% for milestone in phase.milestones %}
@@ -244,10 +297,33 @@ document.addEventListener('DOMContentLoaded', function() {
               </div>
               {% endif %}
               <p class="m-desc">{{ milestone.description }}</p>
+              {% if milestone.learning_goal %}
+              <div class="m-detail-panel">
+                <span class="project-label">Learning goal</span>
+                <p>{{ milestone.learning_goal }}</p>
+              </div>
+              {% endif %}
+              {% set tasks = milestone.get_practice_tasks() %}
+              {% if tasks %}
+              <div class="m-detail-panel">
+                <span class="project-label">Practice tasks</span>
+                <ul class="phase-mini-list">
+                  {% for task in tasks %}
+                  <li>{{ task }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+              {% endif %}
+              {% if milestone.success_criteria %}
+              <div class="m-detail-panel success-detail">
+                <span class="project-label">Success check</span>
+                <p>{{ milestone.success_criteria }}</p>
+              </div>
+              {% endif %}
               <div class="m-actions">
                 {% if milestone.resource_url and milestone.resource_url.startswith("http") %}
                 <a href="{{ url_for('progress.redirect_to_resource', milestone_id=milestone.id) }}" target="_blank" class="rm-btn rm-btn-small rm-btn-secondary" id="open-resource-{{ milestone.id }}">
-                  <span class="res-dot res-{{ milestone.resource_type }}"></span>Open resource
+                  <span class="res-dot res-{{ milestone.resource_type }}"></span>{{ milestone.resource_title or "Open resource" }}
                 </a>
                 {% endif %}
                 <button class="rm-btn rm-btn-small {% if milestone.completed %}rm-btn-success{% else %}rm-btn-secondary{% endif %}" onclick="event.stopPropagation(); toggleMilestone({{ milestone.id }})" id="complete-btn-{{ milestone.id }}">
@@ -441,6 +517,29 @@ fetch('/chat/history/' + ROADMAP_ID)
     lucide.createIcons();
     div.scrollTop = div.scrollHeight;
   });
+
+function refreshEnrichedRoadmap() {
+  const btn = document.getElementById('refresh-roadmap-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2"></i>Refreshing...';
+    lucide.createIcons();
+  }
+  fetch(`/career/roadmap/do_generate/${ROADMAP_ID}?return=start`, { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success && data.redirect) {
+        window.location.href = data.redirect;
+      } else {
+        alert(data.error || 'Refresh failed.');
+        if (btn) btn.disabled = false;
+      }
+    })
+    .catch(() => {
+      alert('Network error. Please try again.');
+      if (btn) btn.disabled = false;
+    });
+}
 </script>
 {% endif %}
 {% endblock %}

@@ -1,5 +1,6 @@
 """Progress routes — Track milestone completion with external link redirection."""
 
+from collections import OrderedDict
 from datetime import datetime
 from flask import Blueprint, redirect, url_for, flash, jsonify, request, render_template
 from flask_login import login_required, current_user
@@ -34,15 +35,38 @@ def tracker():
     total = len(milestones)
     completed = sum(1 for m in milestones if m.completed)
     progress = int((completed / total) * 100) if total > 0 else 0
+    total_hours = sum(m.estimated_hours for m in milestones)
+    completed_hours = sum(m.estimated_hours for m in milestones if m.completed)
+
+    # Group milestones by phase
+    phases = OrderedDict()
+    for m in milestones:
+        key = m.phase_number or 1
+        if key not in phases:
+            phases[key] = {
+                "phase_number": key,
+                "phase_title": m.phase_title or f"Phase {key}",
+                "phase_description": m.phase_description or "",
+                "milestones": [],
+                "total": 0,
+                "completed": 0,
+            }
+        phases[key]["milestones"].append(m)
+        phases[key]["total"] += 1
+        if m.completed:
+            phases[key]["completed"] += 1
 
     return render_template(
         "progress/tracker.html",
         roadmap=roadmap,
         career=career,
         milestones=milestones,
+        phases=phases,
         progress=progress,
         completed_count=completed,
         total_count=total,
+        total_hours=round(total_hours, 1),
+        completed_hours=round(completed_hours, 1),
     )
 
 

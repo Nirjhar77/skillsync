@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,8 +9,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -21,9 +19,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     {% block extra_css %}{% endblock %}
 </head>
-
-<body
-    class="{% if current_user.is_authenticated and current_user.nontech_profile and not current_user.profile %}theme-nontech{% endif %}">
+<body class="{% if current_user.is_authenticated and current_user.nontech_profile and not current_user.profile %}theme-nontech{% endif %}">
     {% if current_user.is_authenticated %}
     <script>
         // Prevent FOUC by setting light mode class immediately (only for logged-in users)
@@ -41,8 +37,7 @@
             <div class="sidebar-brand">
                 <div class="brand-wrapper">
                     <a href="{{ url_for('dashboard.index') }}" class="brand-link">
-                        <img src="{{ url_for('static', filename='images/logo-full.png') }}" alt="SkillSync Logo"
-                            class="brand-logo" id="mainBrandLogo">
+                        <img src="{{ url_for('static', filename='images/logo-full.png') }}" alt="SkillSync Logo" class="brand-logo" id="mainBrandLogo">
                     </a>
                 </div>
                 <button id="sidebar-toggle" class="sidebar-toggle-btn" title="Toggle Sidebar">
@@ -50,43 +45,47 @@
                 </button>
             </div>
 
-            {% set is_nontech = current_user.is_authenticated and current_user.nontech_profile and not
-            current_user.profile %}
+            {% set is_nontech = current_user.is_authenticated and current_user.nontech_profile and not current_user.profile %}
 
             <div class="sidebar-nav">
                 <span class="nav-section-title">MAIN MENU</span>
-                <a href="{{ url_for('dashboard.index') }}"
-                    class="nav-link {% if request.path.startswith('/dashboard') %}active{% endif %}">
+                <a href="{{ url_for('dashboard.index') }}" class="nav-link {% if request.path.startswith('/dashboard') %}active{% endif %}">
                     <i data-lucide="layout-dashboard" class="nav-icon"></i>
                     <span>Dashboard</span>
                 </a>
 
-                <a href="{% if is_nontech %}{{ url_for('nontech.dashboard') }}{% else %}{{ url_for('career.results') }}{% endif %}"
-                    class="nav-link {% if request.path.startswith('/career') or request.path.startswith('/nontech') %}active{% endif %}">
+                <a href="{% if is_nontech %}{{ url_for('nontech.dashboard') }}{% else %}{{ url_for('career.results') }}{% endif %}" class="nav-link {% if (request.path.startswith('/career') and not request.path.startswith('/career/projects')) or request.path.startswith('/nontech') %}active{% endif %}">
                     <i data-lucide="compass" class="nav-icon"></i>
                     <span>{% if is_nontech %}Path Finder{% else %}Career Navigator{% endif %}</span>
                 </a>
-                <a href="{{ url_for('progress.tracker') }}"
-                    class="nav-link {% if request.path.startswith('/progress') %}active{% endif %}">
+                <a href="{{ url_for('progress.tracker') }}" class="nav-link {% if request.path.startswith('/progress') %}active{% endif %}">
                     <i data-lucide="trending-up" class="nav-icon"></i>
                     <span>Progress</span>
                 </a>
-                <a href="{{ url_for('resources.index') }}"
-                    class="nav-link {% if request.path.startswith('/resources') %}active{% endif %}">
+                <a href="{{ url_for('study_planner.index') }}" class="nav-link {% if request.path.startswith('/study-planner') %}active{% endif %}">
+                    <i data-lucide="calendar-clock" class="nav-icon"></i>
+                    <span>Study Planner</span>
+                    <span class="badge badge-new" style="background: linear-gradient(135deg, #f97316, #fbbf24); color: #000;">New</span>
+                </a>
+                {% if not is_nontech %}
+                <a href="{{ url_for('career.projects_latest') }}" class="nav-link {% if request.path.startswith('/career/projects') %}active{% endif %}">
+                    <i data-lucide="folder-kanban" class="nav-icon"></i>
+                    <span>Projects</span>
+                    <span class="badge badge-new">AI</span>
+                </a>
+                {% endif %}
+                <a href="{{ url_for('resources.index') }}" class="nav-link {% if request.path.startswith('/resources') %}active{% endif %}">
                     <i data-lucide="library" class="nav-icon"></i>
                     <span>Resources</span>
                 </a>
-                <a href="{{ url_for('news.feed') }}"
-                    class="nav-link {% if request.path.startswith('/news') %}active{% endif %}">
+                <a href="{{ url_for('news.feed') }}" class="nav-link {% if request.path.startswith('/news') %}active{% endif %}">
                     <i data-lucide="radio" class="nav-icon"></i>
                     <span>{% if is_nontech %}Career News{% else %}Tech Intelligence{% endif %}</span>
-                    <span class="badge badge-new"
-                        style="background: linear-gradient(135deg, #00d4ff, #0ea5e9); color: #000;">Live</span>
+                    <span class="badge badge-new" style="background: linear-gradient(135deg, #00d4ff, #0ea5e9); color: #000;">Live</span>
                 </a>
 
                 <span class="nav-section-title mt-4">TOOLS</span>
-                <a href="{{ url_for('cv.builder') }}"
-                    class="nav-link {% if request.path.startswith('/cv') %}active{% endif %}">
+                <a href="{{ url_for('cv.builder') }}" class="nav-link {% if request.path.startswith('/cv') %}active{% endif %}">
                     <i data-lucide="file-text" class="nav-icon"></i>
                     <span>CV Generator</span>
                     <span class="badge badge-new">New</span>
@@ -96,19 +95,15 @@
                     <span>IQ & Aptitude Test</span>
                     <span class="badge badge-soon">Soon</span>
                 </a>
-                <a href="{{ url_for('chatbot.tutor_view') }}"
-                    class="nav-link {% if request.path.startswith('/chatbot/tutor') %}active{% endif %}">
+                <a href="{{ url_for('chatbot.tutor_view') }}" class="nav-link {% if request.path.startswith('/chatbot/tutor') %}active{% endif %}">
                     <i data-lucide="bot" class="nav-icon"></i>
                     <span>AI Tutor</span>
-                    <span class="badge badge-new"
-                        style="background: linear-gradient(135deg, #a78bfa, #c084fc); color: #000;">New</span>
+                    <span class="badge badge-new" style="background: linear-gradient(135deg, #a78bfa, #c084fc); color: #000;">New</span>
                 </a>
-                <a href="{{ url_for('visual_learner.index') }}"
-                    class="nav-link {% if request.path.startswith('/visual-learner') %}active{% endif %}">
+                <a href="{{ url_for('visual_learner.index') }}" class="nav-link {% if request.path.startswith('/visual-learner') %}active{% endif %}">
                     <i data-lucide="sparkles" class="nav-icon"></i>
                     <span>Visual Learner</span>
-                    <span class="badge badge-new"
-                        style="background: linear-gradient(135deg, #34d399, #00d4ff); color: #000;">New</span>
+                    <span class="badge badge-new" style="background: linear-gradient(135deg, #34d399, #00d4ff); color: #000;">New</span>
                 </a>
             </div>
 
@@ -117,8 +112,7 @@
                     <i data-lucide="sun" id="themeToggleIcon" class="nav-icon"></i>
                     <span id="themeToggleText">Light Mode</span>
                 </a>
-                <a href="{% if is_nontech %}{{ url_for('nontech.intake') }}{% else %}{{ url_for('profile.setup') }}{% endif %}"
-                    class="nav-link {% if request.path.startswith('/profile') or request.path.startswith('/nontech/intake') %}active{% endif %}">
+                <a href="{% if is_nontech %}{{ url_for('nontech.intake') }}{% else %}{{ url_for('profile.setup') }}{% endif %}" class="nav-link {% if request.path.startswith('/profile') or request.path.startswith('/nontech/intake') %}active{% endif %}">
                     <i data-lucide="settings" class="nav-icon"></i>
                     <span>Settings</span>
                 </a>
@@ -143,49 +137,47 @@
                     <span class="user-name">{{ current_user.username }}</span>
                 </div>
             </header>
-
+            
             <div class="app-content">
-                {% else %}
-                <!-- Public/Guest Navbar -->
-                {% if current_user.is_authenticated and not current_user.profile %}
-                <!-- Setup Profile Navbar -->
-                <nav class="navbar" id="main-nav">
-                    <div class="nav-container">
-                        <a href="{{ url_for('auth.index') }}" class="nav-brand">
-                            <img src="{{ url_for('static', filename='images/logo-full.png') }}" alt="SkillSync Logo"
-                                class="brand-logo">
-                        </a>
-                        <div class="nav-right">
-                            <a href="{{ url_for('auth.logout') }}" class="nav-link nav-logout" id="nav-logout">
-                                <i data-lucide="log-out" class="nav-icon"></i> Logout
-                            </a>
-                        </div>
-                    </div>
-                </nav>
-                {% endif %}
+    {% else %}
+    <!-- Public/Guest Navbar -->
+    {% if current_user.is_authenticated and not current_user.profile %}
+        <!-- Setup Profile Navbar -->
+        <nav class="navbar" id="main-nav">
+            <div class="nav-container">
+                <a href="{{ url_for('auth.index') }}" class="nav-brand">
+                    <img src="{{ url_for('static', filename='images/logo-full.png') }}" alt="SkillSync Logo" class="brand-logo">
+                </a>
+                <div class="nav-right">
+                    <a href="{{ url_for('auth.logout') }}" class="nav-link nav-logout" id="nav-logout">
+                        <i data-lucide="log-out" class="nav-icon"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </nav>
+    {% endif %}
 
-                <!-- Public Content -->
-                <main
-                    class="main-content {% if not current_user.is_authenticated or not current_user.profile %}auth-page{% endif %}">
-                    {% endif %}
+    <!-- Public Content -->
+    <main class="main-content {% if not current_user.is_authenticated or not current_user.profile %}auth-page{% endif %}">
+    {% endif %}
 
-                    <!-- Flash Messages -->
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                    <div class="flash-container" id="flash-messages">
-                        {% for category, message in messages %}
-                        <div class="flash flash-{{ category }}" onclick="this.remove()">
-                            <span class="flash-text">{{ message }}</span>
-                            <i data-lucide="x" class="flash-close"></i>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    {% endwith %}
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container" id="flash-messages">
+        {% for category, message in messages %}
+        <div class="flash flash-{{ category }}" onclick="this.remove()">
+            <span class="flash-text">{{ message }}</span>
+            <i data-lucide="x" class="flash-close"></i>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
 
-                    {% block content %}{% endblock %}
+    {% block content %}{% endblock %}
 
-                    {% if is_dashboard %}
+    {% if is_dashboard %}
             </div>
         </main>
     </div>
@@ -213,7 +205,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const sidebar = document.querySelector('.app-sidebar');
             const toggleBtn = document.getElementById('sidebar-toggle');
-
+            
             if (sidebar && toggleBtn) {
                 // Restore state from localStorage
                 if (localStorage.getItem('sidebar-collapsed') === 'true') {
@@ -230,7 +222,7 @@
             const themeBtn = document.getElementById('themeToggleBtn');
             const themeIcon = document.getElementById('themeToggleIcon');
             const themeText = document.getElementById('themeToggleText');
-
+            
             function updateThemeUI(isLight) {
                 if (themeIcon) {
                     themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
@@ -256,5 +248,4 @@
         });
     </script>
 </body>
-
 </html>

@@ -17,6 +17,8 @@ AVAILABLE_SKILLS = [
     "statistics", "machine_learning", "deep_learning", "data_visualization",
     "databases", "networking", "cloud_computing", "containerization",
     "api_design", "system_design", "testing", "excel",
+    "monitoring", "research_methodology", "blockchain", "smart_contracts",
+    "game_development",
     "ui_design", "user_research", "prototyping", "visual_design",
     # Soft Skills & Creative
     "communication", "critical_thinking", "project_management",
@@ -38,7 +40,9 @@ INTEREST_OPTIONS = [
     "Cloud Computing", "UX Design", "Product Management",
     "Mobile Development", "Game Development", "Database Administration",
     "Networking & Infrastructure", "DevOps & Automation", "Deep Learning",
-    "Embedded Systems", "IoT", "Blockchain",
+    "Embedded Systems", "IoT", "Blockchain", "Robotics",
+    "Hardware Engineering", "Data Engineering", "Enterprise Systems",
+    "Quality Assurance",
     # Activity-based (new — maps to aptitude clusters in the rule engine)
     "Solving Puzzles & Logic", "Building Products", "Designing Interfaces",
     "Analyzing Data", "Securing Systems", "Working with Hardware", "Leading Teams",

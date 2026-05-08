@@ -276,6 +276,18 @@ CAREER_META = {
         "salary_range": "$90,000 - $160,000",
         "growth": "High",
     },
+    "game_developer": {
+        "difficulty": "Hard",
+        "difficulty_score": 4,
+        "demand": "High",
+        "demand_score": 3,
+        "time_to_job_ready_months": 12,
+        "entry_barrier": "Medium",
+        "best_for": "Programmers who enjoy real-time systems, interaction design, and creative problem solving",
+        "biggest_challenge": "Portfolio quality and performance skills matter a lot, and studios can be competitive",
+        "salary_range": "$60,000 - $120,000",
+        "growth": "High",
+    },
     "sre_platform_engineer": {
         "difficulty": "Very Hard",
         "difficulty_score": 5,

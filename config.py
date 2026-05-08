@@ -15,3 +15,7 @@ class Config:
     LLM_MODEL = "llama-3.3-70b-versatile"
     DATA_DIR = os.path.join(BASE_DIR, "data")
     GNEWS_API_KEY = os.environ.get("GNEWS_API_KEY", "")
+    # Dedicated keys per section — distributes rate limits across 3 accounts
+    GROQ_API_KEY_JOURNEY = os.environ.get("GROQ_API_KEY_JOURNEY", "")
+    GROQ_API_KEY_VISUAL = os.environ.get("GROQ_API_KEY_VISUAL", "")
+    GROQ_API_KEY_PROJECTS = os.environ.get("GROQ_API_KEY_PROJECTS", "")

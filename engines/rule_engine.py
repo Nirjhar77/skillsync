@@ -10,8 +10,22 @@ SCORING BREAKDOWN (revised):
   - Curriculum coverage bonus           → up to 10 pts
 """
 
-import json
 from engines.curriculum_engine import check_skill_coverage, identify_skill_gaps, get_covered_skills
+
+
+SKILL_ALIASES = {
+    "c++": "c_plus_plus",
+    "cpp": "c_plus_plus",
+    "c_cpp": "c_plus_plus",
+    "c/c++": "c_plus_plus",
+    "cplusplus": "c_plus_plus",
+}
+
+
+def _normalize_skill_key(skill):
+    """Return the canonical skill key used by profile, course, and career data."""
+    key = (skill or "").strip().lower()
+    return SKILL_ALIASES.get(key, key)
 
 
 # ────────────────────────────────────────────────────────────────────
@@ -52,7 +66,7 @@ INTEREST_CAREER_MAP = {
         "software_engineer",
     ],
     "Game Development": [
-        "software_engineer", "frontend_developer", "mobile_developer", "c_cpp",
+        "game_developer", "software_engineer", "frontend_developer", "mobile_developer",
     ],
 
     # --- Infrastructure cluster ---
@@ -270,9 +284,19 @@ def score_career_path(profile, career_path, user_courses):
     Returns:
         dict with score breakdown.
     """
-    required_skills = career_path.get_required_skills()
+    raw_required_skills = career_path.get_required_skills()
+    required_skills = {
+        _normalize_skill_key(skill): info
+        for skill, info in raw_required_skills.items()
+    }
     if not required_skills:
-        return {"score": 0, "matched_skills": [], "gap_skills": [], "covered_by_curriculum": {}}
+        return {
+            "score": 0,
+            "signal_score": 0,
+            "matched_skills": [],
+            "gap_skills": [],
+            "covered_by_curriculum": {},
+        }
 
     # ── 1. Curriculum coverage check ──────────────────────────────────
     coverage = check_skill_coverage(user_courses, required_skills)
@@ -280,7 +304,10 @@ def score_career_path(profile, career_path, user_courses):
     covered_skills = get_covered_skills(coverage)
 
     # ── 2. Skill matching → up to 40 pts ──────────────────────────────
-    user_skills = {s.skill_name.lower(): s.proficiency for s in profile.skills}
+    user_skills = {
+        _normalize_skill_key(s.skill_name): s.proficiency
+        for s in profile.skills
+    }
     total_weight = sum(
         info["weight"] if isinstance(info, dict) else 1.0
         for info in required_skills.values()
@@ -327,7 +354,7 @@ def score_career_path(profile, career_path, user_courses):
     activity_score = 0.0
 
     if interests:
-        for idx, interest in enumerate(interests):
+        for interest in interests:
             resolved = _resolve_interest(interest)
             if not resolved:
                 continue
@@ -340,8 +367,7 @@ def score_career_path(profile, career_path, user_courses):
             if career_path.slug in mapped_careers:
                 position = mapped_careers.index(career_path.slug)
                 position_factor = max(1.0 - (position * 0.18), 0.3)
-                pick_weight = max(1.0 - (idx * 0.12), 0.4)
-                interest_score += 10 * position_factor * pick_weight
+                interest_score += 10 * position_factor
 
             # Activity map bonus (separate pool)
             if is_activity:
@@ -358,16 +384,18 @@ def score_career_path(profile, career_path, user_courses):
     curriculum_bonus = covered_ratio * 10
 
     # ── 5. Semester seniority boost (0–8 pts) ─────────────────────────
-    semester_boost = _get_semester_boost(profile)
+    signal_score = skill_match_score + interest_score + activity_score + curriculum_bonus
+    semester_boost = _get_semester_boost(profile) if signal_score > 0 else 0
 
     # ── Final score ────────────────────────────────────────────────────
     total_score = min(
-        skill_match_score + interest_score + activity_score + curriculum_bonus + semester_boost,
+        signal_score + semester_boost,
         100
     )
 
     return {
         "score": round(total_score, 1),
+        "signal_score": round(signal_score, 1),
         "skill_match_score": round(skill_match_score, 1),
         "interest_score": round(interest_score, 1),
         "activity_score": round(activity_score, 1),
@@ -389,7 +417,7 @@ def rank_careers(profile, career_paths, user_courses, min_score=5):
     results = []
     for career in career_paths:
         details = score_career_path(profile, career, user_courses)
-        if details["score"] >= min_score:  # Skip zero / near-zero matches
+        if details.get("signal_score", details["score"]) >= min_score:
             results.append((career, details))
 
     results.sort(key=lambda x: x[1]["score"], reverse=True)

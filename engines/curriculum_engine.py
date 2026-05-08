@@ -9,6 +9,20 @@ import os
 from flask import current_app
 
 
+SKILL_ALIASES = {
+    "c++": "c_plus_plus",
+    "cpp": "c_plus_plus",
+    "c_cpp": "c_plus_plus",
+    "c/c++": "c_plus_plus",
+    "cplusplus": "c_plus_plus",
+}
+
+
+def _normalize_skill_key(skill):
+    key = (skill or "").strip().lower()
+    return SKILL_ALIASES.get(key, key)
+
+
 def load_course_catalog():
     """Load the pre-populated course catalog from JSON."""
     data_path = os.path.join(current_app.config["DATA_DIR"], "course_catalog.json")
@@ -56,6 +70,7 @@ def check_skill_coverage(user_courses, career_required_skills):
         course_skills = course_info.get("skills_covered", {})
 
         for skill, level in course_skills.items():
+            skill = _normalize_skill_key(skill)
             level_rank = _level_to_rank(level)
             existing_rank = _level_to_rank(student_course_skills.get(skill, {}).get("level"))
 
@@ -71,6 +86,7 @@ def check_skill_coverage(user_courses, career_required_skills):
     # Now check each required skill against what courses provide
     coverage = {}
     for skill, req_info in career_required_skills.items():
+        skill = _normalize_skill_key(skill)
         required_level = req_info.get("level", "beginner") if isinstance(req_info, dict) else "beginner"
 
         if skill in student_course_skills:

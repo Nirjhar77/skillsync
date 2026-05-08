@@ -3,6 +3,92 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/roadmap.css') }}">
+<style>
+/* ── Connected Phase Stepper ── */
+.rm-phase-stepper {
+    display: flex;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 8px 16px;
+    overflow-x: auto;
+    box-shadow: inset 0 4px 20px rgba(0,0,0,0.2);
+    /* For smooth scrolling */
+    scrollbar-width: none;
+}
+.rm-phase-stepper::-webkit-scrollbar { display: none; }
+
+.stepper-node {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    position: relative;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    white-space: nowrap;
+}
+.stepper-node:hover {
+    background: rgba(255,255,255,0.03);
+    transform: translateY(-1px);
+}
+
+.stepper-node.active {
+    background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+.stepper-node.active::after {
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px 6px 0;
+    border-style: solid;
+    border-color: rgba(255,255,255,0.4) transparent transparent transparent;
+}
+
+.stepper-circle {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 800;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+}
+
+.stepper-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stepper-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+.stepper-desc {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.stepper-line {
+    flex: 1;
+    min-width: 30px;
+    height: 1px;
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 4px, transparent 4px, transparent 8px);
+    margin: 0 8px;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -10,6 +96,7 @@
   <div class="rm-tabs rm-tabs-attached" aria-label="Roadmap views">
     <a href="{{ url_for('career.roadmap_view', roadmap_id=roadmap.id) }}" class="rm-tab"><i data-lucide="list-checks"></i>Start Journey</a>
     <span class="rm-tab active"><i data-lucide="map"></i>Visual Guide</span>
+    <a href="{{ url_for('career.projects_view', roadmap_id=roadmap.id) }}" class="rm-tab"><i data-lucide="folder-kanban"></i>Projects</a>
   </div>
 
   <div class="guide-map-titlebar">
@@ -24,6 +111,10 @@
     {% endif %}
     <span id="gen-status" class="gen-status"></span>
   </div>
+
+  {% if not needs_generation %}
+  <div class="rm-phase-stepper" id="guide-stepper" style="margin: 0 24px 16px 24px;"></div>
+  {% endif %}
 
   <div class="guide-body">
     <main class="guide-graph" id="guide-graph">
@@ -40,7 +131,6 @@
         </button>
       </div>
       {% else %}
-      <div class="phase-legend guide-floating-legend" id="phase-legend"></div>
       <div class="guide-canvas-shell">
         <div id="rg-canvas-wrap">
           <svg id="rg-svg"></svg>
@@ -130,20 +220,72 @@
   }
 
   function buildLegend(sections) {
-    const legend = document.getElementById('phase-legend');
-    if (!legend) return;
-    const seen = new Set();
-    sections.forEach(s => {
-      const p = parseInt(s.phase || 1);
-      if (seen.has(p)) return;
-      seen.add(p);
-      const { hex, rgb, name } = getPhaseColor(p);
-      const tag = document.createElement('span');
-      tag.className = 'ph-tag';
-      tag.style.cssText = `background:rgba(${rgb},.12);color:${hex};border-color:rgba(${rgb},.28)`;
-      tag.textContent = `Phase ${p} - ${name}`;
-      legend.appendChild(tag);
+    const stepper = document.getElementById('guide-stepper');
+    if (!stepper) return;
+    
+    let html = '';
+    let firstPhase = true;
+    
+    for (let p = 1; p <= 5; p++) {
+      const { hex, rgb, name, desc } = getPhaseColor(p);
+      
+      // Skip phases that don't exist in this roadmap layout
+      if (!sections.find(s => parseInt(s.phase || 1) === p)) continue;
+      
+      if (!firstPhase) {
+         html += '<div class="stepper-line"></div>';
+      }
+      
+      // Make the first visible phase active by default
+      const isActive = firstPhase ? 'active' : '';
+      
+      // Ensure the active state matches the glowing color of the phase
+      const activeBorder = firstPhase ? `border: 1px solid rgba(${rgb}, 0.5); background: linear-gradient(135deg, rgba(${rgb},0.12), rgba(${rgb},0.03));` : '';
+      const activeTriangle = firstPhase ? `<div style="position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); border-width: 6px 6px 0; border-style: solid; border-color: ${hex} transparent transparent transparent;"></div>` : '';
+      
+      html += `
+      <div class="stepper-node ${isActive}" style="${activeBorder}" onclick="scrollToPhaseInGuide(${p}, this, '${hex}', '${rgb}')">
+        <div class="stepper-circle" style="color: ${hex}; background: rgba(${rgb}, 0.1); border: 1px solid rgba(${rgb}, 0.3);">${p}</div>
+        <div class="stepper-info">
+          <div class="stepper-title" style="color: ${hex}">${name}</div>
+          <div class="stepper-desc">${desc || 'Continue learning'}</div>
+        </div>
+        ${activeTriangle}
+      </div>
+      `;
+      firstPhase = false;
+    }
+    
+    stepper.innerHTML = html;
+  }
+
+  function scrollToPhaseInGuide(p, el, hex, rgb) {
+    // Remove active styles from all nodes
+    document.querySelectorAll('#guide-stepper .stepper-node').forEach(n => {
+      n.classList.remove('active');
+      n.style.border = '1px solid transparent';
+      n.style.background = 'transparent';
+      const tri = n.querySelector('div[style*="border-width: 6px"]');
+      if (tri) tri.remove();
     });
+    
+    // Add active styles to clicked node
+    if (el) {
+      el.classList.add('active');
+      el.style.border = `1px solid rgba(${rgb}, 0.5)`;
+      el.style.background = `linear-gradient(135deg, rgba(${rgb},0.12), rgba(${rgb},0.03))`;
+      el.insertAdjacentHTML('beforeend', `<div style="position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); border-width: 6px 6px 0; border-style: solid; border-color: ${hex} transparent transparent transparent;"></div>`);
+    }
+    
+    // Scroll the graph canvas to the first section of this phase
+    const wrap = document.querySelector('.guide-canvas-shell');
+    const firstNode = document.querySelector(`.rm-section[data-ph="${p}"]`);
+    if (wrap && firstNode) {
+        wrap.scrollTo({
+            top: firstNode.offsetTop - 100,
+            behavior: 'smooth'
+        });
+    }
   }
 
   async function handleTopicClick(node) {

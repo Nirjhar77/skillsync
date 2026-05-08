@@ -39,9 +39,9 @@ def chat():
     if not user_message:
         return jsonify({"error": "Message is required"}), 400
 
-    api_key = os.getenv("GROQ_API_KEY")
+    api_key = os.getenv("GROQ_API_KEY_PROJECTS") or os.getenv("GROQ_API_KEY")
     if not api_key:
-        return jsonify({"error": "GROQ_API_KEY is missing in the server configuration."}), 500
+        return jsonify({"error": "GROQ_API_KEY_PROJECTS is missing in the server configuration."}), 500
 
     # Save user message to DB
     user_msg_db = TutorMessage(user_id=current_user.id, role="user", content=user_message)

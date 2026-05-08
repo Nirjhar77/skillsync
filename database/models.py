@@ -7,6 +7,14 @@ import json
 db = SQLAlchemy()
 
 
+def _loads_json_list(value):
+    try:
+        data = json.loads(value) if value else []
+        return data if isinstance(data, list) else []
+    except (json.JSONDecodeError, TypeError):
+        return []
+
+
 class User(UserMixin, db.Model):
     __tablename__ = "users"
 
@@ -132,6 +140,8 @@ class Roadmap(db.Model):
     career_path = db.relationship("CareerPath")
     milestones = db.relationship("Milestone", backref="roadmap", cascade="all, delete-orphan",
                                  order_by="Milestone.order")
+    projects = db.relationship("CareerProject", backref="roadmap", cascade="all, delete-orphan",
+                               order_by="CareerProject.order")
     chat_messages = db.relationship("ChatMessage", backref="roadmap", cascade="all, delete-orphan",
                                     order_by="ChatMessage.created_at")
 
@@ -184,6 +194,50 @@ class Milestone(db.Model):
     phase_title = db.Column(db.String(100), default="Foundation")
     phase_description = db.Column(db.Text, default="")
     card_type = db.Column(db.String(20), default="core")  # core / project / resource / checkpoint
+    learning_goal = db.Column(db.Text, default="")
+    success_criteria = db.Column(db.Text, default="")
+    practice_tasks = db.Column(db.Text, default="[]")  # JSON list
+    resource_title = db.Column(db.String(180), default="")
+    requires = db.Column(db.String(140), default="")
+    unlocks = db.Column(db.String(140), default="")
+
+    def get_practice_tasks(self):
+        try:
+            return json.loads(self.practice_tasks) if self.practice_tasks else []
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+
+class CareerProject(db.Model):
+    __tablename__ = "career_projects"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    roadmap_id = db.Column(db.Integer, db.ForeignKey("roadmaps.id"), nullable=False)
+    career_path_id = db.Column(db.Integer, db.ForeignKey("career_paths.id"), nullable=False)
+    title = db.Column(db.String(180), nullable=False)
+    difficulty = db.Column(db.String(20), default="beginner")  # beginner / intermediate / advanced
+    summary = db.Column(db.Text, default="")
+    features = db.Column(db.Text, default="[]")  # JSON list
+    skills_used = db.Column(db.Text, default="[]")  # JSON list
+    deliverables = db.Column(db.Text, default="[]")  # JSON list
+    resource_url = db.Column(db.String(500), default="")
+    estimated_hours = db.Column(db.Float, default=8)
+    portfolio_value = db.Column(db.Text, default="")
+    order = db.Column(db.Integer, default=0)
+    completed = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    career_path = db.relationship("CareerPath")
+
+    def get_features(self):
+        return _loads_json_list(self.features)
+
+    def get_skills_used(self):
+        return _loads_json_list(self.skills_used)
+
+    def get_deliverables(self):
+        return _loads_json_list(self.deliverables)
 
 
 class ChatMessage(db.Model):
@@ -229,6 +283,23 @@ class VisualLearnerItem(db.Model):
     word_count = db.Column(db.Integer, default=0)
     source = db.Column(db.String(30), default="visual_learner")  # visual_learner / tutor
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class StudySession(db.Model):
+    """Stores individual study sessions logged by a user against a milestone."""
+    __tablename__ = "study_sessions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    roadmap_id = db.Column(db.Integer, db.ForeignKey("roadmaps.id"), nullable=False)
+    milestone_id = db.Column(db.Integer, db.ForeignKey("milestones.id"), nullable=True)
+    hours_logged = db.Column(db.Float, default=1.0)
+    notes = db.Column(db.Text, default="")
+    session_date = db.Column(db.Date, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    milestone = db.relationship("Milestone", foreign_keys=[milestone_id])
+    roadmap = db.relationship("Roadmap", foreign_keys=[roadmap_id])
 
 
 class ActivityLog(db.Model):

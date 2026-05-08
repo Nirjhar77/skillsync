@@ -1,0 +1,586 @@
+{% extends "base.html" %}
+{% block title %}Study Planner — SkillSync{% endblock %}
+{% block breadcrumbs %}<span>Study Planner</span>{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Layout ─────────────────────────────────────────── */
+.planner-layout {
+    display: grid;
+    grid-template-columns: 340px 1fr 300px;
+    gap: 1.5rem;
+    align-items: start;
+    padding: 1.5rem;
+    max-width: 1400px;
+}
+@media (max-width: 1100px) {
+    .planner-layout { grid-template-columns: 1fr 1fr; }
+    .planner-stats  { grid-column: 1 / -1; }
+}
+@media (max-width: 720px) {
+    .planner-layout { grid-template-columns: 1fr; padding: 1rem; }
+}
+
+/* ── Shared card ────────────────────────────────────── */
+.planner-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+.planner-card-title {
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+.planner-card-title svg { width: 15px; height: 15px; color: var(--accent-cyan); }
+
+/* ── Log form ───────────────────────────────────────── */
+.log-form { display: flex; flex-direction: column; gap: .85rem; }
+.form-group { display: flex; flex-direction: column; gap: .4rem; }
+.form-label { font-size: .78rem; font-weight: 600; color: var(--text-secondary); }
+.form-control {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: .88rem;
+    padding: .6rem .85rem;
+    transition: border-color .2s;
+    width: 100%;
+    box-sizing: border-box;
+}
+.form-control:focus { outline: none; border-color: var(--accent-cyan); }
+.form-control option { background: var(--bg-card); }
+select.form-control { cursor: pointer; }
+textarea.form-control { resize: vertical; min-height: 70px; }
+.hours-row { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+
+/* Submit button */
+.btn-log {
+    background: linear-gradient(135deg, #00d4ff, #7c6fff);
+    border: none;
+    border-radius: 10px;
+    color: #000;
+    cursor: pointer;
+    font-size: .88rem;
+    font-weight: 700;
+    padding: .7rem 1rem;
+    transition: opacity .2s, transform .1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    margin-top: .3rem;
+}
+.btn-log:hover { opacity: .9; transform: translateY(-1px); }
+.btn-log:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── Stats row ──────────────────────────────────────── */
+.planner-stats { grid-column: 1 / -1; }
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+@media (max-width: 720px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+.stat-tile {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 1.1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+}
+.stat-tile-icon { font-size: 1.3rem; margin-bottom: .2rem; }
+.stat-tile-val  { font-size: 1.7rem; font-weight: 800; color: var(--text-primary); line-height: 1; }
+.stat-tile-label { font-size: .72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
+
+/* ── Timeline ───────────────────────────────────────── */
+.timeline-empty {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--text-muted);
+    font-size: .88rem;
+    line-height: 1.7;
+}
+.timeline-empty .empty-icon { font-size: 2.5rem; margin-bottom: .5rem; opacity: .4; }
+.timeline-date-group { margin-bottom: 1.4rem; }
+.timeline-date-label {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .07em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: .7rem;
+    padding-left: .5rem;
+    border-left: 3px solid var(--accent-cyan);
+}
+.session-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: .85rem 1rem;
+    margin-bottom: .55rem;
+    display: flex;
+    align-items: flex-start;
+    gap: .85rem;
+    transition: border-color .2s;
+}
+.session-card:hover { border-color: rgba(0,212,255,.25); }
+.session-hours-badge {
+    background: linear-gradient(135deg, #00d4ff22, #7c6fff22);
+    border: 1px solid rgba(0,212,255,.2);
+    border-radius: 8px;
+    padding: .3rem .55rem;
+    font-size: .8rem;
+    font-weight: 800;
+    color: var(--accent-cyan);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.session-info { flex: 1; min-width: 0; }
+.session-milestone {
+    font-size: .88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.session-notes {
+    font-size: .78rem;
+    color: var(--text-muted);
+    margin-top: .2rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.session-delete {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: .2rem;
+    border-radius: 6px;
+    transition: color .2s;
+    flex-shrink: 0;
+}
+.session-delete:hover { color: #f87171; }
+
+/* ── AI Check-in panel ──────────────────────────────── */
+.checkin-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #7c6fff, #a78bfa);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: .88rem;
+    font-weight: 700;
+    padding: .8rem 1rem;
+    transition: opacity .2s, transform .1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    margin-bottom: 1.2rem;
+}
+.checkin-btn:hover { opacity: .9; transform: translateY(-1px); }
+.checkin-btn:disabled { opacity: .5; cursor: not-allowed; }
+.checkin-loading { display: none; text-align: center; padding: 1rem; font-size: .82rem; color: var(--text-muted); }
+.checkin-report { display: none; }
+.report-summary {
+    font-size: .85rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 1.1rem;
+}
+.report-section-title {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: .5rem;
+}
+.report-chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem; }
+.report-chip {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    font-size: .75rem;
+    font-weight: 600;
+    padding: .25rem .7rem;
+    color: var(--text-secondary);
+}
+.velocity-box {
+    background: linear-gradient(135deg, rgba(0,212,255,.08), rgba(124,111,255,.08));
+    border: 1px solid rgba(124,111,255,.2);
+    border-radius: 10px;
+    padding: .7rem .9rem;
+    font-size: .82rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+.motivational-quote {
+    background: linear-gradient(135deg, rgba(0,212,255,.06), rgba(124,111,255,.06));
+    border-left: 3px solid var(--accent-cyan);
+    border-radius: 0 8px 8px 0;
+    padding: .7rem .9rem;
+    font-size: .84rem;
+    font-style: italic;
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+.no-roadmap-msg {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
+}
+.no-roadmap-msg h2 { font-size: 1.2rem; color: var(--text-primary); margin-bottom: .5rem; }
+.no-roadmap-msg p  { font-size: .88rem; line-height: 1.7; margin-bottom: 1.2rem; }
+
+/* Light mode */
+body.theme-light .planner-card { background: #fff; }
+body.theme-light .stat-tile     { background: #f8fafc; }
+body.theme-light .session-card  { background: #f8fafc; }
+body.theme-light .form-control  { background: #f1f5f9; color: #1e293b; }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if not roadmap %}
+<div class="no-roadmap-msg">
+    <div style="font-size:3rem;margin-bottom:.8rem;">📅</div>
+    <h2>No active roadmap yet</h2>
+    <p>Generate a career roadmap first to start logging your study sessions and tracking your progress.</p>
+    <a href="{{ url_for('career.results') }}" class="btn btn-primary" id="get-roadmap-btn">
+        <i data-lucide="compass" class="btn-icon"></i> Get My Roadmap
+    </a>
+</div>
+{% else %}
+
+<!-- ── Stats row ─────────────────────────────────────── -->
+<div class="planner-layout">
+<div class="planner-stats">
+    <div class="stats-grid">
+        <div class="stat-tile">
+            <div class="stat-tile-icon">⏱️</div>
+            <div class="stat-tile-val" id="stat-total-hours">{{ total_hours }}</div>
+            <div class="stat-tile-label">Total Hours Logged</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-tile-icon">🗓️</div>
+            <div class="stat-tile-val" id="stat-this-week">{{ hours_this_week }}</div>
+            <div class="stat-tile-label">Hours This Week</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-tile-icon">📊</div>
+            <div class="stat-tile-val" id="stat-avg">{{ avg_hours }}</div>
+            <div class="stat-tile-label">Avg Hours / Session</div>
+        </div>
+        <div class="stat-tile">
+            <div class="stat-tile-icon">✅</div>
+            <div class="stat-tile-val" id="stat-sessions">{{ total_sessions }}</div>
+            <div class="stat-tile-label">Total Sessions</div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Left: Log a Session ───────────────────────────── -->
+<div class="planner-card">
+    <div class="planner-card-title">
+        <i data-lucide="plus-circle"></i> Log a Study Session
+    </div>
+    <form class="log-form" id="log-form">
+        <input type="hidden" id="roadmap-id" value="{{ roadmap.id }}">
+
+        <div class="form-group">
+            <label class="form-label" for="milestone-select">Milestone (optional)</label>
+            <select class="form-control" id="milestone-select" name="milestone_id">
+                <option value="">— General Study / No Specific Milestone —</option>
+                {% set current_phase = namespace(val=None) %}
+                {% for m in milestones %}
+                    {% if m.phase_title != current_phase.val %}
+                        {% set current_phase.val = m.phase_title %}
+                        <optgroup label="Phase {{ m.phase_number }}: {{ m.phase_title }}">
+                    {% endif %}
+                    <option value="{{ m.id }}" {% if m.completed %}style="color: var(--text-muted);"{% endif %}>
+                        {{ m.title }}{% if m.completed %} ✓{% endif %}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="hours-row">
+            <div class="form-group">
+                <label class="form-label" for="hours-input">Hours Spent</label>
+                <input type="number" class="form-control" id="hours-input" name="hours"
+                       min="0.5" max="24" step="0.5" value="1.5" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="date-input">Date</label>
+                <input type="date" class="form-control" id="date-input" name="session_date"
+                       value="{{ today }}" max="{{ today }}" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="notes-input">Notes (optional)</label>
+            <textarea class="form-control" id="notes-input" name="notes"
+                      placeholder="What did you learn? Any blockers? Key takeaways..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-log" id="log-btn">
+            <i data-lucide="save"></i> Log Session
+        </button>
+    </form>
+</div>
+
+<!-- ── Center: Timeline ──────────────────────────────── -->
+<div class="planner-card">
+    <div class="planner-card-title">
+        <i data-lucide="clock"></i> Session Timeline
+    </div>
+    <div id="timeline-container">
+        {% if sessions_by_date %}
+            {% for date_label, sessions in sessions_by_date.items() %}
+            <div class="timeline-date-group" id="date-group-{{ loop.index }}">
+                <div class="timeline-date-label">{{ date_label }}</div>
+                {% for s in sessions %}
+                <div class="session-card" id="session-{{ s.id }}">
+                    <div class="session-hours-badge">{{ s.hours_logged }}h</div>
+                    <div class="session-info">
+                        <div class="session-milestone">
+                            {% if s.milestone %}{{ s.milestone.title }}{% else %}General Study{% endif %}
+                        </div>
+                        {% if s.notes %}
+                        <div class="session-notes">{{ s.notes }}</div>
+                        {% endif %}
+                    </div>
+                    <button class="session-delete" onclick="deleteSession({{ s.id }})" title="Delete session">
+                        <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="timeline-empty" id="timeline-empty">
+                <div class="empty-icon">📖</div>
+                <div>No sessions logged yet.</div>
+                <div style="margin-top:.4rem;font-size:.8rem;">Log your first study session to start tracking your progress!</div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ── Right: AI Weekly Check-in ────────────────────── -->
+<div class="planner-card">
+    <div class="planner-card-title">
+        <i data-lucide="sparkles"></i> AI Weekly Check-in
+    </div>
+    <button class="checkin-btn" id="checkin-btn" onclick="getWeeklyCheckin()">
+        <i data-lucide="sparkles"></i> Generate My Weekly Report
+    </button>
+    <div class="checkin-loading" id="checkin-loading">
+        <div style="font-size:1.5rem;margin-bottom:.5rem;">✨</div>
+        <div>Analysing your week...</div>
+    </div>
+    <div class="checkin-report" id="checkin-report"></div>
+    <div style="font-size:.75rem; color: var(--text-muted); line-height:1.6; margin-top: .5rem;">
+        The AI will analyze your study sessions from the past 7 days and generate a personalized progress report using your active roadmap.
+    </div>
+</div>
+
+</div><!-- /.planner-layout -->
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const TODAY = new Date().toISOString().split('T')[0];
+document.getElementById('date-input') && (document.getElementById('date-input').value = TODAY);
+
+// ── Log a session ─────────────────────────────────────
+document.getElementById('log-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('log-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2"></i> Logging...';
+    lucide.createIcons({ nodes: [btn] });
+
+    const payload = {
+        roadmap_id: document.getElementById('roadmap-id').value,
+        milestone_id: document.getElementById('milestone-select').value || null,
+        hours: parseFloat(document.getElementById('hours-input').value),
+        notes: document.getElementById('notes-input').value.trim(),
+        session_date: document.getElementById('date-input').value,
+    };
+
+    try {
+        const res = await fetch('/study-planner/log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.success) {
+            prependSession(data.session);
+            document.getElementById('notes-input').value = '';
+            document.getElementById('hours-input').value = '1.5';
+            updateStatsAfterAdd(data.session.hours_logged);
+            showToast('Session logged! 🎉');
+        } else {
+            showToast('Error: ' + (data.error || 'Unknown error'), true);
+        }
+    } catch (err) {
+        showToast('Network error. Please try again.', true);
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="save"></i> Log Session';
+    lucide.createIcons({ nodes: [btn] });
+});
+
+// Prepend a session card to the timeline
+function prependSession(s) {
+    const container = document.getElementById('timeline-container');
+    const empty = document.getElementById('timeline-empty');
+    if (empty) empty.remove();
+
+    // Check if there's already a group for today
+    let group = document.querySelector(`[data-date="${s.session_date}"]`);
+    if (!group) {
+        group = document.createElement('div');
+        group.className = 'timeline-date-group';
+        group.setAttribute('data-date', s.session_date);
+        group.innerHTML = `<div class="timeline-date-label">${s.session_date}</div>`;
+        container.prepend(group);
+    }
+
+    const card = document.createElement('div');
+    card.className = 'session-card';
+    card.id = `session-${s.id}`;
+    card.innerHTML = `
+        <div class="session-hours-badge">${s.hours_logged}h</div>
+        <div class="session-info">
+            <div class="session-milestone">${s.milestone_title}</div>
+            ${s.notes ? `<div class="session-notes">${s.notes}</div>` : ''}
+        </div>
+        <button class="session-delete" onclick="deleteSession(${s.id})" title="Delete session">
+            <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+        </button>`;
+    group.appendChild(card);
+    lucide.createIcons({ nodes: [card] });
+}
+
+// ── Delete a session ──────────────────────────────────
+async function deleteSession(sessionId) {
+    if (!confirm('Delete this study session?')) return;
+    try {
+        const res = await fetch(`/study-planner/session/${sessionId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+            const el = document.getElementById(`session-${sessionId}`);
+            if (el) el.remove();
+            showToast('Session deleted.');
+        }
+    } catch (err) {
+        showToast('Failed to delete session.', true);
+    }
+}
+
+// ── Update stats counters after add ──────────────────
+let totalHours  = parseFloat(document.getElementById('stat-total-hours')?.textContent || 0);
+let thisWeek    = parseFloat(document.getElementById('stat-this-week')?.textContent || 0);
+let totalSess   = parseInt(document.getElementById('stat-sessions')?.textContent || 0);
+
+function updateStatsAfterAdd(hours) {
+    totalHours = Math.round((totalHours + hours) * 10) / 10;
+    thisWeek   = Math.round((thisWeek   + hours) * 10) / 10;
+    totalSess += 1;
+    const avg  = Math.round((totalHours / totalSess) * 10) / 10;
+
+    document.getElementById('stat-total-hours').textContent = totalHours;
+    document.getElementById('stat-this-week').textContent   = thisWeek;
+    document.getElementById('stat-sessions').textContent    = totalSess;
+    document.getElementById('stat-avg').textContent         = avg;
+}
+
+// ── AI Weekly Check-in ────────────────────────────────
+async function getWeeklyCheckin() {
+    const btn  = document.getElementById('checkin-btn');
+    const load = document.getElementById('checkin-loading');
+    const rep  = document.getElementById('checkin-report');
+
+    btn.disabled = true;
+    load.style.display = 'block';
+    rep.style.display  = 'none';
+
+    try {
+        const res  = await fetch('/study-planner/weekly-checkin', { method: 'POST' });
+        const data = await res.json();
+
+        if (data.success && data.report) {
+            const r = data.report;
+            rep.innerHTML = `
+                <p class="report-summary">${r.summary || ''}</p>
+
+                <div class="report-section-title">✅ Accomplishments</div>
+                <div class="report-chips">
+                    ${(r.accomplishments || []).map(a => `<span class="report-chip">${a}</span>`).join('')}
+                </div>
+
+                <div class="report-section-title">🎯 Next Week's Focus</div>
+                <div class="report-chips">
+                    ${(r.next_focus || []).map(f => `<span class="report-chip" style="border-color:rgba(124,111,255,.3);color:var(--accent-purple, #a78bfa);">${f}</span>`).join('')}
+                </div>
+
+                <div class="report-section-title">📈 Velocity</div>
+                <div class="velocity-box">${r.velocity_note || ''}</div>
+
+                <div class="motivational-quote">"${r.motivational_message || ''}"</div>`;
+            rep.style.display = 'block';
+        } else {
+            rep.innerHTML = `<div style="color:#f87171;font-size:.82rem;">${data.error || 'Failed to generate report.'}</div>`;
+            rep.style.display = 'block';
+        }
+    } catch (err) {
+        rep.innerHTML = `<div style="color:#f87171;font-size:.82rem;">Network error. Please try again.</div>`;
+        rep.style.display = 'block';
+    }
+
+    load.style.display = 'none';
+    btn.disabled = false;
+}
+
+// ── Toast helper ──────────────────────────────────────
+function showToast(msg, isError = false) {
+    const t = document.createElement('div');
+    t.textContent = msg;
+    t.style.cssText = `
+        position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;
+        background:${isError ? '#991b1b' : 'linear-gradient(135deg,#00d4ff,#7c6fff)'};
+        color:${isError ? '#fca5a5' : '#000'};
+        padding:.65rem 1.1rem;border-radius:10px;font-size:.84rem;font-weight:600;
+        box-shadow:0 4px 20px rgba(0,0,0,.3);animation:slideIn .3s ease;`;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+}
+</script>
+{% endblock %}

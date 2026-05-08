@@ -652,7 +652,7 @@
       "category": "Hardware & Embedded",
       "description": "Develop low-level firmware and software for microcontrollers, real-time operating systems, and hardware devices across automotive, medical and consumer electronics industries.",
       "required_skills": {
-        "c_cpp": {"weight": 0.95, "level": "advanced"},
+        "c_plus_plus": {"weight": 0.95, "level": "advanced"},
         "linux": {"weight": 0.7, "level": "intermediate"},
         "networking": {"weight": 0.5, "level": "beginner"},
         "data_structures": {"weight": 0.7, "level": "intermediate"},
@@ -674,7 +674,7 @@
         "networking": {"weight": 0.8, "level": "intermediate"},
         "cloud_computing": {"weight": 0.7, "level": "intermediate"},
         "databases": {"weight": 0.5, "level": "beginner"},
-        "c_cpp": {"weight": 0.6, "level": "intermediate"},
+        "c_plus_plus": {"weight": 0.6, "level": "intermediate"},
         "linux": {"weight": 0.6, "level": "intermediate"},
         "api_design": {"weight": 0.6, "level": "intermediate"}
       },
@@ -688,7 +688,7 @@
       "category": "Hardware & Embedded",
       "description": "Write and maintain low-level embedded firmware for hardware components — working in close proximity to hardware engineers and silicon.",
       "required_skills": {
-        "c_cpp": {"weight": 0.95, "level": "advanced"},
+        "c_plus_plus": {"weight": 0.95, "level": "advanced"},
         "linux": {"weight": 0.7, "level": "intermediate"},
         "data_structures": {"weight": 0.6, "level": "intermediate"},
         "testing": {"weight": 0.5, "level": "beginner"},
@@ -706,7 +706,7 @@
       "description": "Design and develop robotic systems combining mechanical engineering, electronics, and software — from industrial arms to autonomous vehicles.",
       "required_skills": {
         "python": {"weight": 0.8, "level": "intermediate"},
-        "c_cpp": {"weight": 0.8, "level": "advanced"},
+        "c_plus_plus": {"weight": 0.8, "level": "advanced"},
         "machine_learning": {"weight": 0.6, "level": "intermediate"},
         "linear_algebra": {"weight": 0.7, "level": "intermediate"},
         "data_structures": {"weight": 0.6, "level": "intermediate"},
@@ -787,7 +787,45 @@
       "recommended_tools": ["Salesforce", "SAP", "Microsoft Dynamics", "HubSpot", "Excel"],
       "avg_salary_range": "$55,000 - $90,000",
       "growth_outlook": "High"
+    },
+    {
+      "slug": "blockchain_developer",
+      "title": "Blockchain Developer",
+      "category": "Software Development",
+      "description": "Build decentralized applications, smart contracts, and blockchain integrations with secure backend services and wallet-aware user flows.",
+      "required_skills": {
+        "blockchain": {"weight": 0.95, "level": "intermediate"},
+        "smart_contracts": {"weight": 0.9, "level": "intermediate"},
+        "javascript": {"weight": 0.7, "level": "intermediate"},
+        "python": {"weight": 0.5, "level": "beginner"},
+        "api_design": {"weight": 0.7, "level": "intermediate"},
+        "databases": {"weight": 0.5, "level": "beginner"},
+        "security_fundamentals": {"weight": 0.8, "level": "intermediate"},
+        "cryptography": {"weight": 0.7, "level": "intermediate"},
+        "testing": {"weight": 0.5, "level": "beginner"}
+      },
+      "recommended_tools": ["Solidity", "Hardhat", "Ethers.js", "Foundry", "MetaMask"],
+      "avg_salary_range": "$90,000 - $160,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "game_developer",
+      "title": "Game Developer",
+      "category": "Software Development",
+      "description": "Create interactive games and simulations by combining programming, real-time rendering, gameplay systems, physics, and performance optimization.",
+      "required_skills": {
+        "game_development": {"weight": 0.9, "level": "intermediate"},
+        "c_plus_plus": {"weight": 0.8, "level": "intermediate"},
+        "javascript": {"weight": 0.5, "level": "beginner"},
+        "data_structures": {"weight": 0.7, "level": "intermediate"},
+        "algorithms": {"weight": 0.7, "level": "intermediate"},
+        "oop": {"weight": 0.7, "level": "intermediate"},
+        "testing": {"weight": 0.5, "level": "beginner"},
+        "visual_design": {"weight": 0.4, "level": "beginner"}
+      },
+      "recommended_tools": ["Unity", "Unreal Engine", "Godot", "Blender", "Git"],
+      "avg_salary_range": "$60,000 - $120,000",
+      "growth_outlook": "High"
     }
   ]
 }
-
