@@ -67,3 +67,7 @@ def create_app(config_class=Config):
 if __name__ == "__main__":
     app = create_app()
     app.run(debug=True, port=5000)
+
+# Expose the app for WSGI servers like gunicorn (import path: "app:app").
+# This ensures `gunicorn app:app` works with the factory pattern.
+app = create_app()
