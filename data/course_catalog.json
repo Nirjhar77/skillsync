@@ -1,0 +1,835 @@
+{
+  "courses": {
+    "CS101": {
+      "name": "Introduction to Computer Science",
+      "semester": 1,
+      "department": "Computer Science",
+      "skills_covered": {
+        "python": "beginner",
+        "critical_thinking": "beginner",
+        "algorithms": "beginner"
+      }
+    },
+    "CS102": {
+      "name": "Programming Fundamentals",
+      "semester": 1,
+      "department": "Computer Science",
+      "skills_covered": {
+        "python": "intermediate",
+        "oop": "beginner",
+        "data_structures": "beginner"
+      }
+    },
+    "MATH101": {
+      "name": "Calculus I",
+      "semester": 1,
+      "department": "Mathematics",
+      "skills_covered": {
+        "critical_thinking": "beginner",
+        "linear_algebra": "beginner"
+      }
+    },
+    "MATH102": {
+      "name": "Calculus II",
+      "semester": 2,
+      "department": "Mathematics",
+      "skills_covered": {
+        "critical_thinking": "intermediate",
+        "linear_algebra": "beginner"
+      }
+    },
+    "CS201": {
+      "name": "Data Structures & Algorithms",
+      "semester": 2,
+      "department": "Computer Science",
+      "skills_covered": {
+        "data_structures": "intermediate",
+        "algorithms": "intermediate",
+        "python": "intermediate",
+        "oop": "intermediate"
+      }
+    },
+    "CS202": {
+      "name": "Object-Oriented Programming",
+      "semester": 2,
+      "department": "Computer Science",
+      "skills_covered": {
+        "oop": "intermediate",
+        "python": "intermediate",
+        "testing": "beginner"
+      }
+    },
+    "MATH201": {
+      "name": "Linear Algebra",
+      "semester": 3,
+      "department": "Mathematics",
+      "skills_covered": {
+        "linear_algebra": "intermediate",
+        "statistics": "beginner"
+      }
+    },
+    "CS301": {
+      "name": "Probability & Statistics",
+      "semester": 3,
+      "department": "Computer Science",
+      "skills_covered": {
+        "statistics": "intermediate",
+        "data_visualization": "beginner",
+        "excel": "beginner"
+      }
+    },
+    "CS302": {
+      "name": "Database Management Systems",
+      "semester": 3,
+      "department": "Computer Science",
+      "skills_covered": {
+        "sql": "intermediate",
+        "databases": "intermediate",
+        "data_structures": "intermediate"
+      }
+    },
+    "CS303": {
+      "name": "Computer Networks",
+      "semester": 3,
+      "department": "Computer Science",
+      "skills_covered": {
+        "networking": "intermediate",
+        "linux": "beginner",
+        "security_fundamentals": "beginner"
+      }
+    },
+    "CS304": {
+      "name": "Web Development",
+      "semester": 4,
+      "department": "Computer Science",
+      "skills_covered": {
+        "html_css": "intermediate",
+        "javascript": "intermediate",
+        "git": "beginner",
+        "api_design": "beginner"
+      }
+    },
+    "CS305": {
+      "name": "Software Engineering",
+      "semester": 4,
+      "department": "Computer Science",
+      "skills_covered": {
+        "git": "intermediate",
+        "testing": "intermediate",
+        "project_management": "beginner",
+        "system_design": "beginner",
+        "oop": "advanced"
+      }
+    },
+    "CS306": {
+      "name": "Operating Systems",
+      "semester": 4,
+      "department": "Computer Science",
+      "skills_covered": {
+        "linux": "intermediate",
+        "system_design": "beginner",
+        "algorithms": "advanced"
+      }
+    },
+    "CS401": {
+      "name": "Artificial Intelligence",
+      "semester": 5,
+      "department": "Computer Science",
+      "skills_covered": {
+        "machine_learning": "beginner",
+        "python": "advanced",
+        "algorithms": "advanced",
+        "statistics": "intermediate"
+      }
+    },
+    "CS402": {
+      "name": "Machine Learning",
+      "semester": 5,
+      "department": "Computer Science",
+      "skills_covered": {
+        "machine_learning": "intermediate",
+        "python": "advanced",
+        "statistics": "advanced",
+        "linear_algebra": "advanced",
+        "data_visualization": "intermediate"
+      }
+    },
+    "CS403": {
+      "name": "Information Security",
+      "semester": 5,
+      "department": "Computer Science",
+      "skills_covered": {
+        "security_fundamentals": "intermediate",
+        "cryptography": "intermediate",
+        "networking": "intermediate",
+        "incident_response": "beginner"
+      }
+    },
+    "CS404": {
+      "name": "Human-Computer Interaction",
+      "semester": 5,
+      "department": "Computer Science",
+      "skills_covered": {
+        "ui_design": "beginner",
+        "user_research": "beginner",
+        "prototyping": "beginner",
+        "communication": "intermediate"
+      }
+    },
+    "CS501": {
+      "name": "Deep Learning",
+      "semester": 6,
+      "department": "Computer Science",
+      "skills_covered": {
+        "deep_learning": "intermediate",
+        "machine_learning": "advanced",
+        "python": "advanced",
+        "linear_algebra": "advanced"
+      }
+    },
+    "CS502": {
+      "name": "Cloud Computing",
+      "semester": 6,
+      "department": "Computer Science",
+      "skills_covered": {
+        "cloud_computing": "intermediate",
+        "containerization": "beginner",
+        "linux": "intermediate",
+        "networking": "intermediate"
+      }
+    },
+    "CS503": {
+      "name": "Data Science & Analytics",
+      "semester": 6,
+      "department": "Computer Science",
+      "skills_covered": {
+        "data_visualization": "advanced",
+        "statistics": "advanced",
+        "python": "advanced",
+        "sql": "advanced",
+        "machine_learning": "intermediate"
+      }
+    },
+    "BUS301": {
+      "name": "Business Communication",
+      "semester": 4,
+      "department": "Business",
+      "skills_covered": {
+        "communication": "intermediate",
+        "critical_thinking": "intermediate",
+        "business_analysis": "beginner"
+      }
+    },
+    "BUS401": {
+      "name": "Business Analytics",
+      "semester": 5,
+      "department": "Business",
+      "skills_covered": {
+        "business_analysis": "intermediate",
+        "excel": "advanced",
+        "data_visualization": "intermediate",
+        "sql": "beginner"
+      }
+    },
+    "CS505": {
+      "name": "Advanced Web Technologies",
+      "semester": 6,
+      "department": "Computer Science",
+      "skills_covered": {
+        "javascript": "advanced",
+        "react_or_frontend": "intermediate",
+        "api_design": "intermediate",
+        "html_css": "advanced",
+        "git": "advanced"
+      }
+    },
+    "CS601": {
+      "name": "DevOps & Automation",
+      "semester": 7,
+      "department": "Computer Science",
+      "skills_covered": {
+        "containerization": "intermediate",
+        "cloud_computing": "intermediate",
+        "git": "advanced",
+        "linux": "advanced",
+        "mlops": "beginner"
+      }
+    },
+    "CS602": {
+      "name": "Capstone Project I",
+      "semester": 7,
+      "department": "Computer Science",
+      "skills_covered": {
+        "project_management": "intermediate",
+        "system_design": "intermediate",
+        "communication": "advanced",
+        "testing": "intermediate"
+      }
+    },
+    "MATH301": {
+      "name": "Discrete Mathematics",
+      "semester": 3,
+      "department": "Mathematics",
+      "skills_covered": {
+        "algorithms": "intermediate",
+        "critical_thinking": "advanced",
+        "cryptography": "beginner"
+      }
+    },
+    "CS603": {
+      "name": "Capstone Project II",
+      "semester": 8,
+      "department": "Computer Science",
+      "skills_covered": {
+        "project_management": "advanced",
+        "system_design": "advanced",
+        "communication": "advanced"
+      }
+    },
+    "CS504": {
+      "name": "Computer Vision",
+      "semester": 7,
+      "department": "Computer Science",
+      "skills_covered": {
+        "deep_learning": "advanced",
+        "python": "advanced",
+        "machine_learning": "advanced"
+      }
+    },
+    "BUS501": {
+      "name": "Product Management Fundamentals",
+      "semester": 6,
+      "department": "Business",
+      "skills_covered": {
+        "project_management": "intermediate",
+        "user_research": "intermediate",
+        "communication": "advanced",
+        "business_analysis": "intermediate",
+        "visual_design": "beginner"
+      }
+    },
+    "CYBER101": {
+      "name": "Programming Fundamentals",
+      "semester": 1,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "python": "beginner",
+        "algorithms": "beginner"
+      }
+    },
+    "CYBER102": {
+      "name": "Logic Design",
+      "semester": 1,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "hardware_design": "beginner"
+      }
+    },
+    "CYBER201": {
+      "name": "Data Structures",
+      "semester": 2,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "data_structures": "intermediate",
+        "algorithms": "intermediate"
+      }
+    },
+    "CYBER202": {
+      "name": "Introduction to Networking",
+      "semester": 2,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "networking": "beginner"
+      }
+    },
+    "CYBER301": {
+      "name": "Operating Systems",
+      "semester": 3,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "linux": "beginner",
+        "system_design": "beginner"
+      }
+    },
+    "CYBER302": {
+      "name": "Network Fundamentals",
+      "semester": 3,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "networking": "intermediate"
+      }
+    },
+    "CYBER303": {
+      "name": "Secure Programming Basics",
+      "semester": 3,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "security_fundamentals": "beginner",
+        "python": "intermediate"
+      }
+    },
+    "CYBER401": {
+      "name": "Computer Security",
+      "semester": 4,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "security_fundamentals": "intermediate"
+      }
+    },
+    "CYBER402": {
+      "name": "Cryptography Basics",
+      "semester": 4,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "cryptography": "beginner",
+        "algorithms": "intermediate"
+      }
+    },
+    "CYBER403": {
+      "name": "Database Security",
+      "semester": 4,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "databases": "intermediate",
+        "security_fundamentals": "intermediate"
+      }
+    },
+    "CYBER404": {
+      "name": "Linux Administration",
+      "semester": 4,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "linux": "intermediate"
+      }
+    },
+    "CYBER501": {
+      "name": "Ethical Hacking",
+      "semester": 5,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "security_fundamentals": "advanced",
+        "networking": "advanced"
+      }
+    },
+    "CYBER502": {
+      "name": "Web Security",
+      "semester": 5,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "security_fundamentals": "advanced",
+        "html_css": "intermediate"
+      }
+    },
+    "CYBER503": {
+      "name": "Digital Forensics",
+      "semester": 5,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "incident_response": "beginner",
+        "linux": "advanced"
+      }
+    },
+    "CYBER504": {
+      "name": "Secure Coding",
+      "semester": 5,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "python": "advanced",
+        "security_fundamentals": "advanced"
+      }
+    },
+    "CYBER601": {
+      "name": "Malware Analysis",
+      "semester": 6,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "security_fundamentals": "advanced",
+        "cryptography": "intermediate"
+      }
+    },
+    "CYBER602": {
+      "name": "Incident Response",
+      "semester": 6,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "incident_response": "intermediate"
+      }
+    },
+    "CYBER603": {
+      "name": "Network Security",
+      "semester": 6,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "networking": "advanced",
+        "security_fundamentals": "advanced"
+      }
+    },
+    "CYBER604": {
+      "name": "Cloud Security",
+      "semester": 6,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "cloud_computing": "intermediate",
+        "security_fundamentals": "advanced"
+      }
+    },
+    "CYBER701": {
+      "name": "Penetration Testing",
+      "semester": 7,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "security_fundamentals": "advanced",
+        "linux": "advanced"
+      }
+    },
+    "CYBER702": {
+      "name": "Threat Intelligence",
+      "semester": 7,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "incident_response": "advanced",
+        "data_analysis": "intermediate"
+      }
+    },
+    "CYBER703": {
+      "name": "Reverse Engineering",
+      "semester": 7,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "algorithms": "advanced",
+        "security_fundamentals": "advanced"
+      }
+    },
+    "CYBER704": {
+      "name": "Application Security",
+      "semester": 7,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "security_fundamentals": "advanced",
+        "api_design": "intermediate"
+      }
+    },
+    "DS101": {
+      "name": "Programming Fundamentals",
+      "semester": 1,
+      "department": "Data Science",
+      "skills_covered": {
+        "python": "beginner",
+        "algorithms": "beginner"
+      }
+    },
+    "DS102": {
+      "name": "Calculus",
+      "semester": 1,
+      "department": "Data Science",
+      "skills_covered": {
+        "critical_thinking": "intermediate"
+      }
+    },
+    "DS201": {
+      "name": "Data Structures",
+      "semester": 2,
+      "department": "Data Science",
+      "skills_covered": {
+        "data_structures": "intermediate",
+        "python": "intermediate"
+      }
+    },
+    "DS202": {
+      "name": "Probability",
+      "semester": 2,
+      "department": "Data Science",
+      "skills_covered": {
+        "statistics": "beginner"
+      }
+    },
+    "DS203": {
+      "name": "Statistics I",
+      "semester": 2,
+      "department": "Data Science",
+      "skills_covered": {
+        "statistics": "intermediate",
+        "excel": "intermediate"
+      }
+    },
+    "DS204": {
+      "name": "Linear Algebra",
+      "semester": 2,
+      "department": "Data Science",
+      "skills_covered": {
+        "linear_algebra": "intermediate"
+      }
+    },
+    "DS301": {
+      "name": "Database Systems",
+      "semester": 3,
+      "department": "Data Science",
+      "skills_covered": {
+        "sql": "intermediate",
+        "databases": "intermediate"
+      }
+    },
+    "DS302": {
+      "name": "Data Wrangling",
+      "semester": 3,
+      "department": "Data Science",
+      "skills_covered": {
+        "python": "intermediate",
+        "excel": "advanced"
+      }
+    },
+    "DS303": {
+      "name": "Python for Data Science",
+      "semester": 3,
+      "department": "Data Science",
+      "skills_covered": {
+        "python": "advanced",
+        "data_visualization": "beginner"
+      }
+    },
+    "DS401": {
+      "name": "Data Visualization",
+      "semester": 4,
+      "department": "Data Science",
+      "skills_covered": {
+        "data_visualization": "intermediate",
+        "python": "advanced"
+      }
+    },
+    "DS402": {
+      "name": "Machine Learning Basics",
+      "semester": 4,
+      "department": "Data Science",
+      "skills_covered": {
+        "machine_learning": "beginner",
+        "statistics": "advanced"
+      }
+    },
+    "DS403": {
+      "name": "Exploratory Data Analysis",
+      "semester": 4,
+      "department": "Data Science",
+      "skills_covered": {
+        "statistics": "advanced",
+        "data_visualization": "advanced"
+      }
+    },
+    "DS501": {
+      "name": "Applied Machine Learning",
+      "semester": 5,
+      "department": "Data Science",
+      "skills_covered": {
+        "machine_learning": "intermediate",
+        "python": "advanced"
+      }
+    },
+    "DS502": {
+      "name": "Big Data Analytics",
+      "semester": 5,
+      "department": "Data Science",
+      "skills_covered": {
+        "sql": "advanced",
+        "cloud_computing": "beginner"
+      }
+    },
+    "DS503": {
+      "name": "Data Mining",
+      "semester": 5,
+      "department": "Data Science",
+      "skills_covered": {
+        "machine_learning": "intermediate",
+        "databases": "advanced"
+      }
+    },
+    "DS504": {
+      "name": "SQL for Analytics",
+      "semester": 5,
+      "department": "Data Science",
+      "skills_covered": {
+        "sql": "advanced",
+        "business_analysis": "beginner"
+      }
+    },
+    "DS601": {
+      "name": "Deep Learning",
+      "semester": 6,
+      "department": "Data Science",
+      "skills_covered": {
+        "deep_learning": "intermediate",
+        "machine_learning": "advanced"
+      }
+    },
+    "DS602": {
+      "name": "Natural Language Processing",
+      "semester": 6,
+      "department": "Data Science",
+      "skills_covered": {
+        "machine_learning": "advanced",
+        "python": "advanced"
+      }
+    },
+    "DS603": {
+      "name": "Cloud Data Platforms",
+      "semester": 6,
+      "department": "Data Science",
+      "skills_covered": {
+        "cloud_computing": "intermediate",
+        "databases": "advanced"
+      }
+    },
+    "DS701": {
+      "name": "Advanced Machine Learning",
+      "semester": 7,
+      "department": "Data Science",
+      "skills_covered": {
+        "machine_learning": "advanced",
+        "algorithms": "advanced"
+      }
+    },
+    "DS702": {
+      "name": "MLOps Basics",
+      "semester": 7,
+      "department": "Data Science",
+      "skills_covered": {
+        "mlops": "beginner",
+        "cloud_computing": "intermediate"
+      }
+    },
+    "DS703": {
+      "name": "Business Analytics",
+      "semester": 7,
+      "department": "Data Science",
+      "skills_covered": {
+        "business_analysis": "intermediate",
+        "data_visualization": "advanced"
+      }
+    },
+    "ECE801": {
+      "name": "Advanced Mobile Communication",
+      "semester": 8,
+      "department": "Electronics Engineering",
+      "skills_covered": {
+        "networking": "advanced"
+      }
+    },
+    "ECE802": {
+      "name": "Nanoelectronics",
+      "semester": 8,
+      "department": "Electronics Engineering",
+      "skills_covered": {
+        "hardware_design": "advanced"
+      }
+    },
+    "ECE803": {
+      "name": "Image Processing",
+      "semester": 8,
+      "department": "Electronics Engineering",
+      "skills_covered": {
+        "algorithms": "advanced",
+        "python": "intermediate"
+      }
+    },
+    "ECE804": {
+      "name": "ECE Capstone: Embedded System Design",
+      "semester": 8,
+      "department": "Electronics Engineering",
+      "skills_covered": {
+        "c_plus_plus": "advanced",
+        "iot": "advanced",
+        "project_management": "advanced"
+      }
+    },
+    "EEE801": {
+      "name": "Advanced Power Electronics",
+      "semester": 8,
+      "department": "Electrical Engineering",
+      "skills_covered": {
+        "hardware_design": "advanced"
+      }
+    },
+    "EEE802": {
+      "name": "EEE Capstone: Energy Management Project",
+      "semester": 8,
+      "department": "Electrical Engineering",
+      "skills_covered": {
+        "data_analysis": "intermediate",
+        "project_management": "advanced"
+      }
+    },
+    "MECH801": {
+      "name": "Advanced Machine Design",
+      "semester": 8,
+      "department": "Mechanical Engineering",
+      "skills_covered": {
+        "autocad": "advanced",
+        "algorithms": "intermediate"
+      }
+    },
+    "MECH802": {
+      "name": "Smart Manufacturing",
+      "semester": 8,
+      "department": "Mechanical Engineering",
+      "skills_covered": {
+        "iot": "intermediate",
+        "data_analysis": "beginner"
+      }
+    },
+    "MECH803": {
+      "name": "Mechanical Capstone: Renewable Energy Systems",
+      "semester": 8,
+      "department": "Mechanical Engineering",
+      "skills_covered": {
+        "project_management": "advanced",
+        "system_design": "intermediate"
+      }
+    },
+    "CYBER801": {
+      "name": "Advanced Cryptography",
+      "semester": 8,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "cryptography": "advanced",
+        "algorithms": "advanced"
+      }
+    },
+    "CYBER802": {
+      "name": "Security Governance",
+      "semester": 8,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "security_fundamentals": "advanced",
+        "business_analysis": "intermediate"
+      }
+    },
+    "CYBER803": {
+      "name": "Cybersecurity Capstone: Threat Simulation Lab",
+      "semester": 8,
+      "department": "Cybersecurity",
+      "skills_covered": {
+        "project_management": "advanced",
+        "incident_response": "advanced",
+        "linux": "advanced"
+      }
+    },
+    "DS801": {
+      "name": "Data Engineering Basics",
+      "semester": 8,
+      "department": "Data Science",
+      "skills_covered": {
+        "cloud_computing": "intermediate",
+        "sql": "advanced",
+        "databases": "advanced"
+      }
+    },
+    "DS802": {
+      "name": "Data Science Capstone: AI Predictive Modeling",
+      "semester": 8,
+      "department": "Data Science",
+      "skills_covered": {
+        "machine_learning": "advanced",
+        "python": "advanced",
+        "project_management": "advanced"
+      }
+    }
+  }
+}

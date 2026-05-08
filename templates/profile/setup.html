@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% block title %}Profile Setup — SkillSync{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i data-lucide="user-cog" class="title-icon"></i>
+            Profile Setup
+        </h1>
+        <p class="page-subtitle">Tell us about yourself so we can find the best career paths for you</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('profile.setup') }}" class="setup-form" id="profile-form">
+        <!-- Step 1: Basic Info -->
+        <div class="form-section glass-card" id="section-basic">
+            <div class="section-header">
+                <span class="section-number">1</span>
+                <div>
+                    <h2 class="section-title">Basic Information</h2>
+                    <p class="section-desc">Your academic details</p>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="major" class="form-label">Major / Department</label>
+                    <select id="major" name="major" class="form-select" required>
+                        <option value="">Select your major</option>
+                        {% for m in major_options %}
+                        <option value="{{ m }}" {% if profile and profile.major == m %}selected{% endif %}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="semester" class="form-label">Current Semester</label>
+                    <select id="semester" name="semester" class="form-select" required>
+                        {% for s in range(1, 9) %}
+                        <option value="{{ s }}" {% if profile and profile.semester == s %}selected{% endif %}>Semester {{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="total_semesters" class="form-label">Total Semesters</label>
+                    <select id="total_semesters" name="total_semesters" class="form-select">
+                        {% for s in range(6, 13) %}
+                        <option value="{{ s }}" {% if profile and profile.total_semesters == s %}selected{% elif not profile and s == 8 %}selected{% endif %}>{{ s }} Semesters</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="location" class="form-label">Location</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="map-pin" class="input-icon"></i>
+                        <input type="text" id="location" name="location" class="form-input" placeholder="e.g. Dhaka, Bangladesh" value="{{ profile.location if profile and profile.location else '' }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="hours_per_week" class="form-label">Available Study Hours / Week</label>
+                    <div class="range-group">
+                        <input type="range" id="hours_per_week" name="hours_per_week" min="2" max="40" value="{{ profile.hours_per_week if profile else 10 }}" class="form-range" oninput="document.getElementById('hours-display').textContent = this.value + ' hrs/week'">
+                        <span id="hours-display" class="range-value">{{ profile.hours_per_week if profile else 10 }} hrs/week</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Interests -->
+        <div class="form-section glass-card" id="section-interests">
+            <div class="section-header">
+                <span class="section-number">2</span>
+                <div>
+                    <h2 class="section-title">Interests & Aptitudes</h2>
+                    <p class="section-desc">Select what excites you — pick from topics you like <em>and</em> activities you enjoy (pick at least 2)</p>
+                </div>
+            </div>
+
+            {% set selected_interests = profile.get_interests() if profile else [] %}
+            {% set topic_interests = [
+                "Data Analysis", "Machine Learning", "Artificial Intelligence",
+                "Web Development", "Software Development", "Cybersecurity",
+                "Cloud Computing", "UX Design", "Product Management",
+                "Mobile Development", "Game Development", "Database Administration",
+                "Networking & Infrastructure", "DevOps & Automation", "Deep Learning",
+                "Embedded Systems", "IoT", "Blockchain", "Robotics", 
+                "Hardware Engineering", "Data Engineering", "Enterprise Systems", 
+                "Quality Assurance"
+            ] %}
+            {% set activity_interests = [
+                "Solving Puzzles & Logic", "Building Products", "Designing Interfaces",
+                "Analyzing Data", "Securing Systems", "Working with Hardware", "Leading Teams"
+            ] %}
+
+            <p style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 0.75rem;">
+                Tech Topics
+            </p>
+            <div class="chips-grid" style="margin-bottom: 1.5rem;">
+                {% for interest in topic_interests %}
+                <label class="chip" id="interest-chip-{{ loop.index }}">
+                    <input type="checkbox" name="interests" value="{{ interest }}" {% if interest in selected_interests %}checked{% endif %}>
+                    <span class="chip-text">{{ interest }}</span>
+                </label>
+                {% endfor %}
+            </div>
+
+            <p style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 0.75rem;">
+                <i data-lucide="zap" style="width: 13px; height: 13px; color: var(--accent-cyan); vertical-align: middle; margin-right: 4px;"></i>
+                What Do You Enjoy Doing?
+            </p>
+            <div class="chips-grid">
+                {% for interest in activity_interests %}
+                <label class="chip chip-activity" id="activity-chip-{{ loop.index }}">
+                    <input type="checkbox" name="interests" value="{{ interest }}" {% if interest in selected_interests %}checked{% endif %}>
+                    <span class="chip-text">{{ interest }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+
+        <!-- Step 3: Skills -->
+        <div class="form-section glass-card" id="section-skills">
+            <div class="section-header">
+                <span class="section-number">3</span>
+                <div>
+                    <h2 class="section-title">Your Skills</h2>
+                    <p class="section-desc">Add skills you already have (optional but helps with matching)</p>
+                </div>
+            </div>
+
+            <div id="skills-container">
+                {% if existing_skills %}
+                    {% for skill_name, prof in existing_skills %}
+                    <div class="skill-row">
+                        <select name="skills" class="form-select skill-select">
+                            <option value="">Select a skill</option>
+                            {% for s in available_skills %}
+                            <option value="{{ s }}" {% if s == skill_name %}selected{% endif %}>{{ s | replace('_', ' ') | title }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="proficiencies" class="form-select prof-select">
+                            <option value="beginner" {% if prof == 'beginner' %}selected{% endif %}>Beginner</option>
+                            <option value="intermediate" {% if prof == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                            <option value="advanced" {% if prof == 'advanced' %}selected{% endif %}>Advanced</option>
+                        </select>
+                        <button type="button" class="btn btn-icon btn-danger" onclick="this.parentElement.remove()">
+                            <i data-lucide="trash-2"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="skill-row">
+                        <select name="skills" class="form-select skill-select">
+                            <option value="">Select a skill</option>
+                            {% for s in available_skills %}
+                            <option value="{{ s }}">{{ s | replace('_', ' ') | title }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="proficiencies" class="form-select prof-select">
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                        <button type="button" class="btn btn-icon btn-danger" onclick="this.parentElement.remove()">
+                            <i data-lucide="trash-2"></i>
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="button" class="btn btn-secondary btn-sm" id="add-skill-btn" onclick="addSkillRow()">
+                <i data-lucide="plus" class="btn-icon"></i>
+                <span>Add Skill</span>
+            </button>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" id="save-profile-btn">
+            <span>Save & Continue to Courses</span>
+            <i data-lucide="arrow-right" class="btn-icon"></i>
+        </button>
+    </form>
+</div>
+
+<script id="available-skills-data" type="application/json">
+{{ available_skills | tojson }}
+</script>
+<script>
+const availableSkills = JSON.parse(document.getElementById('available-skills-data').textContent);
+
+function addSkillRow() {
+    const container = document.getElementById('skills-container');
+    const row = document.createElement('div');
+    row.className = 'skill-row';
+    row.innerHTML = `
+        <select name="skills" class="form-select skill-select">
+            <option value="">Select a skill</option>
+            ${availableSkills.map(s => `<option value="${s}">${s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</option>`).join('')}
+        </select>
+        <select name="proficiencies" class="form-select prof-select">
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+        </select>
+        <button type="button" class="btn btn-icon btn-danger" onclick="this.parentElement.remove()">
+            <i data-lucide="trash-2"></i>
+        </button>
+    `;
+    container.appendChild(row);
+    lucide.createIcons();
+}
+</script>
+{% endblock %}

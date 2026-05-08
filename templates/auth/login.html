@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Login — SkillSync{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card glass-card">
+        <div class="auth-header">
+            <a href="{{ url_for('auth.index') }}" class="auth-logo-link">
+                <img src="{{ url_for('static', filename='images/logo-full.png') }}" alt="SkillSync" class="auth-logo-img">
+            </a>
+            <h1>Welcome Back</h1>
+            <p class="auth-subtitle">Sign in to continue your career journey</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form" id="login-form">
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <div class="input-wrapper">
+                    <i data-lucide="user" class="input-icon"></i>
+                    <input type="text" id="username" name="username" class="form-input" placeholder="Enter your username" required autocomplete="username">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-wrapper">
+                    <i data-lucide="lock" class="input-icon"></i>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required autocomplete="current-password">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+                <span>Sign In</span>
+                <i data-lucide="arrow-right" class="btn-icon"></i>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="{{ url_for('auth.register') }}" class="auth-link">Create one</a></p>
+            <p style="margin-top: 10px;">
+                <a href="{{ url_for('auth.guest_login') }}" class="auth-link" style="color: var(--text-muted); font-size: 0.85rem;">
+                    <i data-lucide="user" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i>
+                    Or continue as a guest
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <div class="auth-decoration">
+        <div class="decoration-orb orb-1"></div>
+        <div class="decoration-orb orb-2"></div>
+        <div class="decoration-orb orb-3"></div>
+    </div>
+</div>
+{% endblock %}

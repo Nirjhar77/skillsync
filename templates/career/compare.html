@@ -1,0 +1,730 @@
+{% extends "base.html" %}
+{% block title %}Compare Career Paths — SkillSync{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ═══════════════════ COMPARE PAGE ═══════════════════ */
+.compare-page {
+    padding: 32px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.compare-header {
+    margin-bottom: 32px;
+}
+
+.compare-header h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #7c6fff, #00d4ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+}
+
+.compare-header p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+/* ── Selector Card ── */
+.selector-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+
+.selector-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.selector-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.selector-group select {
+    width: 100%;
+    background: var(--surface-elevated);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.selector-group select:focus { border-color: #7c6fff; }
+
+.selector-group select option {
+    background: #111827; /* Dark background to fix white browser default */
+    color: #f8fafc; /* Light text */
+    padding: 8px;
+}
+
+.vs-badge {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #7c6fff22, #00d4ff22);
+    border: 1px solid #7c6fff44;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #7c6fff;
+    flex-shrink: 0;
+    margin-bottom: 2px;
+}
+
+.compare-btn {
+    background: linear-gradient(135deg, #7c6fff, #00d4ff);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 28px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    white-space: nowrap;
+}
+.compare-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* ── Empty State ── */
+.compare-empty {
+    text-align: center;
+    padding: 64px 24px;
+    color: var(--text-muted);
+}
+.compare-empty .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+.compare-empty p { font-size: 0.95rem; margin-top: 8px; }
+
+/* ── Comparison Grid ── */
+.comparison-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Career Title Row */
+.career-titles {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.career-title-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    text-align: center;
+}
+.career-title-card.card-a { border-color: #7c6fff55; }
+.career-title-card.card-b { border-color: #00d4ff55; }
+
+.career-title-card .career-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+}
+.card-a .career-label { color: #7c6fff; }
+.card-b .career-label { color: #00d4ff; }
+
+.career-title-card h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.career-title-card .career-cat {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.career-title-card .readiness-ring {
+    font-size: 2rem;
+    font-weight: 900;
+    margin: 14px 0 4px;
+}
+.card-a .readiness-ring { color: #7c6fff; }
+.card-b .readiness-ring { color: #00d4ff; }
+
+.career-title-card .readiness-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.vs-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vs-pill {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7c6fff33, #00d4ff33);
+    border: 2px solid #7c6fff66;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: var(--text-secondary);
+}
+
+/* Section Title */
+.section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+/* ── Metric Row Cards ── */
+.metrics-row {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.metric-cell {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+    transition: border-color 0.2s;
+}
+
+.metric-cell.winner-a { border-color: #7c6fff55; background: #7c6fff08; }
+.metric-cell.winner-b { border-color: #00d4ff55; background: #00d4ff08; }
+
+.metric-cell .metric-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.metric-cell .metric-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.metric-cell .metric-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.metric-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.metric-connector .metric-name {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.winner-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.winner-badge.badge-a { background: #7c6fff22; color: #7c6fff; }
+.winner-badge.badge-b { background: #00d4ff22; color: #00d4ff; }
+.winner-badge.badge-tie { background: #ffffff11; color: var(--text-muted); }
+
+/* ── Difficulty Dots ── */
+.difficulty-dots {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+}
+.dot.filled-a { background: #7c6fff; }
+.dot.filled-b { background: #00d4ff; }
+
+/* ── Skill Overlap Card ── */
+.overlap-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.overlap-bar-wrap {
+    background: var(--surface-elevated);
+    border-radius: 8px;
+    height: 10px;
+    overflow: hidden;
+    margin: 12px 0;
+}
+.overlap-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7c6fff, #00d4ff);
+    border-radius: 8px;
+    transition: width 1s ease;
+}
+
+.overlap-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.overlap-col {
+    background: var(--surface-elevated);
+    border-radius: 10px;
+    padding: 14px;
+}
+
+.overlap-col-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+}
+.col-shared .overlap-col-title { color: var(--text-muted); }
+.col-a .overlap-col-title { color: #7c6fff; }
+.col-b .overlap-col-title { color: #00d4ff; }
+
+.skill-pill {
+    display: inline-block;
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin: 3px 2px;
+    font-weight: 500;
+}
+.skill-pill.shared { background: #ffffff11; color: var(--text-secondary); }
+.skill-pill.unique-a { background: #7c6fff22; color: #7c6fff; }
+.skill-pill.unique-b { background: #00d4ff22; color: #00d4ff; }
+
+/* ── CTA Row ── */
+.cta-row {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    gap: 12px;
+}
+
+.cta-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+}
+
+.cta-card .best-for-text {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+    line-height: 1.5;
+}
+.cta-card .challenge-text {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    font-style: italic;
+}
+
+.btn-decide-a {
+    display: inline-block;
+    background: linear-gradient(135deg, #7c6fff, #5b4fd4);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.1s;
+}
+.btn-decide-b {
+    display: inline-block;
+    background: linear-gradient(135deg, #00d4ff, #0099cc);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.1s;
+}
+.btn-decide-a:hover, .btn-decide-b:hover {
+    opacity: 0.88;
+    transform: translateY(-2px);
+}
+
+/* ── Back link ── */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    transition: color 0.2s;
+}
+.back-link:hover { color: var(--text-primary); }
+
+@media (max-width: 700px) {
+    .career-titles, .metrics-row, .cta-row { grid-template-columns: 1fr; }
+    .vs-center, .metric-connector { display: none; }
+    .overlap-split { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="compare-page">
+    <a href="{{ url_for('career.results') }}" class="back-link">
+        <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
+        Back to Results
+    </a>
+
+    <div class="compare-header">
+        <h1>⚖️ Career Decision Engine</h1>
+        <p>Compare two career paths side-by-side to understand trade-offs and find your best fit.</p>
+    </div>
+
+    <!-- ── Selector ── -->
+    <form method="GET" action="{{ url_for('career.compare') }}">
+        <div class="selector-card">
+            <div class="selector-group">
+                <label>Career Path A</label>
+                <select name="a" id="select-a" required>
+                    <option value="">— Pick a path —</option>
+                    {% for career in scored_careers %}
+                    <option value="{{ career.slug }}" {% if selected_a == career.slug %}selected{% endif %}>
+                        {{ career.title }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="vs-badge">VS</div>
+
+            <div class="selector-group">
+                <label>Career Path B</label>
+                <select name="b" id="select-b" required>
+                    <option value="">— Pick a path —</option>
+                    {% for career in scored_careers %}
+                    <option value="{{ career.slug }}" {% if selected_b == career.slug %}selected{% endif %}>
+                        {{ career.title }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="compare-btn">
+                <i data-lucide="git-compare" style="width:15px;height:15px;vertical-align:middle;margin-right:6px;"></i>
+                Compare
+            </button>
+        </div>
+    </form>
+
+    <!-- ── Results ── -->
+    {% if comparison %}
+    {% set a = comparison.career_a %}
+    {% set b = comparison.career_b %}
+    {% set ov = comparison.overlap %}
+    {% set v = comparison.verdicts %}
+
+    <div class="comparison-grid">
+
+        <!-- Career Title Cards -->
+        <div class="career-titles">
+            <div class="career-title-card card-a">
+                <div class="career-label">Path A</div>
+                <h2>{{ a.title }}</h2>
+                <div class="career-cat">{{ a.category }}</div>
+                <div class="readiness-ring">{{ a.score|int }}%</div>
+                <div class="readiness-label">Your Match Score</div>
+            </div>
+            <div class="vs-center">
+                <div class="vs-pill">VS</div>
+            </div>
+            <div class="career-title-card card-b">
+                <div class="career-label">Path B</div>
+                <h2>{{ b.title }}</h2>
+                <div class="career-cat">{{ b.category }}</div>
+                <div class="readiness-ring">{{ b.score|int }}%</div>
+                <div class="readiness-label">Your Match Score</div>
+            </div>
+        </div>
+
+        <!-- ── Metrics ── -->
+        <div class="section-title">
+            <i data-lucide="bar-chart-2" style="width:14px;height:14px;"></i>
+            Key Metrics
+        </div>
+
+        <!-- Salary -->
+        <div class="metrics-row">
+            <div class="metric-cell {% if v.salary == 'a' %}winner-a{% elif v.salary == 'b' %}winner-b{% endif %}">
+                <div class="metric-label">Salary Range</div>
+                <div class="metric-value">{{ a.fit.salary_range }}</div>
+                <div class="metric-sub">{{ a.fit.growth }} growth</div>
+            </div>
+            <div class="metric-connector">
+                <div class="metric-name">Salary</div>
+                <span class="winner-badge {% if v.salary == 'a' %}badge-a{% elif v.salary == 'b' %}badge-b{% else %}badge-tie{% endif %}">
+                    {% if v.salary == 'a' %}A wins{% elif v.salary == 'b' %}B wins{% else %}Tie{% endif %}
+                </span>
+            </div>
+            <div class="metric-cell {% if v.salary == 'b' %}winner-b{% elif v.salary == 'a' %}winner-a{% endif %}">
+                <div class="metric-label">Salary Range</div>
+                <div class="metric-value">{{ b.fit.salary_range }}</div>
+                <div class="metric-sub">{{ b.fit.growth }} growth</div>
+            </div>
+        </div>
+
+        <!-- Difficulty -->
+        <div class="metrics-row">
+            <div class="metric-cell {% if v.difficulty == 'a' %}winner-a{% elif v.difficulty == 'b' %}winner-b{% endif %}">
+                <div class="metric-label">Difficulty</div>
+                <div class="metric-value">{{ a.fit.difficulty }}</div>
+                <div class="difficulty-dots">
+                    {% for i in range(5) %}
+                    <span class="dot {% if i < a.fit.difficulty_score %}filled-a{% endif %}"></span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="metric-connector">
+                <div class="metric-name">Difficulty</div>
+                <span class="winner-badge {% if v.difficulty == 'a' %}badge-a{% elif v.difficulty == 'b' %}badge-b{% else %}badge-tie{% endif %}">
+                    {% if v.difficulty == 'a' %}Easier{% elif v.difficulty == 'b' %}Easier{% else %}Same{% endif %}
+                </span>
+            </div>
+            <div class="metric-cell {% if v.difficulty == 'b' %}winner-b{% elif v.difficulty == 'a' %}winner-a{% endif %}">
+                <div class="metric-label">Difficulty</div>
+                <div class="metric-value">{{ b.fit.difficulty }}</div>
+                <div class="difficulty-dots">
+                    {% for i in range(5) %}
+                    <span class="dot {% if i < b.fit.difficulty_score %}filled-b{% endif %}"></span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Demand -->
+        <div class="metrics-row">
+            <div class="metric-cell {% if v.demand == 'a' %}winner-a{% elif v.demand == 'b' %}winner-b{% endif %}">
+                <div class="metric-label">Market Demand</div>
+                <div class="metric-value">{{ a.fit.demand }}</div>
+                <div class="metric-sub">Entry Barrier: {{ a.fit.entry_barrier }}</div>
+            </div>
+            <div class="metric-connector">
+                <div class="metric-name">Demand</div>
+                <span class="winner-badge {% if v.demand == 'a' %}badge-a{% elif v.demand == 'b' %}badge-b{% else %}badge-tie{% endif %}">
+                    {% if v.demand == 'a' %}A wins{% elif v.demand == 'b' %}B wins{% else %}Tie{% endif %}
+                </span>
+            </div>
+            <div class="metric-cell {% if v.demand == 'b' %}winner-b{% elif v.demand == 'a' %}winner-a{% endif %}">
+                <div class="metric-label">Market Demand</div>
+                <div class="metric-value">{{ b.fit.demand }}</div>
+                <div class="metric-sub">Entry Barrier: {{ b.fit.entry_barrier }}</div>
+            </div>
+        </div>
+
+        <!-- Time to Ready -->
+        <div class="metrics-row">
+            <div class="metric-cell {% if v.time_to_ready == 'a' %}winner-a{% elif v.time_to_ready == 'b' %}winner-b{% endif %}">
+                <div class="metric-label">Time to Job-Ready</div>
+                <div class="metric-value">~{{ a.fit.estimated_months_to_ready }} months</div>
+                <div class="metric-sub">{{ a.fit.matched_count }} skills matched · {{ a.fit.gap_count }} gaps</div>
+            </div>
+            <div class="metric-connector">
+                <div class="metric-name">Time</div>
+                <span class="winner-badge {% if v.time_to_ready == 'a' %}badge-a{% elif v.time_to_ready == 'b' %}badge-b{% else %}badge-tie{% endif %}">
+                    {% if v.time_to_ready == 'a' %}Faster{% elif v.time_to_ready == 'b' %}Faster{% else %}Same{% endif %}
+                </span>
+            </div>
+            <div class="metric-cell {% if v.time_to_ready == 'b' %}winner-b{% elif v.time_to_ready == 'a' %}winner-a{% endif %}">
+                <div class="metric-label">Time to Job-Ready</div>
+                <div class="metric-value">~{{ b.fit.estimated_months_to_ready }} months</div>
+                <div class="metric-sub">{{ b.fit.matched_count }} skills matched · {{ b.fit.gap_count }} gaps</div>
+            </div>
+        </div>
+
+        <!-- ── Skill Overlap ── -->
+        <div class="section-title">
+            <i data-lucide="git-merge" style="width:14px;height:14px;"></i>
+            Skill Overlap
+        </div>
+
+        <div class="overlap-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:0.9rem;color:var(--text-secondary);">
+                    <strong style="color:var(--text-primary);">{{ ov.overlap_percentage }}%</strong> skill overlap between these two paths
+                </span>
+                <span style="font-size:0.8rem;color:var(--text-muted);">
+                    {{ ov.shared_skills|length }} shared · {{ ov.only_in_a|length }} unique to A · {{ ov.only_in_b|length }} unique to B
+                </span>
+            </div>
+            <div class="overlap-bar-wrap">
+                <div class="overlap-bar-fill" style="width:{{ ov.overlap_percentage }}%;"></div>
+            </div>
+
+            <div class="overlap-split">
+                <div class="overlap-col col-shared">
+                    <div class="overlap-col-title">Shared Skills</div>
+                    {% for sk in ov.shared_skills %}
+                    <span class="skill-pill shared">{{ sk.replace('_', ' ').title() }}</span>
+                    {% else %}
+                    <span style="font-size:0.8rem;color:var(--text-muted);">None</span>
+                    {% endfor %}
+                </div>
+                <div class="overlap-col col-a">
+                    <div class="overlap-col-title">Only in A · {{ a.title.split(' ')[0] }}</div>
+                    {% for sk in ov.only_in_a %}
+                    <span class="skill-pill unique-a">{{ sk.replace('_', ' ').title() }}</span>
+                    {% else %}
+                    <span style="font-size:0.8rem;color:var(--text-muted);">None</span>
+                    {% endfor %}
+                </div>
+                <div class="overlap-col col-b">
+                    <div class="overlap-col-title">Only in B · {{ b.title.split(' ')[0] }}</div>
+                    {% for sk in ov.only_in_b %}
+                    <span class="skill-pill unique-b">{{ sk.replace('_', ' ').title() }}</span>
+                    {% else %}
+                    <span style="font-size:0.8rem;color:var(--text-muted);">None</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Fit & Decision ── -->
+        <div class="section-title">
+            <i data-lucide="check-circle" style="width:14px;height:14px;"></i>
+            Personal Fit & Decision
+        </div>
+
+        <div class="cta-row">
+            <div class="cta-card">
+                <p class="best-for-text">✅ {{ a.fit.best_for }}</p>
+                <p class="challenge-text">⚠️ {{ a.fit.biggest_challenge }}</p>
+                <a href="{{ url_for('career.select', career_id=scored_careers | selectattr('slug', 'equalto', a.slug) | map(attribute='id') | first) }}"
+                   class="btn-decide-a"
+                   onclick="return confirm('Generate roadmap for {{ a.title }}?')">
+                    🚀 Choose {{ a.title.split(' ')[0] }}
+                </a>
+            </div>
+            <div class="vs-center">
+                <div class="vs-pill" style="font-size:1.2rem;">🤔</div>
+            </div>
+            <div class="cta-card">
+                <p class="best-for-text">✅ {{ b.fit.best_for }}</p>
+                <p class="challenge-text">⚠️ {{ b.fit.biggest_challenge }}</p>
+                <a href="{{ url_for('career.select', career_id=scored_careers | selectattr('slug', 'equalto', b.slug) | map(attribute='id') | first) }}"
+                   class="btn-decide-b"
+                   onclick="return confirm('Generate roadmap for {{ b.title }}?')">
+                    🚀 Choose {{ b.title.split(' ')[0] }}
+                </a>
+            </div>
+        </div>
+
+    </div><!-- /.comparison-grid -->
+
+    {% else %}
+    <div class="compare-empty">
+        <div class="empty-icon">⚖️</div>
+        <h3 style="color:var(--text-secondary);font-size:1.1rem;">Select two career paths above to compare</h3>
+        <p>We'll show you salary, difficulty, demand, skill overlap, and your personal time-to-hire estimate.</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Prevent selecting same career on both sides
+const selA = document.getElementById('select-a');
+const selB = document.getElementById('select-b');
+
+function syncSelects() {
+    const valA = selA ? selA.value : '';
+    const valB = selB ? selB.value : '';
+    if (selB) {
+        Array.from(selB.options).forEach(opt => {
+            opt.disabled = opt.value === valA && opt.value !== '';
+        });
+    }
+    if (selA) {
+        Array.from(selA.options).forEach(opt => {
+            opt.disabled = opt.value === valB && opt.value !== '';
+        });
+    }
+}
+
+if (selA) selA.addEventListener('change', syncSelects);
+if (selB) selB.addEventListener('change', syncSelects);
+syncSelects();
+</script>
+{% endblock %}

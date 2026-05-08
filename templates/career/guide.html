@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% block title %}{{ career.title }} Visual Guide - SkillSync{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/roadmap.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="guide-wrap">
+  <div class="rm-tabs rm-tabs-attached" aria-label="Roadmap views">
+    <a href="{{ url_for('career.roadmap_view', roadmap_id=roadmap.id) }}" class="rm-tab"><i data-lucide="list-checks"></i>Start Journey</a>
+    <span class="rm-tab active"><i data-lucide="map"></i>Visual Guide</span>
+  </div>
+
+  <div class="guide-map-titlebar">
+    <div>
+      <p class="rm-kicker">Visual guide</p>
+      <h1>{{ guide_data.get('title', career.title) }} Roadmap</h1>
+    </div>
+    {% if not needs_generation %}
+    <button class="rm-btn rm-btn-secondary" id="regen-btn" onclick="buildGuide()">
+      <i data-lucide="refresh-cw"></i>Regenerate detailed map
+    </button>
+    {% endif %}
+    <span id="gen-status" class="gen-status"></span>
+  </div>
+
+  <div class="guide-body">
+    <main class="guide-graph" id="guide-graph">
+      {% if needs_generation %}
+      <div class="gen-wrap">
+        <div class="gen-icon"><i data-lucide="map-plus"></i></div>
+        <div>
+          <p class="rm-kicker">Visual guide</p>
+          <h1 class="gen-title">{{ career.title }} Roadmap</h1>
+          <p class="gen-copy">Build the interactive topic map for this career path when you are ready.</p>
+        </div>
+        <button class="rm-btn rm-btn-primary" id="gen-btn" onclick="buildGuide()">
+          <i data-lucide="zap"></i>Build visual guide
+        </button>
+      </div>
+      {% else %}
+      <div class="phase-legend guide-floating-legend" id="phase-legend"></div>
+      <div class="guide-canvas-shell">
+        <div id="rg-canvas-wrap">
+          <svg id="rg-svg"></svg>
+          <div id="rg-nodes"></div>
+        </div>
+      </div>
+      {% endif %}
+    </main>
+
+    <aside class="guide-panel closed" id="guide-panel">
+      <div class="p-empty" id="p-empty">
+        <i data-lucide="message-square-text" class="p-empty-icon"></i>
+        <p>Click any topic node to get a live AI explanation.</p>
+      </div>
+
+      <div id="p-loading" class="p-loading">
+        <div class="skeleton">
+          <div class="sk-line sk-title"></div>
+          <div class="sk-line sk-short"></div>
+          <div class="sk-line"></div>
+          <div class="sk-line"></div>
+          <div class="sk-line sk-mid"></div>
+          <div class="sk-line"></div>
+          <div class="sk-line sk-short"></div>
+        </div>
+      </div>
+
+      <div id="p-content" class="p-content">
+        <div class="p-head">
+          <div class="p-head-row">
+            <div>
+              <p class="rm-kicker">Topic insight</p>
+              <h2 class="p-title" id="p-title">Topic</h2>
+            </div>
+            <button class="p-close" onclick="closePanel()" aria-label="Close insight panel">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <div class="p-meta" id="p-meta"></div>
+        </div>
+        <div class="p-body" id="p-body"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/roadmap_layout.js') }}"></script>
+<script src="{{ url_for('static', filename='js/roadmap_renderer.js') }}"></script>
+<script src="{{ url_for('static', filename='js/roadmap_dom.js') }}"></script>
+
+<script>
+  const ROADMAP_ID = {{ roadmap.id }};
+  const CAREER = {{ career.title | tojson }};
+  const GUIDE_DATA = {{ guide_data | tojson }};
+  const cache = {};
+
+  function initGraph() {
+    const sections = (GUIDE_DATA && GUIDE_DATA.sections) ? GUIDE_DATA.sections : [];
+    if (!sections.length) return;
+
+    const graph = document.getElementById('guide-graph');
+    const engine = new RoadmapLayoutEngine(sections, {
+      canvasWidth: Math.min(1180, Math.max(860, graph.clientWidth - 48)),
+    });
+    const layout = engine.compute();
+
+    const wrap = document.getElementById('rg-canvas-wrap');
+    wrap.style.width = layout.canvasWidth + 'px';
+    wrap.style.height = layout.totalHeight + 'px';
+    wrap.style.margin = '0 auto';
+
+    RoadmapDOMRenderer.injectStyles();
+    const domR = new RoadmapDOMRenderer(
+      document.getElementById('rg-nodes'),
+      layout,
+      { onTopicClick: (node, el) => handleTopicClick(node, el) }
+    );
+    domR.render();
+
+    const svgEl = document.getElementById('rg-svg');
+    const svgR = new RoadmapSVGRenderer(svgEl, layout);
+    svgR.render();
+    buildLegend(sections);
+    window.addEventListener('resize', () => svgR.render());
+  }
+
+  function buildLegend(sections) {
+    const legend = document.getElementById('phase-legend');
+    if (!legend) return;
+    const seen = new Set();
+    sections.forEach(s => {
+      const p = parseInt(s.phase || 1);
+      if (seen.has(p)) return;
+      seen.add(p);
+      const { hex, rgb, name } = getPhaseColor(p);
+      const tag = document.createElement('span');
+      tag.className = 'ph-tag';
+      tag.style.cssText = `background:rgba(${rgb},.12);color:${hex};border-color:rgba(${rgb},.28)`;
+      tag.textContent = `Phase ${p} - ${name}`;
+      legend.appendChild(tag);
+    });
+  }
+
+  async function handleTopicClick(node) {
+    const { hex, rgb } = getPhaseColor(node.phase);
+    openPanel();
+    showLoading();
+
+    document.getElementById('p-title').textContent = node.label;
+    document.getElementById('p-meta').innerHTML =
+      `<span class="p-badge" style="background:rgba(${rgb},.12);color:${hex};border-color:rgba(${rgb},.28)">
+        ${node.meta.raw ? (node.meta.sectionLabel || `Phase ${node.phase}`) : `Phase ${node.phase}`}
+      </span>`;
+
+    const cacheKey = node.id;
+    if (cache[cacheKey]) {
+      renderPanel(cache[cacheKey], node.phase);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/career/roadmap/${ROADMAP_ID}/explain-topic`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic: node.label, section: node.meta.sectionId || '', career: CAREER }),
+      });
+      const d = await res.json();
+      if (d.error) throw new Error(d.error);
+      cache[cacheKey] = d;
+      renderPanel(d, node.phase);
+    } catch (e) {
+      showErr(e.message);
+    }
+  }
+
+  function openPanel() {
+    document.getElementById('guide-panel').classList.remove('closed');
+  }
+
+  function closePanel() {
+    document.getElementById('guide-panel').classList.add('closed');
+  }
+
+  function showLoading() {
+    document.getElementById('p-empty').style.display = 'none';
+    document.getElementById('p-content').style.display = 'none';
+    document.getElementById('p-loading').style.display = 'block';
+  }
+
+  function showErr(msg) {
+    document.getElementById('p-loading').style.display = 'none';
+    document.getElementById('p-content').style.display = 'flex';
+    document.getElementById('p-body').innerHTML =
+      `<div class="p-error"><i data-lucide="triangle-alert"></i>${msg || 'Failed to load.'}</div>`;
+    lucide.createIcons();
+  }
+
+  function renderPanel(d, phase) {
+    document.getElementById('p-loading').style.display = 'none';
+    const meta = document.getElementById('p-meta');
+    if (d.estimated_time) {
+      meta.innerHTML += `<span class="p-time"><i data-lucide="clock"></i>${d.estimated_time}</span>`;
+    }
+
+    document.getElementById('p-content').style.display = 'flex';
+
+    const ri = { youtube: 'play', course: 'graduation-cap', article: 'file-text', docs: 'book-open' };
+    const rc = { youtube: 'ri-yt', course: 'ri-co', article: 'ri-ar', docs: 'ri-do' };
+    let h = '';
+
+    if (d.overview) {
+      h += `<section class="p-section"><h3>Overview</h3><p class="p-text">${d.overview}</p></section>`;
+    }
+    if (d.why_it_matters) {
+      h += `<section class="p-section"><h3>Why it matters</h3><p class="p-text">${d.why_it_matters}</p></section>`;
+    }
+    if (d.how_to_learn?.length) {
+      const steps = d.how_to_learn.map((s, i) =>
+        `<li><span class="p-step-n">${i + 1}</span><span>${s}</span></li>`).join('');
+      h += `<section class="p-section"><h3>How to learn</h3><ul class="p-steps">${steps}</ul></section>`;
+    }
+    if (d.resources?.length) {
+      const items = d.resources.map(r =>
+        `<a href="${r.url || '#'}" target="_blank" rel="noopener" class="p-res">
+          <span class="p-res-icon ${rc[r.type] || 'ri-ar'}"><i data-lucide="${ri[r.type] || 'file-text'}"></i></span>
+          <span><span class="p-res-name">${r.title}</span><span class="p-res-type">${r.type || 'resource'}</span></span>
+        </a>`).join('');
+      h += `<section class="p-section"><h3>Free resources</h3><div class="p-res-list">${items}</div></section>`;
+    }
+    if (d.common_mistakes?.length) {
+      const ms = d.common_mistakes.map(m => `<div class="p-mistake">${m}</div>`).join('');
+      h += `<section class="p-section"><h3>Common mistakes</h3><div class="p-mistakes">${ms}</div></section>`;
+    }
+
+    document.getElementById('p-body').innerHTML = h || '<p class="p-text">No topic detail was returned.</p>';
+    lucide.createIcons();
+  }
+
+  async function buildGuide() {
+    const btn = document.getElementById('gen-btn') || document.getElementById('regen-btn');
+    const st = document.getElementById('gen-status');
+    if (btn) btn.disabled = true;
+    if (st) {
+      st.style.display = 'block';
+      st.textContent = 'Generating knowledge map...';
+    }
+    try {
+      const r = await fetch(`/career/roadmap/${ROADMAP_ID}/guide/generate`, { method: 'POST' });
+      const d = await r.json();
+      if (d.success) window.location.reload();
+      else if (st) st.textContent = 'Error: ' + (d.error || 'Failed');
+    } catch (e) {
+      if (st) st.textContent = 'Network error. Please retry.';
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  window.addEventListener('load', () => {
+    lucide.createIcons();
+    initGraph();
+  });
+</script>
+{% endblock %}

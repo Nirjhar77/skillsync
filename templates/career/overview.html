@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Career Insights: {{ career.title }} — SkillSync{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header" style="margin-bottom: 2rem;">
+        <a href="{{ url_for('career.results') }}" class="btn btn-outline btn-sm" style="margin-bottom: 1rem; display: inline-flex;">
+            <i data-lucide="arrow-left" class="btn-icon"></i> Back to Results
+        </a>
+        <h1 class="page-title">
+            <i data-lucide="briefcase" class="title-icon"></i>
+            {{ career.title }}
+        </h1>
+        <p class="page-subtitle">{{ career.category }}</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;">
+        
+        <!-- Main Column -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <!-- Executive Summary -->
+            <div class="glass-card">
+                <h3 style="font-size: 1.1rem; color: var(--accent-cyan); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="info" style="width: 20px; height: 20px;"></i>
+                    Executive Summary
+                </h3>
+                <p style="color: var(--text-secondary); line-height: 1.6;">
+                    {{ overview_data.overview }}
+                </p>
+            </div>
+
+            <!-- Core Responsibilities -->
+            <div class="glass-card">
+                <h3 style="font-size: 1.1rem; color: #a78bfa; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="check-square" style="width: 20px; height: 20px;"></i>
+                    Day-to-Day Responsibilities
+                </h3>
+                <ul style="color: var(--text-secondary); line-height: 1.6; padding-left: 1.5rem;">
+                    {% for task in overview_data.core_responsibilities %}
+                    <li style="margin-bottom: 0.5rem;">{{ task }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Essential Tech Stack -->
+            <div class="glass-card">
+                <h3 style="font-size: 1.1rem; color: #34d399; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="cpu" style="width: 20px; height: 20px;"></i>
+                    Essential Tech Stack
+                </h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    {% for tech in overview_data.tech_stack %}
+                    <span style="background: rgba(52, 211, 153, 0.1); color: #34d399; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; border: 1px solid rgba(52, 211, 153, 0.2);">
+                        {{ tech }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- Sidebar Column -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <!-- Market Reality -->
+            <div class="glass-card" style="border-top: 3px solid #f59e0b;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="trending-up" style="width: 20px; height: 20px; color: #f59e0b;"></i>
+                    Market Reality
+                </h3>
+                
+                <div style="margin-bottom: 1rem;">
+                    <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">Salary Context</strong>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.5;">{{ overview_data.market_reality.salary_context }}</p>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">Why it's in Demand</strong>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.5;">{{ overview_data.market_reality.demand_context }}</p>
+                </div>
+
+                <div>
+                    <strong style="color: var(--text-primary); font-size: 0.9rem; display: block; margin-bottom: 4px;">Entry Barrier</strong>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.5;">{{ overview_data.market_reality.entry_barrier }}</p>
+                </div>
+            </div>
+
+            <!-- Alternative Paths -->
+            <div class="glass-card" style="border-top: 3px solid #ec4899;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="git-branch" style="width: 20px; height: 20px; color: #ec4899;"></i>
+                    Similar Careers
+                </h3>
+                
+                {% for alt in overview_data.similar_careers %}
+                <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); {% if loop.last %}border-bottom: none; margin-bottom: 0; padding-bottom: 0;{% endif %}">
+                    <strong style="color: var(--text-primary); font-size: 0.95rem; display: block; margin-bottom: 4px;">{{ alt.title }}</strong>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.4;">{{ alt.reason }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Generate Roadmap CTA -->
+            <div class="glass-card" style="text-align: center; background: linear-gradient(180deg, rgba(30,30,40,0.4) 0%, rgba(124,58,237,0.1) 100%);">
+                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Ready to start?</h3>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.5rem;">Generate a personalized, step-by-step learning roadmap to achieve this career.</p>
+                
+                <form method="POST" action="{{ url_for('career.select', career_id=career.id) }}">
+                    <button type="submit" class="btn btn-primary btn-full" style="padding: 12px;">
+                        <i data-lucide="sparkles" class="btn-icon"></i>
+                        Generate AI Roadmap
+                    </button>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

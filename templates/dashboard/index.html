@@ -1,0 +1,422 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — SkillSync{% endblock %}
+{% block breadcrumbs %}<span>Dashboard</span>{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+
+    <!-- ── TODAY'S MISSION (full-width hero) ────────────────────────────── -->
+    <div class="mission-card">
+        {% if next_milestone %}
+        <div class="mission-label">TODAY'S MISSION</div>
+        <div class="mission-body">
+            <div class="mission-icon-bg">
+                <i data-lucide="target" class="mission-icon"></i>
+            </div>
+            <div class="mission-text">
+                <h2 class="mission-title">Complete: "{{ next_milestone.title }}"</h2>
+                <div class="mission-meta">
+                    <span class="mission-tag">
+                        <i data-lucide="clock" style="width:13px;height:13px;"></i>
+                        {{ next_milestone.estimated_hours }}h estimated
+                    </span>
+                    <span class="mission-tag mission-tag--green">
+                        <i data-lucide="trending-up" style="width:13px;height:13px;"></i>
+                        Impact: +{{ mission_impact_pct }}% progress
+                    </span>
+                </div>
+            </div>
+            <div class="mission-actions">
+                <a href="{{ url_for('dashboard.start_now') }}" class="btn btn-primary">
+                    <i data-lucide="play" class="btn-icon"></i> Start Now
+                </a>
+                {% if active_roadmap %}
+                <a href="{{ url_for('progress.tracker') }}" class="btn btn-secondary">View Roadmap</a>
+                {% endif %}
+            </div>
+            <div class="mission-progress-wrap">
+                {% set pct = ((completed_milestones / total_milestones) * 100) | int if total_milestones > 0 else 0 %}
+                <svg class="mission-donut" viewBox="0 0 80 80">
+                    <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="8"/>
+                    <circle cx="40" cy="40" r="32" fill="none" stroke="url(#mGrad)"
+                            stroke-width="8" stroke-linecap="round"
+                            stroke-dasharray="{{ (2 * 3.14159 * 32) | round(1) }}"
+                            stroke-dashoffset="{{ ((2 * 3.14159 * 32) * (1 - pct/100)) | round(1) }}"
+                            transform="rotate(-90 40 40)"/>
+                    <defs>
+                        <linearGradient id="mGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#00d4ff"/>
+                            <stop offset="100%" stop-color="#7c6fff"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <div class="mission-pct">
+                    <span class="mission-pct-val">{{ pct }}%</span>
+                    <span class="mission-pct-sub">Overall</span>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="mission-label">GET STARTED</div>
+        <div class="mission-body mission-body--empty">
+            <div class="mission-icon-bg">
+                <i data-lucide="compass" class="mission-icon"></i>
+            </div>
+            <div class="mission-text">
+                <h2 class="mission-title">Ready to start your learning journey?</h2>
+                <p class="mission-subtitle">Generate a personalised roadmap to unlock your first mission.</p>
+            </div>
+            <div class="mission-actions">
+                <a href="{{ navigator_url }}" class="btn btn-primary">
+                    <i data-lucide="play" class="btn-icon"></i> {{ navigator_cta }}
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ── 2-COLUMN GRID ─────────────────────────────────────────────────── -->
+    <div class="dash-wrap">
+
+        <!-- LEFT MAIN COLUMN ─────────────────────────────────────────────── -->
+        <div class="dash-main">
+
+            <!-- Career Trajectory -->
+            <div class="dashboard-section">
+                <h3 class="section-title">Career Trajectory</h3>
+                <div class="dashboard-card trajectory-card">
+                    <div class="traj-header">
+                        <div class="traj-heading">
+                            <h3 class="traj-title">{{ target_role }}</h3>
+                            {% if active_career %}
+                            <span class="traj-badge">Top Match</span>
+                            {% endif %}
+                        </div>
+                        <div class="traj-stats-row">
+                            <div class="traj-stat">
+                                <span class="traj-stat-val {% if skill_gap_pct > 50 %}text-amber{% endif %}">{{ skill_gap_pct }}%</span>
+                                <span class="traj-stat-label">Skill Gap</span>
+                            </div>
+                            {% if estimated_weeks %}
+                            <div class="traj-stat">
+                                <span class="traj-stat-val">{{ estimated_weeks }}w</span>
+                                <span class="traj-stat-label">Est. Time</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if gap_focus %}
+                    <div class="traj-focus">
+                        <span class="traj-focus-label">Next Focus</span>
+                        <div class="traj-tags">
+                            {% for skill in gap_focus %}
+                            <span class="skill-tag">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="traj-footer">
+                        <a href="{{ navigator_url }}" class="text-link">View Details →</a>
+                        <a href="{{ profile_edit_url }}" class="text-link" style="margin-left:auto;">Edit Profile →</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Roadmap mini-list -->
+            <div class="dashboard-section">
+                <h3 class="section-title">Active Roadmap</h3>
+                <div class="dashboard-card" style="padding: var(--space-md);">
+                    <div class="roadmap-list-header">
+                        {% if active_roadmap %}
+                        <a href="{{ url_for('progress.tracker') }}" class="text-link">View Full Roadmap →</a>
+                        {% endif %}
+                    </div>
+                    {% if next_milestones %}
+                    <div class="roadmap-mini-list">
+                        {% for m in next_milestones %}
+                        <div class="rml-item {% if loop.first %}rml-current{% endif %}">
+                            <div class="rml-num">{{ loop.index }}</div>
+                            <div class="rml-body">
+                                <div class="rml-title">
+                                    {{ m.title }}
+                                    {% if loop.first %}<span class="rml-badge">CURRENT</span>{% endif %}
+                                </div>
+                                <div class="rml-sub">{{ m.phase_title }} · <span class="rml-type rml-type--{{ m.card_type }}">{{ m.card_type }}</span></div>
+                            </div>
+                            <div class="rml-time">{{ m.estimated_hours }}h</div>
+                            {% if loop.first %}
+                            <a href="{{ url_for('dashboard.start_now') }}" class="rml-arrow">
+                                <i data-lucide="chevron-right"></i>
+                            </a>
+                            {% else %}
+                            <div class="rml-arrow rml-arrow--muted"><i data-lucide="chevron-right"></i></div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="chart-empty">
+                        All milestones complete! 🎉
+                        <a href="{{ navigator_url }}" class="text-link">Generate a new roadmap →</a>
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Skill Funnel (metric cards) -->
+            <div class="dashboard-section">
+                <h3 class="section-title">{{ funnel_title }}</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card metric-blue">
+                        <div class="metric-icon-wrap metric-icon-blue">
+                            <i data-lucide="map" class="metric-icon"></i>
+                        </div>
+                        <span class="metric-value">{{ roadmaps_generated }}</span>
+                        <span class="metric-label">ROADMAPS</span>
+                    </div>
+                    <div class="metric-card metric-purple">
+                        <div class="metric-icon-wrap metric-icon-purple">
+                            <i data-lucide="check-circle" class="metric-icon"></i>
+                        </div>
+                        <span class="metric-value">{{ completed_milestones }}</span>
+                        <span class="metric-label">MILESTONES DONE</span>
+                    </div>
+                    <div class="metric-card metric-green">
+                        <div class="metric-icon-wrap metric-icon-green">
+                            <i data-lucide="book-open" class="metric-icon"></i>
+                        </div>
+                        <span class="metric-value">{{ courses_enrolled }}</span>
+                        <span class="metric-label">{{ courses_label }}</span>
+                    </div>
+                    <div class="metric-card metric-orange">
+                        <div class="metric-icon-wrap metric-icon-orange">
+                            <i data-lucide="zap" class="metric-icon"></i>
+                        </div>
+                        <span class="metric-value">{{ skills_verified }}</span>
+                        <span class="metric-label">{{ skills_label }}</span>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /.dash-main -->
+
+        <!-- RIGHT SIDEBAR PANEL ──────────────────────────────────────────── -->
+        <div class="dash-side">
+
+            <!-- Momentum Tracker -->
+            <div class="dashboard-card momentum-card">
+                <div class="momentum-header">
+                    <i data-lucide="flame" class="momentum-fire"></i>
+                    <span class="momentum-title">MOMENTUM TRACKER</span>
+                </div>
+                <div class="momentum-stats">
+                    <div class="momentum-stat">
+                        <span class="momentum-val streak-num">{{ day_streak }}</span>
+                        <span class="momentum-label">Day Streak</span>
+                    </div>
+                    <div class="momentum-stat">
+                        <span class="momentum-val">{{ last_active_days }}d</span>
+                        <span class="momentum-label">Last Active</span>
+                    </div>
+                    <div class="momentum-stat">
+                        <span class="momentum-badge {{ learning_status_class }}">{{ learning_status }}</span>
+                        <span class="momentum-label">Status</span>
+                    </div>
+                </div>
+                <a href="{{ url_for('dashboard.start_now') }}" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:var(--space-md);">
+                    Continue Learning <i data-lucide="arrow-right" class="btn-icon"></i>
+                </a>
+                <div class="momentum-hint">
+                    <div class="action-dot {% if milestones_this_week >= 3 %}action-dot--green{% elif milestones_this_week > 0 %}action-dot--blue{% else %}action-dot--amber{% endif %}"></div>
+                    <span>{{ action_message }}</span>
+                </div>
+            </div>
+
+            <!-- Career Match Scores -->
+            <div class="dashboard-section">
+                <h3 class="section-title">{{ chart_title }}</h3>
+                <div class="dashboard-card chart-card">
+                    {% if career_chart %}
+                    <div class="bar-chart">
+                        {% for item in career_chart %}
+                        {% set bar_colors = ['#00d4ff','#7c6fff','#34d399','#fbbf24','#ec4899'] %}
+                        {% set col = bar_colors[loop.index0 % 5] %}
+                        <div class="bar-row">
+                            <span class="bar-label" title="{{ item.title }}">{{ item.title | truncate(22, true, '…') }}</span>
+                            <div class="bar-track">
+                                <div class="bar-fill"
+                                     data-pct="{{ item.score }}"
+                                     style="background: linear-gradient(90deg, {{ col }}cc, {{ col }}); width: 0%;">
+                                </div>
+                            </div>
+                            <span class="bar-pct">{{ item.score }}%</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="chart-empty">{{ chart_empty }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Milestone Progress Donut -->
+            <div class="dashboard-section">
+                <h3 class="section-title">Milestone Progress</h3>
+                <div class="dashboard-card chart-card">
+                    {% set pct = ((completed_milestones / total_milestones) * 100) | int if total_milestones > 0 else 0 %}
+                    <div class="donut-wrap">
+                        <svg class="donut-svg" viewBox="0 0 120 120" width="120" height="120">
+                            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="12"/>
+                            <circle id="donut-arc" cx="60" cy="60" r="50"
+                                fill="none" stroke="url(#donutGrad)" stroke-width="12"
+                                stroke-linecap="round" stroke-dasharray="314"
+                                stroke-dashoffset="314" transform="rotate(-90 60 60)"/>
+                            <defs>
+                                <linearGradient id="donutGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#00d4ff"/>
+                                    <stop offset="100%" stop-color="#7c6fff"/>
+                                </linearGradient>
+                            </defs>
+                            <text x="60" y="55" text-anchor="middle" fill="var(--text-primary)"
+                                  font-family="Outfit,sans-serif" font-size="20" font-weight="900"
+                                  id="donut-pct-text">{{ pct }}%</text>
+                            <text x="60" y="70" text-anchor="middle" fill="var(--text-muted)"
+                                  font-family="Inter,sans-serif" font-size="8">Complete</text>
+                        </svg>
+                        <div class="donut-legend">
+                            <div class="dl-item">
+                                <span class="dl-dot" style="background:#00d4ff"></span>
+                                <span class="dl-label">Done</span>
+                                <span class="dl-val">{{ completed_milestones }}</span>
+                            </div>
+                            <div class="dl-item">
+                                <span class="dl-dot" style="background:rgba(255,255,255,.12)"></span>
+                                <span class="dl-label">Remaining</span>
+                                <span class="dl-val">{{ total_milestones - completed_milestones }}</span>
+                            </div>
+                            <div class="dl-item">
+                                <span class="dl-dot" style="background:#7c6fff"></span>
+                                <span class="dl-label">Total</span>
+                                <span class="dl-val">{{ total_milestones }}</span>
+                            </div>
+                            <div style="margin-top:.6rem;font-size:.75rem;color:var(--text-muted);line-height:1.5;">
+                                {% if pct == 0 %}Start completing milestones to fill this chart!
+                                {% elif pct < 25 %}Great start — keep pushing forward!
+                                {% elif pct < 50 %}💪 You're building momentum. Keep it up!
+                                {% elif pct < 75 %}🔥 Past the halfway mark — finish strong!
+                                {% elif pct < 100 %}⚡ Almost there — the finish line is close!
+                                {% else %}🏆 Roadmap complete! Time for a new challenge.{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% if total_milestones == 0 %}
+                    <p class="chart-empty">Generate a roadmap to track your milestone progress here.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div><!-- /.dash-side -->
+    </div><!-- /.dash-wrap -->
+
+    <!-- ── RECENT ACTIVITY (full width) ─────────────────────────────────── -->
+    <div class="dashboard-section">
+        <h3 class="section-title">Recent Activity</h3>
+        <div class="dashboard-card activity-card">
+            <table class="activity-table">
+                <thead>
+                    <tr>
+                        <th>DATE</th>
+                        <th>ACTION</th>
+                        <th>STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if recent_activity %}
+                        {% for log in recent_activity %}
+                        <tr>
+                            <td>{{ log.created_at.strftime('%b %d') }}</td>
+                            <td>{{ log.action }}</td>
+                            <td>
+                                {% if log.status == 'success' %}
+                                <span class="status-badge success">Done</span>
+                                {% elif log.status == 'active' %}
+                                <span class="status-badge pending">Active</span>
+                                {% else %}
+                                <span class="status-badge">{{ log.status|capitalize }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="3">
+                                <div style="text-align:center;padding:2rem 1rem;color:var(--text-muted);">
+                                    <div style="font-size:2rem;margin-bottom:.5rem;opacity:.4;">&#128203;</div>
+                                    <div style="font-size:.85rem;margin-bottom:.75rem;">No activity logged yet.</div>
+                                    <a href="{{ url_for('progress.tracker') }}" style="font-size:.82rem;color:var(--accent-cyan);text-decoration:none;font-weight:600;">Complete a milestone to see activity →</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div><!-- /.dashboard-container -->
+
+<style>
+/* ── Chart cards ───────────────────────────────────────── */
+.chart-card { padding: 1.2rem 1.4rem; min-height: 160px; }
+.donut-wrap  { display: flex; align-items: center; gap: 1.4rem; flex-wrap: wrap; }
+.donut-svg   { flex-shrink: 0; overflow: visible; }
+.donut-legend { display: flex; flex-direction: column; gap: .5rem; }
+.dl-item  { display: flex; align-items: center; gap: .5rem; font-size: .8rem; }
+.dl-dot   { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.dl-label { color: var(--text-muted); flex: 1; }
+.dl-val   { font-weight: 700; color: var(--text-primary); min-width: 24px; text-align: right; }
+
+/* Bar chart */
+.bar-chart { display: flex; flex-direction: column; gap: .65rem; width: 100%; }
+.bar-row   { display: grid; grid-template-columns: 120px 1fr 36px; align-items: center; gap: .55rem; }
+.bar-label { font-size: .75rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { background: rgba(255,255,255,.06); border-radius: 6px; height: 7px; overflow: hidden; }
+.bar-fill  { height: 100%; border-radius: 6px; transition: width 1s cubic-bezier(.22,1,.36,1); }
+.bar-pct   { font-size: .73rem; font-weight: 700; color: var(--text-muted); text-align: right; }
+.chart-empty { font-size: .83rem; color: var(--text-muted); text-align: center; margin-top: 1rem; line-height: 1.6; }
+
+body.theme-light .bar-track { background: rgba(0,0,0,.07); }
+body.theme-light .donut-svg circle:first-child { stroke: rgba(0,0,0,.08); }
+
+@media (max-width: 560px) {
+    .chart-card { padding: .9rem; }
+    .donut-wrap { justify-content: center; gap: 1rem; }
+    .donut-legend { width: 100%; }
+    .bar-row { grid-template-columns: 1fr 36px; gap: .4rem; }
+    .bar-label { grid-column: 1 / -1; }
+}
+</style>
+
+<script>
+/* Animate donut arc */
+(function () {
+    const arc = document.getElementById('donut-arc');
+    if (!arc) return;
+    const pct = {{ pct }};
+    const offset = 314 - (pct / 100) * 314;
+    setTimeout(() => {
+        arc.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(.22,1,.36,1)';
+        arc.style.strokeDashoffset = offset;
+    }, 300);
+})();
+
+/* Animate bar fills */
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        document.querySelectorAll('.bar-fill').forEach(bar => {
+            bar.style.width = (bar.dataset.pct || 0) + '%';
+        });
+    }, 200);
+});
+</script>
+{% endblock %}

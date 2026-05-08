@@ -1,0 +1,717 @@
+{% extends "base.html" %}
+
+{% block title %}AI Tutor — SkillSync{% endblock %}
+
+{% block breadcrumbs %}
+<span>AI Tutor</span>
+{% endblock %}
+
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+
+.app-content {
+    padding: 0 !important; /* Remove default padding for full-height chat */
+}
+
+/* ── Chat Container ───────────────────────────────── */
+.tutor-wrap {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 60px); /* Fill remaining height */
+    overflow: hidden;
+    background: var(--bg-primary);
+    position: relative;
+}
+
+/* ── Chat History Area ────────────────────────────── */
+.tutor-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    scroll-behavior: smooth;
+}
+
+.tutor-messages::-webkit-scrollbar {
+    width: 6px;
+}
+.tutor-messages::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+}
+
+/* ── Welcome State ────────────────────────────────── */
+.tutor-welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: 2rem;
+}
+
+.tutor-icon-large {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(192, 132, 252, 0.1));
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 32px rgba(167, 139, 250, 0.15);
+}
+
+.tutor-icon-large i {
+    color: #c084fc;
+}
+
+.tutor-welcome-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 40%, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.tutor-welcome-desc {
+    color: var(--text-muted);
+    font-size: 1rem;
+    max-width: 500px;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.tutor-suggestions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 700px;
+}
+
+.tutor-suggestion-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.tutor-suggestion-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(167, 139, 250, 0.4);
+    transform: translateY(-2px);
+    color: var(--text-primary);
+}
+
+.tutor-suggestion-btn i {
+    color: #a78bfa;
+}
+
+/* ── Chat Bubbles ─────────────────────────────────── */
+.msg-row {
+    display: flex;
+    gap: 1rem;
+    max-width: 850px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.msg-row.user {
+    flex-direction: row-reverse;
+}
+
+.msg-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.msg-row.ai .msg-avatar {
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(192, 132, 252, 0.1));
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    color: #c084fc;
+}
+
+.msg-row.user .msg-avatar {
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    color: #00d4ff;
+}
+
+.msg-bubble {
+    padding: 1rem 1.25rem;
+    border-radius: 16px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-width: 85%;
+    word-break: break-word;
+}
+
+.msg-row.ai .msg-bubble {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+    border-top-left-radius: 4px;
+}
+
+.msg-row.user .msg-bubble {
+    background: rgba(0, 212, 255, 0.08);
+    border: 1px solid rgba(0, 212, 255, 0.15);
+    color: var(--text-primary);
+    border-top-right-radius: 4px;
+}
+
+/* Markdown styling inside AI bubble */
+.msg-bubble p { margin-bottom: 0.75rem; }
+.msg-bubble p:last-child { margin-bottom: 0; }
+.msg-bubble pre { 
+    background: rgba(0, 0, 0, 0.4); 
+    padding: 1rem; 
+    border-radius: 8px; 
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.msg-bubble code { 
+    background: rgba(0, 0, 0, 0.3); 
+    padding: 0.2rem 0.4rem; 
+    border-radius: 4px; 
+    font-family: monospace;
+    color: #a78bfa;
+}
+.msg-bubble pre code { background: transparent; padding: 0; color: inherit; }
+.msg-bubble ul, .msg-bubble ol { margin-left: 1.5rem; margin-bottom: 1rem; }
+.msg-bubble h1, .msg-bubble h2, .msg-bubble h3 { 
+    font-family: 'Outfit', sans-serif; 
+    color: var(--text-primary); 
+    margin-top: 1.5rem; 
+    margin-bottom: 0.75rem; 
+}
+.msg-bubble h3 { font-size: 1.1rem; }
+
+.msg-stack {
+    max-width: 85%;
+}
+
+.msg-stack .msg-bubble {
+    max-width: 100%;
+}
+
+.msg-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.65rem;
+}
+
+.visualize-reply-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid rgba(52, 211, 153, 0.25);
+    border-radius: 8px;
+    background: rgba(52, 211, 153, 0.08);
+    color: #34d399;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.visualize-reply-btn:hover {
+    background: rgba(52, 211, 153, 0.14);
+}
+
+.visualize-reply-btn:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.visualize-reply-btn i {
+    width: 14px;
+    height: 14px;
+}
+
+.tutor-visual-result {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    border: 1px solid rgba(52, 211, 153, 0.18);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.tutor-visual-result img {
+    display: block;
+    width: 100%;
+    max-height: 420px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.tutor-visual-result .visualize-reply-btn {
+    display: inline-flex;
+    margin-top: 0.55rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.tutor-visual-error {
+    margin-top: 0.55rem;
+    color: var(--accent-red);
+    font-size: 0.8rem;
+}
+
+/* ── Input Area ───────────────────────────────────── */
+.tutor-input-area {
+    padding: 1.5rem 2rem 2rem;
+    background: linear-gradient(to top, var(--bg-primary) 70%, transparent);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+}
+
+.tutor-input-wrapper {
+    max-width: 850px;
+    margin: 0 auto;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 0.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    transition: border-color 0.3s;
+}
+
+.tutor-input-wrapper:focus-within {
+    border-color: rgba(167, 139, 250, 0.5);
+    box-shadow: 0 8px 32px rgba(167, 139, 250, 0.1);
+}
+
+.tutor-textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    resize: none;
+    min-height: 24px;
+    max-height: 150px;
+    outline: none;
+    line-height: 1.5;
+}
+
+.tutor-textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.tutor-send-btn {
+    background: linear-gradient(135deg, #a78bfa, #c084fc);
+    border: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+}
+
+.tutor-send-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(192, 132, 252, 0.4);
+}
+
+.tutor-send-btn:disabled {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+.tutor-footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 1rem;
+    max-width: 850px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ── Clear Chat Button ────────────────────────────── */
+.clear-chat-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 10;
+}
+
+.clear-chat-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+/* ── Typing Indicator ─────────────────────────────── */
+.typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 0.5rem;
+}
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    background: #c084fc;
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out both;
+}
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+@keyframes typing {
+    0%, 80%, 100% { transform: scale(0); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+}
+</style>
+
+<!-- Marked.js for parsing markdown in AI responses -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<div class="tutor-wrap">
+    <!-- Optional Clear Button -->
+    <button class="clear-chat-btn" id="clearBtn" onclick="clearHistory()" style="display: none;">
+        <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Clear History
+    </button>
+
+    <div class="tutor-messages" id="chatArea">
+        <!-- Welcome Screen (shown if no history) -->
+        <div class="tutor-welcome" id="welcomeState">
+            <div class="tutor-icon-large">
+                <i data-lucide="bot" style="width: 32px; height: 32px;"></i>
+            </div>
+            <h1 class="tutor-welcome-title">Hi {{ current_user.username }}, I'm your AI Tutor.</h1>
+            <p class="tutor-welcome-desc">
+                I can help you understand complex tech concepts, navigate your learning roadmap, or prepare for interviews. What would you like to explore today?
+            </p>
+            <div class="tutor-suggestions">
+                <button class="tutor-suggestion-btn" onclick="setPrompt('Can you explain the difference between REST and GraphQL?')">
+                    <i data-lucide="code-2" style="width: 18px; height: 18px;"></i>
+                    REST vs GraphQL
+                </button>
+                <button class="tutor-suggestion-btn" onclick="setPrompt('What are the most important concepts to learn for System Design interviews?')">
+                    <i data-lucide="server" style="width: 18px; height: 18px;"></i>
+                    System Design Tips
+                </button>
+                <button class="tutor-suggestion-btn" onclick="setPrompt('How do I build a portfolio project that stands out to recruiters?')">
+                    <i data-lucide="briefcase" style="width: 18px; height: 18px;"></i>
+                    Portfolio Advice
+                </button>
+            </div>
+        </div>
+        <!-- Messages will be injected here -->
+    </div>
+
+    <div class="tutor-input-area">
+        <div class="tutor-input-wrapper">
+            <textarea 
+                id="messageInput" 
+                class="tutor-textarea" 
+                placeholder="Message AI Tutor..." 
+                rows="1"
+                oninput="autoResize(this)"
+                onkeydown="handleKey(event)"></textarea>
+            <button id="sendBtn" class="tutor-send-btn" onclick="sendMessage()" disabled>
+                <i data-lucide="send" style="width: 18px; height: 18px; margin-left: -2px; margin-bottom: -2px;"></i>
+            </button>
+        </div>
+        <div class="tutor-footer">
+            AI Tutor can make mistakes. Consider verifying important information.
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatArea = document.getElementById('chatArea');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const welcomeState = document.getElementById('welcomeState');
+    const clearBtn = document.getElementById('clearBtn');
+    
+    let isWaiting = false;
+
+    // Configure marked.js options
+    marked.setOptions({
+        breaks: true,
+        gfm: true
+    });
+
+    // Auto-resize textarea
+    function autoResize(el) {
+        el.style.height = 'auto';
+        el.style.height = (el.scrollHeight) + 'px';
+        sendBtn.disabled = el.value.trim() === '';
+    }
+
+    // Handle Enter key (Shift+Enter for new line)
+    function handleKey(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if (!sendBtn.disabled && !isWaiting) {
+                sendMessage();
+            }
+        }
+    }
+
+    // Click suggestion
+    function setPrompt(text) {
+        messageInput.value = text;
+        autoResize(messageInput);
+        messageInput.focus();
+    }
+
+    // Render a message bubble
+    function appendMessage(role, content, animate = false) {
+        if (welcomeState) welcomeState.style.display = 'none';
+        clearBtn.style.display = 'flex';
+
+        const row = document.createElement('div');
+        row.className = `msg-row ${role}`;
+        
+        const avatar = document.createElement('div');
+        avatar.className = 'msg-avatar';
+        avatar.innerHTML = role === 'ai' ? '<i data-lucide="bot" style="width:20px;height:20px"></i>' : '<i data-lucide="user" style="width:20px;height:20px"></i>';
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'msg-bubble';
+        
+        if (role === 'ai') {
+            bubble.innerHTML = marked.parse(content);
+        } else {
+            bubble.textContent = content; // User text is raw
+        }
+
+        const stack = document.createElement('div');
+        stack.className = 'msg-stack';
+        stack.appendChild(bubble);
+
+        if (role === 'ai' && content.trim()) {
+            const actions = document.createElement('div');
+            actions.className = 'msg-actions';
+            const visualizeBtn = document.createElement('button');
+            visualizeBtn.type = 'button';
+            visualizeBtn.className = 'visualize-reply-btn';
+            visualizeBtn.innerHTML = '<i data-lucide="sparkles"></i> Visualize';
+            visualizeBtn.onclick = () => visualizeTutorReply(content, stack, visualizeBtn);
+            actions.appendChild(visualizeBtn);
+            stack.appendChild(actions);
+        }
+
+        row.appendChild(avatar);
+        row.appendChild(stack);
+        chatArea.appendChild(row);
+        
+        lucide.createIcons({ root: row });
+        
+        if (animate) {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(10px)';
+            setTimeout(() => {
+                row.style.transition = 'all 0.3s ease-out';
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, 10);
+        }
+        
+        scrollToBottom();
+    }
+
+    function firstWords(text, limit = 100) {
+        return text.replace(/[#*_`>\-[\]()]/g, ' ').trim().split(/\s+/).filter(Boolean).slice(0, limit).join(' ');
+    }
+
+    async function visualizeTutorReply(content, stack, button) {
+        const text = firstWords(content, 100);
+        if (!text) return;
+
+        const existing = stack.querySelector('.tutor-visual-result, .tutor-visual-error');
+        if (existing) existing.remove();
+
+        button.disabled = true;
+        button.innerHTML = '<i data-lucide="loader-circle"></i> Visualizing...';
+        lucide.createIcons({ root: button });
+
+        try {
+            const res = await fetch('/visual-learner/api/visualize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text, source: 'tutor' }),
+            });
+            const data = await res.json();
+            if (!res.ok || data.error) throw new Error(data.error || 'Visual generation failed.');
+
+            const panel = document.createElement('div');
+            panel.className = 'tutor-visual-result';
+            panel.innerHTML = `<img src="${data.visual_url}?t=${Date.now()}" alt="Generated visual"><button type="button" class="visualize-reply-btn" onclick="window.open('${data.visual_url}', '_blank', 'noopener')"><i data-lucide="external-link"></i> Open visual</button>`;
+            stack.appendChild(panel);
+            scrollToBottom();
+        } catch (err) {
+            const error = document.createElement('div');
+            error.className = 'tutor-visual-error';
+            error.textContent = err.message;
+            stack.appendChild(error);
+        } finally {
+            button.disabled = false;
+            button.innerHTML = '<i data-lucide="sparkles"></i> Visualize';
+            lucide.createIcons({ root: stack });
+        }
+    }
+
+    function showTyping() {
+        const row = document.createElement('div');
+        row.className = `msg-row ai`;
+        row.id = 'typingIndicator';
+        
+        const avatar = document.createElement('div');
+        avatar.className = 'msg-avatar';
+        avatar.innerHTML = '<i data-lucide="bot" style="width:20px;height:20px"></i>';
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'msg-bubble';
+        bubble.style.padding = '1.2rem 1.5rem';
+        bubble.innerHTML = `
+            <div class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        `;
+
+        row.appendChild(avatar);
+        row.appendChild(bubble);
+        chatArea.appendChild(row);
+        lucide.createIcons({ root: row });
+        scrollToBottom();
+    }
+
+    function removeTyping() {
+        const indicator = document.getElementById('typingIndicator');
+        if (indicator) indicator.remove();
+    }
+
+    function scrollToBottom() {
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    // Load history on start
+    async function loadHistory() {
+        try {
+            const res = await fetch('/chatbot/history');
+            const data = await res.json();
+            if (data.history && data.history.length > 0) {
+                welcomeState.style.display = 'none';
+                clearBtn.style.display = 'flex';
+                data.history.forEach(msg => {
+                    appendMessage(msg.role === 'assistant' ? 'ai' : 'user', msg.content);
+                });
+            }
+        } catch (e) {
+            console.error("Failed to load history", e);
+        }
+    }
+
+    // Clear history
+    async function clearHistory() {
+        if (!confirm('Are you sure you want to clear your chat history?')) return;
+        try {
+            await fetch('/chatbot/clear', { method: 'POST' });
+            chatArea.innerHTML = '';
+            chatArea.appendChild(welcomeState);
+            welcomeState.style.display = 'flex';
+            clearBtn.style.display = 'none';
+        } catch (e) {
+            console.error("Failed to clear", e);
+        }
+    }
+
+    // Send message
+    async function sendMessage() {
+        const text = messageInput.value.trim();
+        if (!text) return;
+
+        // UI Reset
+        messageInput.value = '';
+        messageInput.style.height = 'auto';
+        sendBtn.disabled = true;
+        isWaiting = true;
+
+        appendMessage('user', text, true);
+        showTyping();
+
+        try {
+            const res = await fetch('/chatbot/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            });
+            const data = await res.json();
+            
+            removeTyping();
+            
+            if (data.error) {
+                appendMessage('ai', `**Error:** ${data.error}`, true);
+            } else if (data.reply) {
+                appendMessage('ai', data.reply, true);
+            }
+        } catch (e) {
+            removeTyping();
+            appendMessage('ai', `**Network Error:** Could not reach the server.`, true);
+        } finally {
+            isWaiting = false;
+            autoResize(messageInput); // re-evaluate button state
+        }
+    }
+
+    // Init
+    window.addEventListener('load', () => {
+        lucide.createIcons();
+        loadHistory();
+    });
+</script>
+{% endblock %}

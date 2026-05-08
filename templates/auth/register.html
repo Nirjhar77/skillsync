@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Register — SkillSync{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card glass-card">
+        <div class="auth-header">
+            <a href="{{ url_for('auth.index') }}" class="auth-logo-link">
+                <img src="{{ url_for('static', filename='images/logo-full.png') }}" alt="SkillSync" class="auth-logo-img">
+            </a>
+            <h1>Join SkillSync</h1>
+            <p class="auth-subtitle">Start your AI-powered career journey</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.register') }}" class="auth-form" id="register-form">
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <div class="input-wrapper">
+                    <i data-lucide="user" class="input-icon"></i>
+                    <input type="text" id="username" name="username" class="form-input" placeholder="Choose a username" required minlength="3" autocomplete="username">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email</label>
+                <div class="input-wrapper">
+                    <i data-lucide="mail" class="input-icon"></i>
+                    <input type="email" id="email" name="email" class="form-input" placeholder="your@email.com" required autocomplete="email">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-wrapper">
+                    <i data-lucide="lock" class="input-icon"></i>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="At least 6 characters" required minlength="6" autocomplete="new-password">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password" class="form-label">Confirm Password</label>
+                <div class="input-wrapper">
+                    <i data-lucide="shield-check" class="input-icon"></i>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="Repeat your password" required autocomplete="new-password">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full" id="register-btn">
+                <span>Create Account</span>
+                <i data-lucide="rocket" class="btn-icon"></i>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('auth.login') }}" class="auth-link">Sign in</a></p>
+        </div>
+    </div>
+
+    <div class="auth-decoration">
+        <div class="decoration-orb orb-1"></div>
+        <div class="decoration-orb orb-2"></div>
+        <div class="decoration-orb orb-3"></div>
+    </div>
+</div>
+{% endblock %}

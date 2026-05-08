@@ -1,0 +1,446 @@
+{% extends "base.html" %}
+{% block title %}{% if generating %}Generating Roadmap{% else %}{{ career.title }} Roadmap{% endif %} - SkillSync{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/roadmap.css') }}">
+{% endblock %}
+
+{% block content %}
+{% if generating %}
+<div class="roadmap-loading" id="ai-loading">
+  <div class="roadmap-loading-card">
+    <div class="roadmap-loading-mark">
+      <i data-lucide="route" class="roadmap-loading-icon"></i>
+    </div>
+    <div>
+      <p class="rm-kicker">Roadmap generation</p>
+      <h1 class="roadmap-loading-title">Building your learning plan</h1>
+      <p class="roadmap-loading-subtitle">AI is preparing a phased roadmap for <strong>{{ career.title }}</strong>.</p>
+    </div>
+
+    <div class="loading-progress">
+      <div class="rm-progress-track">
+        <div class="rm-progress-fill" id="ai-progress-bar"></div>
+      </div>
+      <span class="progress-text" id="ai-progress-text">Initializing...</span>
+    </div>
+
+    <div class="loading-steps" id="loading-steps">
+      <div class="loading-step active" id="step-1"><i data-lucide="user-check" class="step-icon"></i><span>Analyzing profile</span></div>
+      <div class="loading-step" id="step-2"><i data-lucide="book-open" class="step-icon"></i><span>Checking curriculum</span></div>
+      <div class="loading-step" id="step-3"><i data-lucide="brain" class="step-icon"></i><span>Generating roadmap</span></div>
+      <div class="loading-step" id="step-4"><i data-lucide="check-circle" class="step-icon"></i><span>Finalizing resources</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const progressBar = document.getElementById('ai-progress-bar');
+  const progressText = document.getElementById('ai-progress-text');
+  const steps = document.querySelectorAll('.loading-step');
+  const roadmapId = {{ roadmap.id }};
+  const stages = [
+    { pct: 15, text: 'Analyzing your profile...', step: 0 },
+    { pct: 35, text: 'Checking curriculum coverage...', step: 1 },
+    { pct: 55, text: 'Generating phased roadmap...', step: 2 },
+    { pct: 75, text: 'Building milestones and resources...', step: 2 },
+  ];
+  let currentStage = 0;
+  let hasError = false;
+
+  function nextStage() {
+    if (hasError || currentStage >= stages.length) return;
+    const s = stages[currentStage];
+    progressBar.style.width = s.pct + '%';
+    progressText.textContent = s.text;
+    steps.forEach((el, i) => {
+      el.classList.remove('active', 'done');
+      if (i < s.step) el.classList.add('done');
+      if (i === s.step) el.classList.add('active');
+    });
+    currentStage++;
+    setTimeout(nextStage, 1500);
+  }
+  nextStage();
+
+  fetch(`/career/roadmap/do_generate/${roadmapId}`, { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        progressBar.style.width = '100%';
+        progressText.textContent = 'Roadmap ready.';
+        steps.forEach(el => el.classList.add('done'));
+        steps[3].classList.add('active');
+        setTimeout(() => { window.location.href = data.redirect; }, 1000);
+      } else {
+        hasError = true;
+        progressText.textContent = 'Error: ' + (data.error || 'Generation failed');
+        progressBar.classList.add('error');
+      }
+    })
+    .catch(() => {
+      hasError = true;
+      progressText.textContent = 'Network error. Please try again.';
+      progressBar.classList.add('error');
+    });
+});
+</script>
+{% else %}
+<div class="roadmap-page">
+  <div class="rm-tabs" aria-label="Roadmap views">
+    <span class="rm-tab active"><i data-lucide="list-checks"></i>Start Journey</span>
+    <a href="{{ url_for('career.guide_view', roadmap_id=roadmap.id) }}" class="rm-tab"><i data-lucide="map"></i>Visual Guide</a>
+  </div>
+
+  <section class="rm-dashboard-head" id="rm-hero">
+    <div class="rm-head-main">
+      <p class="rm-kicker">Career roadmap</p>
+      <h1 class="rm-title">{{ roadmap_data.get('roadmap_title', career.title + ' Roadmap') }}</h1>
+      <p class="rm-summary">{{ hero_subtitle or roadmap_data.get('summary', career.description or '') }}</p>
+      <div class="rm-head-actions">
+        <a href="#current-focus" class="rm-btn rm-btn-primary" onclick="smoothScrollTo('current-focus')">
+          <i data-lucide="play"></i>Start learning
+        </a>
+        <a href="#rm-phases" class="rm-btn rm-btn-secondary" onclick="smoothScrollTo('rm-phases')">
+          <i data-lucide="rows-3"></i>View phases
+        </a>
+      </div>
+    </div>
+
+    <div class="rm-summary-grid">
+      <div class="rm-stat">
+        <span class="rm-stat-label">Estimated time</span>
+        <span class="rm-stat-value"><i data-lucide="calendar-days"></i>{{ roadmap_data.get('estimated_total_weeks', '?') }} weeks</span>
+      </div>
+      {% if readiness_start is not none and readiness_end is not none %}
+      <div class="rm-stat">
+        <span class="rm-stat-label">Readiness</span>
+        <span class="rm-stat-value">{{ readiness_start }}% to {{ readiness_end }}%</span>
+        <div class="rm-mini-track"><div class="rm-mini-fill" style="width:{{ readiness_end }}%;"></div></div>
+      </div>
+      {% endif %}
+      <div class="rm-stat">
+        <span class="rm-stat-label">Milestones</span>
+        <span class="rm-stat-value"><i data-lucide="check-circle-2"></i>{{ completed_count }} / {{ total_count }} done</span>
+      </div>
+      {% if outcome_roles %}
+      <div class="rm-stat rm-stat-wide">
+        <span class="rm-stat-label">Target outcomes</span>
+        <div class="rm-chip-row">
+          {% for role in outcome_roles %}
+          <span class="rm-chip">{{ role }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="rm-phase-nav" aria-labelledby="phase-nav-title">
+    <div class="rm-section-row">
+      <div>
+        <p class="rm-kicker" id="phase-nav-title">Journey overview</p>
+        <h2 class="rm-section-title">Phases</h2>
+      </div>
+      <div class="rm-progress-inline">
+        <span>{{ progress }}% complete</span>
+        <div class="rm-progress-track"><div class="rm-progress-fill" id="roadmap-progress-bar" style="width:{{ progress }}%;"></div></div>
+      </div>
+    </div>
+
+    <div class="rm-phase-scroll" id="phase-graph">
+      {% for phase_num, phase in phases.items() %}
+      {% set pdone = phase.milestones | selectattr('completed') | list | length %}
+      {% set ptotal = phase.milestones | length %}
+      {% set ppct = ((pdone / ptotal) * 100) | int if ptotal > 0 else 0 %}
+      {% set is_active = current_phase_data and current_phase_data.phase_number == phase_num %}
+      <button class="phase-chip {% if is_active %}active-phase{% endif %}" onclick="scrollToPhase({{ phase_num }})" title="{{ phase.phase_description }}">
+        <span class="phase-chip-num">Phase {{ phase_num }}</span>
+        <span class="phase-chip-title">{{ phase.phase_title }}</span>
+        <span class="phase-chip-prog">{{ pdone }}/{{ ptotal }} complete</span>
+        <span class="phase-chip-bar"><span class="phase-chip-bar-fill" style="width:{{ ppct }}%;"></span></span>
+      </button>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section id="current-focus" class="rm-current">
+    {% if progress == 100 %}
+    <div class="rm-current-card complete">
+      <i data-lucide="trophy"></i>
+      <div>
+        <p class="rm-kicker">Complete</p>
+        <h2 class="rm-current-title">Roadmap complete</h2>
+        <p class="rm-current-copy">Every milestone is marked done.</p>
+      </div>
+    </div>
+    {% elif next_milestone %}
+    <div class="rm-current-card">
+      <div class="rm-current-main">
+        <p class="rm-kicker">Current focus</p>
+        <h2 class="rm-current-title">{{ next_milestone.title }}</h2>
+        <p class="rm-current-copy">{{ current_phase_data.phase_title if current_phase_data else "Your Journey" }}</p>
+        <div class="rm-meta-row">
+          <span><i data-lucide="clock"></i>{{ next_milestone.estimated_hours }}h</span>
+          {% if next_milestone.unlocks %}<span><i data-lucide="key-round"></i>Unlocks: {{ next_milestone.unlocks }}</span>{% endif %}
+        </div>
+      </div>
+      <div class="rm-current-actions">
+        {% if next_milestone.resource_url and next_milestone.resource_url.startswith("http") %}
+        <a href="{{ url_for('progress.redirect_to_resource', milestone_id=next_milestone.id) }}" target="_blank" class="rm-btn rm-btn-primary">
+          <i data-lucide="external-link"></i>Continue
+        </a>
+        {% endif %}
+        <button class="rm-btn rm-btn-secondary" onclick="focusMilestone({{ next_milestone.id }})">View details</button>
+      </div>
+    </div>
+    {% endif %}
+  </section>
+
+  <section id="rm-phases" class="rm-phases">
+    {% for phase_num, phase in phases.items() %}
+    {% set pdone = phase.milestones | selectattr("completed") | list | length %}
+    {% set ptotal = phase.milestones | length %}
+    {% set ppct = ((pdone / ptotal) * 100) | int if ptotal > 0 else 0 %}
+    <div class="phase-block phase-{{ phase_num }}" id="phase-{{ phase_num }}">
+      <div class="phase-header">
+        <div>
+          <span class="phase-badge">Phase {{ phase.phase_number }}</span>
+          <h2 class="phase-title">{{ phase.phase_title }}</h2>
+          {% if phase.phase_description %}<p class="phase-desc">{{ phase.phase_description }}</p>{% endif %}
+        </div>
+        <div class="phase-right">
+          <span class="phase-prog-txt">{{ pdone }}/{{ ptotal }} complete</span>
+          <div class="phase-prog-bar"><div class="phase-prog-fill" style="width:{{ ppct }}%;"></div></div>
+        </div>
+      </div>
+
+      <div class="milestone-grid">
+        {% for milestone in phase.milestones %}
+        {% set ct = milestone.card_type or "core" %}
+        <div class="milestone-node {% if milestone.completed %}done{% elif milestone.clicked %}active{% endif %}" id="milestone-{{ milestone.id }}">
+          <div class="m-dot-col">
+            <div class="m-dot" data-step="{{ loop.index }}">
+              {% if milestone.completed %}<i data-lucide="check"></i>{% else %}{{ loop.index }}{% endif %}
+            </div>
+          </div>
+          <div class="m-card card-{{ ct }}" onclick="toggleCard(this)">
+            <div class="m-card-head">
+              <div class="m-card-title-wrap">
+                <span class="m-type-badge badge-{{ ct }}">{{ ct }}</span>
+                <h3 class="m-card-title">{{ milestone.title }}</h3>
+              </div>
+              <div class="m-card-badges">
+                <span class="m-hours"><i data-lucide="clock"></i>{{ milestone.estimated_hours }}h</span>
+                <i data-lucide="chevron-down" class="m-collapse-icon"></i>
+              </div>
+            </div>
+            <div class="m-card-body">
+              {% if milestone.requires or milestone.unlocks %}
+              <div class="dep-tags">
+                {% if milestone.requires %}<span class="dep-tag dep-requires"><i data-lucide="lock-keyhole"></i>Requires: {{ milestone.requires }}</span>{% endif %}
+                {% if milestone.unlocks %}<span class="dep-tag dep-unlocks"><i data-lucide="key-round"></i>Unlocks: {{ milestone.unlocks }}</span>{% endif %}
+              </div>
+              {% endif %}
+              <p class="m-desc">{{ milestone.description }}</p>
+              <div class="m-actions">
+                {% if milestone.resource_url and milestone.resource_url.startswith("http") %}
+                <a href="{{ url_for('progress.redirect_to_resource', milestone_id=milestone.id) }}" target="_blank" class="rm-btn rm-btn-small rm-btn-secondary" id="open-resource-{{ milestone.id }}">
+                  <span class="res-dot res-{{ milestone.resource_type }}"></span>Open resource
+                </a>
+                {% endif %}
+                <button class="rm-btn rm-btn-small {% if milestone.completed %}rm-btn-success{% else %}rm-btn-secondary{% endif %}" onclick="event.stopPropagation(); toggleMilestone({{ milestone.id }})" id="complete-btn-{{ milestone.id }}">
+                  {% if milestone.completed %}
+                  <i data-lucide="check-circle"></i>Completed
+                  {% else %}
+                  <i data-lucide="circle"></i>Mark done
+                  {% endif %}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </section>
+
+  <section class="rm-outcome">
+    <div>
+      <p class="rm-kicker">Outcome</p>
+      <h2 class="rm-section-title">After completing this roadmap</h2>
+    </div>
+    <div class="rm-outcome-grid">
+      <div>
+        <div class="rm-outcome-col-label">You can apply for</div>
+        <div class="rm-chip-row">
+          {% if outcome_roles %}
+            {% for role in outcome_roles %}<span class="rm-chip success"><i data-lucide="briefcase-business"></i>{{ role }}</span>{% endfor %}
+          {% else %}
+            <span class="rm-chip success"><i data-lucide="briefcase-business"></i>{{ career.title }}</span>
+          {% endif %}
+        </div>
+      </div>
+      <div>
+        <div class="rm-outcome-col-label">You will have</div>
+        <ul class="will-have-list">
+          <li>2-3 portfolio-ready projects</li>
+          <li>Strong domain fundamentals</li>
+          <li>Real-world tool experience</li>
+          <li>Interview-ready skill set</li>
+        </ul>
+      </div>
+    </div>
+    <div class="rm-outcome-actions">
+      <a href="{{ url_for('cv.builder') }}" class="rm-btn rm-btn-primary"><i data-lucide="file-text"></i>Generate CV</a>
+      <a href="{{ url_for('progress.tracker') }}" class="rm-btn rm-btn-secondary"><i data-lucide="trending-up"></i>View progress</a>
+    </div>
+  </section>
+
+  <section class="chat-section glass-card rm-chat" id="roadmap-chat">
+    <div class="chat-header" onclick="toggleChat()">
+      <h3><i data-lucide="message-circle"></i>Ask AI about your roadmap</h3>
+      <i data-lucide="chevron-up" id="chat-toggle-icon"></i>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-message assistant">
+          <div class="message-avatar"><i data-lucide="bot"></i></div>
+          <div class="message-content">
+            <p>Hi. Ask me about your {{ career.title }} journey, resources, project ideas, alternative paths, or interview prep.</p>
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <input type="text" id="chat-input" class="form-input" placeholder="Ask about your roadmap..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="btn btn-primary" onclick="sendChat()" id="chat-send-btn">
+          <i data-lucide="send" class="btn-icon"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const ROADMAP_ID = {{ roadmap.id }};
+
+function smoothScrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function scrollToPhase(num) {
+  const el = document.getElementById('phase-' + num);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function focusMilestone(id) {
+  const el = document.getElementById('milestone-' + id);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const card = el.querySelector('.m-card');
+  if (card && !card.classList.contains('open')) {
+    card.classList.add('open');
+    lucide.createIcons();
+  }
+}
+
+function toggleCard(card) {
+  card.classList.toggle('open');
+  lucide.createIcons();
+}
+
+function toggleMilestone(milestoneId) {
+  fetch('/progress/milestone/' + milestoneId + '/complete', { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) return;
+      const node = document.getElementById('milestone-' + milestoneId);
+      const btn = document.getElementById('complete-btn-' + milestoneId);
+      const dot = node.querySelector('.m-dot');
+      const bar = document.getElementById('roadmap-progress-bar');
+
+      if (data.completed) {
+        node.classList.add('done');
+        node.classList.remove('active');
+        dot.innerHTML = '<i data-lucide="check"></i>';
+        btn.className = 'rm-btn rm-btn-small rm-btn-success';
+        btn.innerHTML = '<i data-lucide="check-circle"></i>Completed';
+      } else {
+        node.classList.remove('done');
+        dot.textContent = dot.dataset.step || '';
+        btn.className = 'rm-btn rm-btn-small rm-btn-secondary';
+        btn.innerHTML = '<i data-lucide="circle"></i>Mark done';
+      }
+
+      if (bar) bar.style.width = data.progress + '%';
+      const progressText = document.querySelector('.rm-progress-inline span');
+      if (progressText) progressText.textContent = data.progress + '% complete';
+      lucide.createIcons();
+      if (data.completed && data.progress === 100) celebrateCompletion();
+    });
+}
+
+function toggleChat() {
+  const body = document.getElementById('chat-body');
+  const icon = document.getElementById('chat-toggle-icon');
+  body.classList.toggle('collapsed');
+  icon.style.transform = body.classList.contains('collapsed') ? 'rotate(180deg)' : '';
+}
+
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const message = input.value.trim();
+  if (!message) return;
+  const div = document.getElementById('chat-messages');
+  div.innerHTML += '<div class="chat-message user"><div class="message-content"><p>' + escapeHtml(message) + '</p></div><div class="message-avatar"><i data-lucide="user"></i></div></div>';
+  div.innerHTML += '<div class="chat-message assistant loading" id="chat-loading"><div class="message-avatar"><i data-lucide="bot"></i></div><div class="message-content"><p class="typing-dots">Thinking<span>.</span><span>.</span><span>.</span></p></div></div>';
+  lucide.createIcons();
+  div.scrollTop = div.scrollHeight;
+  input.value = '';
+  fetch('/chat/send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ roadmap_id: ROADMAP_ID, message }),
+  }).then(r => r.json()).then(data => {
+    document.getElementById('chat-loading')?.remove();
+    div.innerHTML += '<div class="chat-message assistant"><div class="message-avatar"><i data-lucide="bot"></i></div><div class="message-content"><p>' + (data.response || 'Something went wrong.') + '</p></div></div>';
+    lucide.createIcons();
+    div.scrollTop = div.scrollHeight;
+  });
+}
+
+function escapeHtml(text) {
+  const d = document.createElement('div');
+  d.textContent = text;
+  return d.innerHTML;
+}
+
+function celebrateCompletion() {
+  const colors = ['#00d4ff', '#7c3aed', '#f472b6', '#34d399', '#fbbf24'];
+  for (let i = 0; i < 60; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.cssText = 'left:' + (Math.random() * 100) + 'vw;background:' + colors[Math.floor(Math.random() * colors.length)] + ';animation-duration:' + (Math.random() * 2 + 1) + 's;animation-delay:' + (Math.random() * 0.5) + 's';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 3500);
+  }
+}
+
+fetch('/chat/history/' + ROADMAP_ID)
+  .then(r => r.json())
+  .then(data => {
+    if (!data.messages?.length) return;
+    const div = document.getElementById('chat-messages');
+    data.messages.forEach(m => {
+      const isUser = m.role === 'user';
+      div.innerHTML += '<div class="chat-message ' + m.role + '">' + (isUser ? '' : '<div class="message-avatar"><i data-lucide="bot"></i></div>') + '<div class="message-content"><p>' + m.content + '</p></div>' + (isUser ? '<div class="message-avatar"><i data-lucide="user"></i></div>' : '') + '</div>';
+    });
+    lucide.createIcons();
+    div.scrollTop = div.scrollHeight;
+  });
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.title }} — Resources — SkillSync{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/resources.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="resources-page">
+
+  <!-- ── Breadcrumb / Back ──────────────────────────────────── -->
+  <div class="detail-breadcrumb">
+    <a href="{{ url_for('resources.index') }}" class="back-link">
+      <i data-lucide="arrow-left" class="back-icon"></i>
+      Back to Resources
+    </a>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-cat" style="--cat-color: var(--res-{{ category.color }});">
+      <i data-lucide="{{ category.icon }}" class="breadcrumb-cat-icon"></i>
+      {{ category.label }}
+    </span>
+  </div>
+
+  <!-- ── Course Hero ───────────────────────────────────────── -->
+  <div class="detail-hero glass-card" style="--card-accent: var(--res-{{ category.color }});">
+    <div class="detail-hero-accent-bar"></div>
+
+    <div class="detail-hero-body">
+      <div class="detail-meta-row">
+        <span class="difficulty-badge difficulty-{{ course.difficulty | lower }}">
+          {% if course.difficulty == 'Beginner' %}
+            <i data-lucide="circle" class="diff-icon"></i>
+          {% elif course.difficulty == 'Intermediate' %}
+            <i data-lucide="triangle" class="diff-icon"></i>
+          {% else %}
+            <i data-lucide="zap" class="diff-icon"></i>
+          {% endif %}
+          {{ course.difficulty }}
+        </span>
+        <span class="detail-source-count">
+          <i data-lucide="link" class="chip-icon"></i>
+          {{ course.platforms | length }} learning source{{ 's' if course.platforms | length > 1 else '' }}
+        </span>
+      </div>
+
+      <h1 class="detail-title">{{ course.title }}</h1>
+      <p class="detail-description">{{ course.description }}</p>
+
+      <!-- Tags -->
+      <div class="course-tags">
+        {% for tag in course.tags %}
+        <span class="course-tag">#{{ tag }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Platform Sources ───────────────────────────────────── -->
+  <div class="platforms-section">
+    <h2 class="platforms-heading">
+      <i data-lucide="external-link" class="heading-icon"></i>
+      Where to Learn
+    </h2>
+    <p class="platforms-subheading">
+      Choose from {{ course.platforms | length }} curated source{{ 's' if course.platforms | length > 1 else '' }} below.
+      All links open the platform directly.
+    </p>
+
+    <div class="platforms-grid">
+      {% for platform in course.platforms %}
+      {% set pname = platform.name | lower %}
+      {% if 'youtube' in pname %}
+        {% set p_type = 'youtube' %}
+        {% set p_label = 'YouTube' %}
+        {% set p_desc = 'Free video course — watch at your own pace' %}
+      {% elif 'coursera' in pname %}
+        {% set p_type = 'coursera' %}
+        {% set p_label = 'Coursera' %}
+        {% set p_desc = 'University-backed course — free audit or certificate' %}
+      {% elif 'udemy' in pname %}
+        {% set p_type = 'udemy' %}
+        {% set p_label = 'Udemy' %}
+        {% set p_desc = 'Paid course — frequently discounted' %}
+      {% elif 'edx' in pname %}
+        {% set p_type = 'edx' %}
+        {% set p_label = 'edX' %}
+        {% set p_desc = 'University courses — free audit available' %}
+      {% elif 'freecodecamp' in pname %}
+        {% set p_type = 'freecodecamp' %}
+        {% set p_label = 'freeCodeCamp' %}
+        {% set p_desc = 'Completely free interactive curriculum' %}
+      {% elif 'kaggle' in pname %}
+        {% set p_type = 'kaggle' %}
+        {% set p_label = 'Kaggle' %}
+        {% set p_desc = 'Free hands-on data science notebooks' %}
+      {% elif 'fast.ai' in pname %}
+        {% set p_type = 'fastai' %}
+        {% set p_label = 'fast.ai' %}
+        {% set p_desc = 'Free state-of-the-art deep learning course' %}
+      {% elif 'google' in pname %}
+        {% set p_type = 'google' %}
+        {% set p_label = 'Google' %}
+        {% set p_desc = 'Official Google learning resource — free' %}
+      {% elif 'github' in pname or 'odin' in pname %}
+        {% set p_type = 'odin' %}
+        {% set p_label = 'The Odin Project' %}
+        {% set p_desc = 'Free open-source web dev curriculum' %}
+      {% elif 'aws' in pname %}
+        {% set p_type = 'aws' %}
+        {% set p_label = 'AWS Skill Builder' %}
+        {% set p_desc = 'Official AWS learning platform — free tier available' %}
+      {% elif 'hugging' in pname %}
+        {% set p_type = 'huggingface' %}
+        {% set p_label = 'Hugging Face' %}
+        {% set p_desc = 'Free NLP & transformer model courses' %}
+      {% else %}
+        {% set p_type = 'default' %}
+        {% set p_label = platform.name %}
+        {% set p_desc = 'External learning resource' %}
+      {% endif %}
+
+      <div class="platform-card platform-{{ p_type }}" style="animation-delay: {{ loop.index0 * 0.08 }}s;">
+        <div class="platform-card-left">
+          <div class="platform-icon-wrap platform-icon-{{ p_type }}">
+            {% if p_type == 'youtube' %}
+              <i data-lucide="play-circle" class="platform-icon"></i>
+            {% elif p_type == 'coursera' %}
+              <i data-lucide="graduation-cap" class="platform-icon"></i>
+            {% elif p_type == 'udemy' %}
+              <i data-lucide="video" class="platform-icon"></i>
+            {% elif p_type == 'edx' %}
+              <i data-lucide="building-2" class="platform-icon"></i>
+            {% elif p_type == 'freecodecamp' %}
+              <i data-lucide="code-2" class="platform-icon"></i>
+            {% elif p_type == 'kaggle' %}
+              <i data-lucide="bar-chart-2" class="platform-icon"></i>
+            {% elif p_type == 'fastai' %}
+              <i data-lucide="cpu" class="platform-icon"></i>
+            {% elif p_type == 'google' %}
+              <i data-lucide="search" class="platform-icon"></i>
+            {% elif p_type == 'aws' %}
+              <i data-lucide="cloud" class="platform-icon"></i>
+            {% elif p_type == 'huggingface' %}
+              <i data-lucide="brain" class="platform-icon"></i>
+            {% else %}
+              <i data-lucide="globe" class="platform-icon"></i>
+            {% endif %}
+          </div>
+          <div class="platform-info">
+            <div class="platform-name">{{ platform.name }}</div>
+            <div class="platform-desc">{{ p_desc }}</div>
+          </div>
+        </div>
+        <a
+          href="{{ platform.url }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-primary platform-cta"
+          id="platform-link-{{ loop.index }}"
+        >
+          Open Course
+          <i data-lucide="external-link" class="btn-icon"></i>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ── Related / Back Footer ─────────────────────────────── -->
+  <div class="detail-footer">
+    <a href="{{ url_for('resources.index') }}" class="btn btn-secondary">
+      <i data-lucide="arrow-left" class="btn-icon"></i>
+      Browse More Courses
+    </a>
+    <span class="detail-footer-note">
+      <i data-lucide="info" class="footer-info-icon"></i>
+      Links open official course pages. Availability may vary by region.
+    </span>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/resources.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,793 @@
+{
+  "career_paths": [
+    {
+      "slug": "data_analyst",
+      "title": "Data Analyst",
+      "category": "Data & Analytics",
+      "description": "Transform raw data into actionable insights using statistical analysis, visualization tools, and business intelligence platforms.",
+      "required_skills": {
+        "statistics": {"weight": 0.9, "level": "intermediate"},
+        "python": {"weight": 0.8, "level": "intermediate"},
+        "sql": {"weight": 0.9, "level": "intermediate"},
+        "data_visualization": {"weight": 0.7, "level": "beginner"},
+        "excel": {"weight": 0.5, "level": "intermediate"},
+        "critical_thinking": {"weight": 0.4, "level": "beginner"}
+      },
+      "recommended_tools": ["Tableau", "Power BI", "Pandas", "Excel", "SQL Server"],
+      "avg_salary_range": "$55,000 - $85,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "data_scientist",
+      "title": "Data Scientist",
+      "category": "Data & Analytics",
+      "description": "Apply machine learning, statistical modeling, and advanced analytics to solve complex business problems with data-driven solutions.",
+      "required_skills": {
+        "python": {"weight": 0.9, "level": "advanced"},
+        "machine_learning": {"weight": 0.9, "level": "intermediate"},
+        "statistics": {"weight": 0.9, "level": "advanced"},
+        "sql": {"weight": 0.7, "level": "intermediate"},
+        "deep_learning": {"weight": 0.6, "level": "beginner"},
+        "data_visualization": {"weight": 0.5, "level": "intermediate"},
+        "linear_algebra": {"weight": 0.7, "level": "intermediate"}
+      },
+      "recommended_tools": ["TensorFlow", "PyTorch", "Scikit-learn", "Jupyter", "Pandas"],
+      "avg_salary_range": "$85,000 - $130,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "data_engineer",
+      "title": "Data Engineer",
+      "category": "Data & Analytics",
+      "description": "Design, build, and maintain the data pipelines and infrastructure that power analytics and machine learning at scale.",
+      "required_skills": {
+        "python": {"weight": 0.9, "level": "advanced"},
+        "sql": {"weight": 0.9, "level": "advanced"},
+        "databases": {"weight": 0.9, "level": "advanced"},
+        "cloud_computing": {"weight": 0.8, "level": "intermediate"},
+        "data_structures": {"weight": 0.7, "level": "intermediate"},
+        "linux": {"weight": 0.6, "level": "intermediate"},
+        "containerization": {"weight": 0.5, "level": "beginner"}
+      },
+      "recommended_tools": ["Apache Spark", "Airflow", "Kafka", "AWS Redshift", "dbt"],
+      "avg_salary_range": "$90,000 - $140,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "software_engineer",
+      "title": "Software Engineer",
+      "category": "Software Development",
+      "description": "Design, develop, and maintain software applications using modern programming languages, frameworks, and engineering best practices.",
+      "required_skills": {
+        "python": {"weight": 0.7, "level": "advanced"},
+        "data_structures": {"weight": 0.9, "level": "advanced"},
+        "algorithms": {"weight": 0.9, "level": "advanced"},
+        "oop": {"weight": 0.8, "level": "intermediate"},
+        "git": {"weight": 0.7, "level": "intermediate"},
+        "databases": {"weight": 0.6, "level": "intermediate"},
+        "system_design": {"weight": 0.5, "level": "beginner"},
+        "testing": {"weight": 0.5, "level": "beginner"}
+      },
+      "recommended_tools": ["VS Code", "Git", "Docker", "PostgreSQL", "Linux"],
+      "avg_salary_range": "$80,000 - $140,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "web_developer",
+      "title": "Full-Stack Web Developer",
+      "category": "Software Development",
+      "description": "Build modern, responsive web applications using frontend frameworks, backend APIs, and cloud deployment technologies.",
+      "required_skills": {
+        "html_css": {"weight": 0.9, "level": "intermediate"},
+        "javascript": {"weight": 0.9, "level": "advanced"},
+        "python": {"weight": 0.6, "level": "intermediate"},
+        "databases": {"weight": 0.7, "level": "intermediate"},
+        "git": {"weight": 0.6, "level": "intermediate"},
+        "api_design": {"weight": 0.7, "level": "intermediate"},
+        "react_or_frontend": {"weight": 0.7, "level": "intermediate"}
+      },
+      "recommended_tools": ["React", "Node.js", "Next.js", "MongoDB", "AWS/Vercel"],
+      "avg_salary_range": "$65,000 - $120,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "frontend_developer",
+      "title": "Frontend Developer",
+      "category": "Software Development",
+      "description": "Create beautiful, performant user interfaces using modern JavaScript frameworks, CSS, and responsive design techniques.",
+      "required_skills": {
+        "html_css": {"weight": 0.9, "level": "advanced"},
+        "javascript": {"weight": 0.9, "level": "advanced"},
+        "react_or_frontend": {"weight": 0.9, "level": "intermediate"},
+        "ui_design": {"weight": 0.6, "level": "beginner"},
+        "git": {"weight": 0.6, "level": "intermediate"},
+        "testing": {"weight": 0.5, "level": "beginner"},
+        "api_design": {"weight": 0.5, "level": "beginner"}
+      },
+      "recommended_tools": ["React", "TypeScript", "Tailwind CSS", "Figma", "Vite"],
+      "avg_salary_range": "$60,000 - $120,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "backend_developer",
+      "title": "Backend Developer",
+      "category": "Software Development",
+      "description": "Build robust server-side applications, APIs, and database systems that power web and mobile applications at scale.",
+      "required_skills": {
+        "python": {"weight": 0.9, "level": "advanced"},
+        "databases": {"weight": 0.9, "level": "advanced"},
+        "api_design": {"weight": 0.9, "level": "intermediate"},
+        "system_design": {"weight": 0.7, "level": "intermediate"},
+        "cloud_computing": {"weight": 0.6, "level": "beginner"},
+        "git": {"weight": 0.6, "level": "intermediate"},
+        "linux": {"weight": 0.5, "level": "intermediate"},
+        "testing": {"weight": 0.5, "level": "beginner"}
+      },
+      "recommended_tools": ["Django/Flask", "PostgreSQL", "Redis", "Docker", "AWS"],
+      "avg_salary_range": "$75,000 - $135,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "mobile_developer",
+      "title": "Mobile App Developer",
+      "category": "Software Development",
+      "description": "Design and develop native and cross-platform mobile applications for iOS and Android with modern frameworks.",
+      "required_skills": {
+        "javascript": {"weight": 0.8, "level": "advanced"},
+        "react_or_frontend": {"weight": 0.9, "level": "intermediate"},
+        "api_design": {"weight": 0.7, "level": "intermediate"},
+        "git": {"weight": 0.6, "level": "intermediate"},
+        "ui_design": {"weight": 0.6, "level": "beginner"},
+        "databases": {"weight": 0.5, "level": "beginner"},
+        "testing": {"weight": 0.5, "level": "beginner"}
+      },
+      "recommended_tools": ["React Native", "Flutter", "Swift", "Kotlin", "Firebase"],
+      "avg_salary_range": "$70,000 - $130,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "ml_engineer",
+      "title": "Machine Learning Engineer",
+      "category": "AI & Machine Learning",
+      "description": "Build and deploy production-grade machine learning models and pipelines that scale to serve millions of users.",
+      "required_skills": {
+        "python": {"weight": 0.9, "level": "advanced"},
+        "machine_learning": {"weight": 0.9, "level": "advanced"},
+        "deep_learning": {"weight": 0.8, "level": "intermediate"},
+        "data_structures": {"weight": 0.7, "level": "intermediate"},
+        "cloud_computing": {"weight": 0.6, "level": "beginner"},
+        "linear_algebra": {"weight": 0.8, "level": "advanced"},
+        "statistics": {"weight": 0.7, "level": "intermediate"},
+        "mlops": {"weight": 0.5, "level": "beginner"}
+      },
+      "recommended_tools": ["TensorFlow", "PyTorch", "Kubeflow", "MLflow", "Docker"],
+      "avg_salary_range": "$100,000 - $160,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "ai_engineer",
+      "title": "AI Engineer",
+      "category": "AI & Machine Learning",
+      "description": "Design and build AI-powered applications using LLMs, computer vision, NLP, and generative AI — integrating AI into real products.",
+      "required_skills": {
+        "python": {"weight": 0.9, "level": "advanced"},
+        "machine_learning": {"weight": 0.8, "level": "intermediate"},
+        "deep_learning": {"weight": 0.9, "level": "intermediate"},
+        "api_design": {"weight": 0.7, "level": "intermediate"},
+        "cloud_computing": {"weight": 0.6, "level": "beginner"},
+        "system_design": {"weight": 0.5, "level": "beginner"},
+        "data_structures": {"weight": 0.6, "level": "intermediate"}
+      },
+      "recommended_tools": ["OpenAI API", "LangChain", "Hugging Face", "FastAPI", "Docker"],
+      "avg_salary_range": "$110,000 - $180,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "ai_automation_specialist",
+      "title": "AI Automation Specialist",
+      "category": "AI & Machine Learning",
+      "description": "Combine AI/ML with workflow automation to build intelligent systems — chatbots, automated pipelines, AI agents, and smart business processes.",
+      "required_skills": {
+        "python": {"weight": 0.9, "level": "intermediate"},
+        "machine_learning": {"weight": 0.7, "level": "beginner"},
+        "api_design": {"weight": 0.8, "level": "intermediate"},
+        "cloud_computing": {"weight": 0.6, "level": "beginner"},
+        "databases": {"weight": 0.5, "level": "beginner"},
+        "system_design": {"weight": 0.5, "level": "beginner"},
+        "testing": {"weight": 0.4, "level": "beginner"}
+      },
+      "recommended_tools": ["n8n", "Zapier", "LangChain", "Make", "Python", "OpenAI API"],
+      "avg_salary_range": "$75,000 - $130,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "ux_designer",
+      "title": "UX/UI Designer",
+      "category": "Design",
+      "description": "Create intuitive, visually appealing digital experiences through user research, wireframing, prototyping, and usability testing.",
+      "required_skills": {
+        "ui_design": {"weight": 0.9, "level": "intermediate"},
+        "user_research": {"weight": 0.8, "level": "intermediate"},
+        "prototyping": {"weight": 0.8, "level": "intermediate"},
+        "html_css": {"weight": 0.5, "level": "beginner"},
+        "visual_design": {"weight": 0.7, "level": "intermediate"},
+        "critical_thinking": {"weight": 0.4, "level": "beginner"},
+        "communication": {"weight": 0.5, "level": "intermediate"}
+      },
+      "recommended_tools": ["Figma", "Adobe XD", "Sketch", "InVision", "Miro"],
+      "avg_salary_range": "$60,000 - $110,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "product_manager",
+      "title": "Product Manager",
+      "category": "Management",
+      "description": "Drive product strategy, coordinate cross-functional teams, and deliver user-centered features that achieve business objectives.",
+      "required_skills": {
+        "communication": {"weight": 0.9, "level": "advanced"},
+        "critical_thinking": {"weight": 0.8, "level": "advanced"},
+        "data_visualization": {"weight": 0.5, "level": "beginner"},
+        "project_management": {"weight": 0.8, "level": "intermediate"},
+        "sql": {"weight": 0.4, "level": "beginner"},
+        "user_research": {"weight": 0.6, "level": "intermediate"},
+        "business_analysis": {"weight": 0.7, "level": "intermediate"}
+      },
+      "recommended_tools": ["Jira", "Notion", "Mixpanel", "SQL", "Figma"],
+      "avg_salary_range": "$85,000 - $145,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "devops_engineer",
+      "title": "DevOps Engineer",
+      "category": "Infrastructure",
+      "description": "Automate infrastructure, manage CI/CD pipelines, and ensure reliable, scalable deployment of software systems.",
+      "required_skills": {
+        "linux": {"weight": 0.9, "level": "advanced"},
+        "python": {"weight": 0.6, "level": "intermediate"},
+        "cloud_computing": {"weight": 0.9, "level": "intermediate"},
+        "git": {"weight": 0.8, "level": "advanced"},
+        "networking": {"weight": 0.7, "level": "intermediate"},
+        "databases": {"weight": 0.5, "level": "intermediate"},
+        "containerization": {"weight": 0.7, "level": "intermediate"}
+      },
+      "recommended_tools": ["Docker", "Kubernetes", "AWS", "Terraform", "Jenkins"],
+      "avg_salary_range": "$80,000 - $140,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "cloud_architect",
+      "title": "Cloud Architect",
+      "category": "Infrastructure",
+      "description": "Design and manage enterprise cloud infrastructure across AWS, Azure, or GCP — ensuring scalability, security, and cost optimization.",
+      "required_skills": {
+        "cloud_computing": {"weight": 0.9, "level": "advanced"},
+        "networking": {"weight": 0.8, "level": "advanced"},
+        "linux": {"weight": 0.8, "level": "intermediate"},
+        "containerization": {"weight": 0.7, "level": "intermediate"},
+        "system_design": {"weight": 0.8, "level": "intermediate"},
+        "security_fundamentals": {"weight": 0.6, "level": "intermediate"},
+        "databases": {"weight": 0.5, "level": "intermediate"}
+      },
+      "recommended_tools": ["AWS", "Azure", "GCP", "Terraform", "Kubernetes"],
+      "avg_salary_range": "$120,000 - $180,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "it_support_sysadmin",
+      "title": "IT Support / Systems Administrator",
+      "category": "Infrastructure",
+      "description": "Manage and maintain IT infrastructure, servers, networks, and user support. The gateway role into DevOps and Cloud careers.",
+      "required_skills": {
+        "linux": {"weight": 0.9, "level": "intermediate"},
+        "networking": {"weight": 0.9, "level": "intermediate"},
+        "security_fundamentals": {"weight": 0.7, "level": "beginner"},
+        "cloud_computing": {"weight": 0.5, "level": "beginner"},
+        "databases": {"weight": 0.4, "level": "beginner"},
+        "critical_thinking": {"weight": 0.4, "level": "beginner"}
+      },
+      "recommended_tools": ["Linux", "Windows Server", "Active Directory", "Wireshark", "TCP/IP"],
+      "avg_salary_range": "$45,000 - $75,000",
+      "growth_outlook": "Moderate"
+    },
+    {
+      "slug": "cybersecurity_analyst",
+      "title": "Cybersecurity Analyst",
+      "category": "Security",
+      "description": "Protect organizations from cyber threats by monitoring systems, analyzing vulnerabilities, and implementing security measures.",
+      "required_skills": {
+        "networking": {"weight": 0.9, "level": "advanced"},
+        "linux": {"weight": 0.8, "level": "intermediate"},
+        "python": {"weight": 0.5, "level": "intermediate"},
+        "cryptography": {"weight": 0.7, "level": "intermediate"},
+        "security_fundamentals": {"weight": 0.9, "level": "intermediate"},
+        "critical_thinking": {"weight": 0.6, "level": "intermediate"},
+        "incident_response": {"weight": 0.6, "level": "beginner"}
+      },
+      "recommended_tools": ["Wireshark", "Nmap", "Metasploit", "Burp Suite", "Splunk"],
+      "avg_salary_range": "$65,000 - $115,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "qa_engineer",
+      "title": "QA / Test Engineer",
+      "category": "Software Development",
+      "description": "Ensure software quality through manual and automated testing — writing test plans, unit tests, integration tests, and CI/CD test pipelines.",
+      "required_skills": {
+        "testing": {"weight": 0.9, "level": "advanced"},
+        "python": {"weight": 0.7, "level": "intermediate"},
+        "git": {"weight": 0.6, "level": "intermediate"},
+        "api_design": {"weight": 0.6, "level": "beginner"},
+        "databases": {"weight": 0.4, "level": "beginner"},
+        "linux": {"weight": 0.4, "level": "beginner"},
+        "critical_thinking": {"weight": 0.5, "level": "intermediate"}
+      },
+      "recommended_tools": ["Selenium", "Cypress", "pytest", "Postman", "Jenkins"],
+      "avg_salary_range": "$55,000 - $100,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "business_analyst",
+      "title": "Business Analyst",
+      "category": "Business",
+      "description": "Bridge the gap between business needs and technology solutions by analyzing processes, gathering requirements, and proposing improvements.",
+      "required_skills": {
+        "business_analysis": {"weight": 0.9, "level": "intermediate"},
+        "sql": {"weight": 0.7, "level": "intermediate"},
+        "excel": {"weight": 0.8, "level": "advanced"},
+        "communication": {"weight": 0.8, "level": "advanced"},
+        "data_visualization": {"weight": 0.6, "level": "intermediate"},
+        "project_management": {"weight": 0.5, "level": "beginner"},
+        "critical_thinking": {"weight": 0.7, "level": "intermediate"}
+      },
+      "recommended_tools": ["Excel", "Tableau", "Power BI", "SQL", "Visio"],
+      "avg_salary_range": "$55,000 - $95,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "technical_writer",
+      "title": "Technical Writer",
+      "category": "Communications",
+      "description": "Translate complex technical concepts into clear, accessible documentation, tutorials, and guides for developers and end-users.",
+      "required_skills": {
+        "english_language_fluency": {"weight": 0.9, "level": "advanced"},
+        "technical_writing": {"weight": 0.9, "level": "intermediate"},
+        "communication": {"weight": 0.8, "level": "advanced"},
+        "html_css": {"weight": 0.5, "level": "beginner"},
+        "api_design": {"weight": 0.6, "level": "beginner"},
+        "git": {"weight": 0.5, "level": "beginner"}
+      },
+      "recommended_tools": ["Markdown", "Git", "Docusaurus", "Confluence", "Notion"],
+      "avg_salary_range": "$60,000 - $100,000",
+      "growth_outlook": "Moderate"
+    },
+    {
+      "slug": "digital_marketer",
+      "title": "Digital Marketer / SEO Specialist",
+      "category": "Marketing",
+      "description": "Drive user growth by executing data-driven marketing campaigns, managing SEO/SEM strategy, and analyzing conversion metrics.",
+      "required_skills": {
+        "digital_marketing": {"weight": 0.9, "level": "intermediate"},
+        "seo": {"weight": 0.8, "level": "intermediate"},
+        "content_creation": {"weight": 0.7, "level": "intermediate"},
+        "data_visualization": {"weight": 0.5, "level": "beginner"},
+        "copywriting": {"weight": 0.7, "level": "intermediate"},
+        "social_media_management": {"weight": 0.6, "level": "intermediate"}
+      },
+      "recommended_tools": ["Google Analytics", "Ahrefs", "HubSpot", "Canva", "Excel"],
+      "avg_salary_range": "$55,000 - $95,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "sre_platform_engineer",
+      "title": "SRE / Platform Engineer",
+      "category": "Engineering",
+      "description": "Ensure the reliability, scalability, and performance of large-scale production systems by applying software engineering principles to infrastructure operations.",
+      "required_skills": {
+        "linux": {"weight": 0.9, "level": "advanced"},
+        "python": {"weight": 0.8, "level": "intermediate"},
+        "cloud_computing": {"weight": 0.9, "level": "intermediate"},
+        "containerization": {"weight": 0.8, "level": "intermediate"},
+        "networking": {"weight": 0.7, "level": "intermediate"},
+        "system_design": {"weight": 0.8, "level": "intermediate"},
+        "monitoring": {"weight": 0.7, "level": "intermediate"},
+        "git": {"weight": 0.6, "level": "intermediate"}
+      },
+      "recommended_tools": ["Prometheus", "Grafana", "Kubernetes", "Terraform", "PagerDuty"],
+      "avg_salary_range": "$100,000 - $160,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "cloud_engineer",
+      "title": "Cloud Engineer",
+      "category": "Engineering",
+      "description": "Design, implement and manage cloud infrastructure across AWS, Azure or GCP — enabling teams to build and ship products at scale.",
+      "required_skills": {
+        "cloud_computing": {"weight": 0.95, "level": "advanced"},
+        "linux": {"weight": 0.8, "level": "intermediate"},
+        "containerization": {"weight": 0.8, "level": "intermediate"},
+        "networking": {"weight": 0.7, "level": "intermediate"},
+        "python": {"weight": 0.6, "level": "intermediate"},
+        "databases": {"weight": 0.5, "level": "intermediate"},
+        "git": {"weight": 0.6, "level": "intermediate"}
+      },
+      "recommended_tools": ["AWS", "Azure", "GCP", "Terraform", "Ansible"],
+      "avg_salary_range": "$85,000 - $145,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "solutions_engineer",
+      "title": "Solutions Engineer",
+      "category": "Engineering",
+      "description": "Bridge the gap between a company's technical products and its enterprise customers — building demos, integrations, and proof-of-concepts to close deals.",
+      "required_skills": {
+        "api_design": {"weight": 0.8, "level": "intermediate"},
+        "python": {"weight": 0.7, "level": "intermediate"},
+        "communication": {"weight": 0.9, "level": "advanced"},
+        "system_design": {"weight": 0.6, "level": "intermediate"},
+        "databases": {"weight": 0.5, "level": "beginner"},
+        "business_analysis": {"weight": 0.6, "level": "intermediate"}
+      },
+      "recommended_tools": ["Postman", "REST APIs", "SQL", "Python", "Salesforce"],
+      "avg_salary_range": "$80,000 - $135,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "bi_analyst",
+      "title": "Business Intelligence Analyst",
+      "category": "Data & Analytics",
+      "description": "Turn complex business data into strategic dashboards and reports that drive executive decision-making using BI platforms and SQL.",
+      "required_skills": {
+        "sql": {"weight": 0.9, "level": "advanced"},
+        "data_visualization": {"weight": 0.9, "level": "intermediate"},
+        "excel": {"weight": 0.8, "level": "advanced"},
+        "statistics": {"weight": 0.7, "level": "intermediate"},
+        "business_analysis": {"weight": 0.8, "level": "intermediate"},
+        "python": {"weight": 0.5, "level": "beginner"},
+        "critical_thinking": {"weight": 0.6, "level": "intermediate"}
+      },
+      "recommended_tools": ["Power BI", "Tableau", "Looker", "SQL Server", "Excel"],
+      "avg_salary_range": "$60,000 - $100,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "mlops_engineer",
+      "title": "MLOps Engineer",
+      "category": "AI & Machine Learning",
+      "description": "Operationalize machine learning models at scale — building pipelines, monitoring drift, and managing model lifecycle in production environments.",
+      "required_skills": {
+        "python": {"weight": 0.9, "level": "advanced"},
+        "machine_learning": {"weight": 0.8, "level": "intermediate"},
+        "cloud_computing": {"weight": 0.8, "level": "intermediate"},
+        "containerization": {"weight": 0.8, "level": "intermediate"},
+        "mlops": {"weight": 0.9, "level": "intermediate"},
+        "linux": {"weight": 0.7, "level": "intermediate"},
+        "git": {"weight": 0.7, "level": "intermediate"},
+        "databases": {"weight": 0.5, "level": "intermediate"}
+      },
+      "recommended_tools": ["MLflow", "Kubeflow", "Airflow", "Docker", "AWS SageMaker"],
+      "avg_salary_range": "$100,000 - $155,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "research_engineer",
+      "title": "Research Engineer",
+      "category": "AI & Machine Learning",
+      "description": "Work at the frontier of AI/ML research, implementing novel algorithms, running experiments, and publishing findings alongside academic or industry researchers.",
+      "required_skills": {
+        "python": {"weight": 0.9, "level": "advanced"},
+        "machine_learning": {"weight": 0.9, "level": "advanced"},
+        "deep_learning": {"weight": 0.9, "level": "advanced"},
+        "linear_algebra": {"weight": 0.9, "level": "advanced"},
+        "statistics": {"weight": 0.9, "level": "advanced"},
+        "data_structures": {"weight": 0.7, "level": "advanced"},
+        "research_methodology": {"weight": 0.8, "level": "intermediate"}
+      },
+      "recommended_tools": ["PyTorch", "JAX", "Hugging Face", "Jupyter", "LaTeX"],
+      "avg_salary_range": "$110,000 - $180,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "soc_analyst",
+      "title": "SOC Analyst",
+      "category": "Security",
+      "description": "Monitor, detect and respond to cybersecurity incidents in real time using SIEM platforms, threat intelligence and incident response playbooks.",
+      "required_skills": {
+        "security_fundamentals": {"weight": 0.9, "level": "intermediate"},
+        "networking": {"weight": 0.8, "level": "intermediate"},
+        "incident_response": {"weight": 0.9, "level": "intermediate"},
+        "linux": {"weight": 0.7, "level": "intermediate"},
+        "critical_thinking": {"weight": 0.7, "level": "intermediate"},
+        "cryptography": {"weight": 0.5, "level": "beginner"}
+      },
+      "recommended_tools": ["Splunk", "QRadar", "Wireshark", "MITRE ATT&CK", "TheHive"],
+      "avg_salary_range": "$55,000 - $95,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "penetration_tester",
+      "title": "Penetration Tester",
+      "category": "Security",
+      "description": "Simulate real-world cyberattacks to identify vulnerabilities in systems, networks and applications before malicious actors do.",
+      "required_skills": {
+        "security_fundamentals": {"weight": 0.9, "level": "advanced"},
+        "networking": {"weight": 0.9, "level": "advanced"},
+        "linux": {"weight": 0.9, "level": "advanced"},
+        "python": {"weight": 0.7, "level": "intermediate"},
+        "cryptography": {"weight": 0.7, "level": "intermediate"},
+        "critical_thinking": {"weight": 0.8, "level": "advanced"},
+        "incident_response": {"weight": 0.6, "level": "intermediate"}
+      },
+      "recommended_tools": ["Kali Linux", "Metasploit", "Burp Suite", "Nmap", "Wireshark"],
+      "avg_salary_range": "$75,000 - $130,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "appsec_engineer",
+      "title": "Application Security Engineer",
+      "category": "Security",
+      "description": "Embed security into the software development lifecycle — performing code reviews, threat modeling, and building secure-by-design development practices.",
+      "required_skills": {
+        "security_fundamentals": {"weight": 0.9, "level": "advanced"},
+        "python": {"weight": 0.7, "level": "intermediate"},
+        "api_design": {"weight": 0.7, "level": "intermediate"},
+        "testing": {"weight": 0.6, "level": "intermediate"},
+        "cryptography": {"weight": 0.7, "level": "intermediate"},
+        "git": {"weight": 0.6, "level": "intermediate"},
+        "critical_thinking": {"weight": 0.7, "level": "intermediate"}
+      },
+      "recommended_tools": ["OWASP ZAP", "SonarQube", "Snyk", "Burp Suite", "GitHub Advanced Security"],
+      "avg_salary_range": "$90,000 - $145,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "network_engineer",
+      "title": "Network Engineer",
+      "category": "Security",
+      "description": "Design, implement and manage enterprise network infrastructure including routers, switches, firewalls and WAN/LAN topologies.",
+      "required_skills": {
+        "networking": {"weight": 0.95, "level": "advanced"},
+        "linux": {"weight": 0.7, "level": "intermediate"},
+        "security_fundamentals": {"weight": 0.7, "level": "intermediate"},
+        "cloud_computing": {"weight": 0.5, "level": "beginner"},
+        "critical_thinking": {"weight": 0.5, "level": "intermediate"},
+        "databases": {"weight": 0.3, "level": "beginner"}
+      },
+      "recommended_tools": ["Cisco IOS", "Wireshark", "Juniper", "Fortinet", "PRTG"],
+      "avg_salary_range": "$65,000 - $115,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "cloud_security_engineer",
+      "title": "Cloud Security Engineer",
+      "category": "Security",
+      "description": "Protect cloud infrastructure and workloads by implementing IAM policies, security controls, compliance frameworks and threat detection across AWS, Azure or GCP.",
+      "required_skills": {
+        "cloud_computing": {"weight": 0.9, "level": "advanced"},
+        "security_fundamentals": {"weight": 0.9, "level": "advanced"},
+        "networking": {"weight": 0.8, "level": "intermediate"},
+        "linux": {"weight": 0.7, "level": "intermediate"},
+        "containerization": {"weight": 0.6, "level": "intermediate"},
+        "python": {"weight": 0.5, "level": "intermediate"},
+        "cryptography": {"weight": 0.6, "level": "intermediate"}
+      },
+      "recommended_tools": ["AWS Security Hub", "Azure Defender", "Terraform", "CloudTrail", "Prisma Cloud"],
+      "avg_salary_range": "$100,000 - $155,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "product_designer",
+      "title": "Product Designer",
+      "category": "Design",
+      "description": "Own the end-to-end design process for digital products — from user research and wireframes to high-fidelity prototypes and design systems.",
+      "required_skills": {
+        "ui_design": {"weight": 0.9, "level": "advanced"},
+        "user_research": {"weight": 0.8, "level": "intermediate"},
+        "prototyping": {"weight": 0.9, "level": "advanced"},
+        "visual_design": {"weight": 0.8, "level": "advanced"},
+        "critical_thinking": {"weight": 0.6, "level": "intermediate"},
+        "communication": {"weight": 0.7, "level": "intermediate"},
+        "html_css": {"weight": 0.4, "level": "beginner"}
+      },
+      "recommended_tools": ["Figma", "Principle", "Zeplin", "Maze", "Notion"],
+      "avg_salary_range": "$75,000 - $130,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "ux_researcher",
+      "title": "UX Researcher",
+      "category": "Design",
+      "description": "Uncover user needs, behaviors and pain points through qualitative and quantitative research methods to inform product decisions.",
+      "required_skills": {
+        "user_research": {"weight": 0.95, "level": "advanced"},
+        "critical_thinking": {"weight": 0.8, "level": "advanced"},
+        "communication": {"weight": 0.8, "level": "advanced"},
+        "statistics": {"weight": 0.6, "level": "intermediate"},
+        "data_visualization": {"weight": 0.5, "level": "beginner"},
+        "prototyping": {"weight": 0.5, "level": "beginner"}
+      },
+      "recommended_tools": ["Maze", "UserTesting", "Lookback", "Dovetail", "Miro"],
+      "avg_salary_range": "$70,000 - $120,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "technical_pm",
+      "title": "Technical Product Manager",
+      "category": "Management",
+      "description": "Drive product strategy for technically complex products — working closely with engineering, data, and design teams to ship features that matter.",
+      "required_skills": {
+        "communication": {"weight": 0.9, "level": "advanced"},
+        "critical_thinking": {"weight": 0.8, "level": "advanced"},
+        "project_management": {"weight": 0.8, "level": "intermediate"},
+        "api_design": {"weight": 0.6, "level": "intermediate"},
+        "sql": {"weight": 0.6, "level": "intermediate"},
+        "system_design": {"weight": 0.5, "level": "beginner"},
+        "user_research": {"weight": 0.6, "level": "intermediate"},
+        "business_analysis": {"weight": 0.7, "level": "intermediate"}
+      },
+      "recommended_tools": ["Jira", "Confluence", "Mixpanel", "Figma", "SQL"],
+      "avg_salary_range": "$100,000 - $160,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "solutions_architect",
+      "title": "Solutions Architect",
+      "category": "Management",
+      "description": "Design and oversee the implementation of enterprise-scale technical solutions — translating complex business requirements into scalable system architectures.",
+      "required_skills": {
+        "system_design": {"weight": 0.95, "level": "advanced"},
+        "cloud_computing": {"weight": 0.8, "level": "advanced"},
+        "communication": {"weight": 0.8, "level": "advanced"},
+        "databases": {"weight": 0.7, "level": "intermediate"},
+        "networking": {"weight": 0.6, "level": "intermediate"},
+        "business_analysis": {"weight": 0.7, "level": "intermediate"},
+        "containerization": {"weight": 0.6, "level": "intermediate"}
+      },
+      "recommended_tools": ["AWS Well-Architected", "Azure", "Draw.io", "Terraform", "Confluence"],
+      "avg_salary_range": "$120,000 - $175,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "embedded_engineer",
+      "title": "Embedded Systems Engineer",
+      "category": "Hardware & Embedded",
+      "description": "Develop low-level firmware and software for microcontrollers, real-time operating systems, and hardware devices across automotive, medical and consumer electronics industries.",
+      "required_skills": {
+        "c_cpp": {"weight": 0.95, "level": "advanced"},
+        "linux": {"weight": 0.7, "level": "intermediate"},
+        "networking": {"weight": 0.5, "level": "beginner"},
+        "data_structures": {"weight": 0.7, "level": "intermediate"},
+        "algorithms": {"weight": 0.6, "level": "intermediate"},
+        "testing": {"weight": 0.5, "level": "beginner"},
+        "oop": {"weight": 0.6, "level": "intermediate"}
+      },
+      "recommended_tools": ["GCC", "JTAG", "FreeRTOS", "STM32 HAL", "Oscilloscope"],
+      "avg_salary_range": "$75,000 - $130,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "iot_engineer",
+      "title": "IoT Engineer",
+      "category": "Hardware & Embedded",
+      "description": "Build connected devices and IoT platforms — designing sensor networks, edge computing systems, and cloud integrations that link physical and digital worlds.",
+      "required_skills": {
+        "python": {"weight": 0.8, "level": "intermediate"},
+        "networking": {"weight": 0.8, "level": "intermediate"},
+        "cloud_computing": {"weight": 0.7, "level": "intermediate"},
+        "databases": {"weight": 0.5, "level": "beginner"},
+        "c_cpp": {"weight": 0.6, "level": "intermediate"},
+        "linux": {"weight": 0.6, "level": "intermediate"},
+        "api_design": {"weight": 0.6, "level": "intermediate"}
+      },
+      "recommended_tools": ["MQTT", "AWS IoT", "Raspberry Pi", "Arduino", "Node-RED"],
+      "avg_salary_range": "$70,000 - $120,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "firmware_developer",
+      "title": "Firmware Developer",
+      "category": "Hardware & Embedded",
+      "description": "Write and maintain low-level embedded firmware for hardware components — working in close proximity to hardware engineers and silicon.",
+      "required_skills": {
+        "c_cpp": {"weight": 0.95, "level": "advanced"},
+        "linux": {"weight": 0.7, "level": "intermediate"},
+        "data_structures": {"weight": 0.6, "level": "intermediate"},
+        "testing": {"weight": 0.5, "level": "beginner"},
+        "algorithms": {"weight": 0.5, "level": "intermediate"},
+        "networking": {"weight": 0.4, "level": "beginner"}
+      },
+      "recommended_tools": ["ARM Cortex", "Keil MDK", "IAR Embedded Workbench", "Logic Analyzer", "GDB"],
+      "avg_salary_range": "$75,000 - $125,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "robotics_engineer",
+      "title": "Robotics Engineer",
+      "category": "Hardware & Embedded",
+      "description": "Design and develop robotic systems combining mechanical engineering, electronics, and software — from industrial arms to autonomous vehicles.",
+      "required_skills": {
+        "python": {"weight": 0.8, "level": "intermediate"},
+        "c_cpp": {"weight": 0.8, "level": "advanced"},
+        "machine_learning": {"weight": 0.6, "level": "intermediate"},
+        "linear_algebra": {"weight": 0.7, "level": "intermediate"},
+        "data_structures": {"weight": 0.6, "level": "intermediate"},
+        "linux": {"weight": 0.7, "level": "intermediate"},
+        "algorithms": {"weight": 0.7, "level": "intermediate"}
+      },
+      "recommended_tools": ["ROS", "Gazebo", "OpenCV", "Python", "C++"],
+      "avg_salary_range": "$85,000 - $145,000",
+      "growth_outlook": "Very High"
+    },
+    {
+      "slug": "it_support",
+      "title": "IT Support Specialist",
+      "category": "Support & Operations",
+      "description": "Provide technical assistance and troubleshooting for hardware, software, networks and user issues — the entry point into a wide range of IT careers.",
+      "required_skills": {
+        "networking": {"weight": 0.8, "level": "intermediate"},
+        "linux": {"weight": 0.6, "level": "beginner"},
+        "security_fundamentals": {"weight": 0.5, "level": "beginner"},
+        "critical_thinking": {"weight": 0.6, "level": "beginner"},
+        "communication": {"weight": 0.7, "level": "intermediate"},
+        "databases": {"weight": 0.3, "level": "beginner"}
+      },
+      "recommended_tools": ["Active Directory", "ServiceNow", "Windows Server", "Wireshark", "Zendesk"],
+      "avg_salary_range": "$40,000 - $70,000",
+      "growth_outlook": "Moderate"
+    },
+    {
+      "slug": "technical_support_engineer",
+      "title": "Technical Support Engineer",
+      "category": "Support & Operations",
+      "description": "Provide deep technical support for software products — diagnosing complex issues, writing bug reports, and working directly with engineering teams to resolve customer problems.",
+      "required_skills": {
+        "communication": {"weight": 0.9, "level": "advanced"},
+        "python": {"weight": 0.5, "level": "beginner"},
+        "databases": {"weight": 0.5, "level": "beginner"},
+        "api_design": {"weight": 0.5, "level": "beginner"},
+        "linux": {"weight": 0.5, "level": "beginner"},
+        "critical_thinking": {"weight": 0.7, "level": "intermediate"},
+        "networking": {"weight": 0.5, "level": "beginner"}
+      },
+      "recommended_tools": ["Zendesk", "Jira", "Postman", "SQL", "Grafana"],
+      "avg_salary_range": "$50,000 - $90,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "operations_analyst",
+      "title": "Operations Analyst",
+      "category": "Support & Operations",
+      "description": "Analyze and improve business operations through data analysis, process mapping, and cross-functional collaboration to reduce costs and increase efficiency.",
+      "required_skills": {
+        "excel": {"weight": 0.9, "level": "advanced"},
+        "sql": {"weight": 0.7, "level": "intermediate"},
+        "data_visualization": {"weight": 0.6, "level": "intermediate"},
+        "business_analysis": {"weight": 0.8, "level": "intermediate"},
+        "critical_thinking": {"weight": 0.8, "level": "intermediate"},
+        "communication": {"weight": 0.7, "level": "intermediate"},
+        "project_management": {"weight": 0.5, "level": "beginner"}
+      },
+      "recommended_tools": ["Excel", "Power BI", "SQL", "Visio", "Asana"],
+      "avg_salary_range": "$50,000 - $85,000",
+      "growth_outlook": "High"
+    },
+    {
+      "slug": "crm_erp_analyst",
+      "title": "CRM / ERP Analyst",
+      "category": "Support & Operations",
+      "description": "Configure, maintain and optimize enterprise CRM and ERP platforms — bridging business processes and technology to streamline sales, finance, and supply chain operations.",
+      "required_skills": {
+        "business_analysis": {"weight": 0.9, "level": "intermediate"},
+        "sql": {"weight": 0.7, "level": "intermediate"},
+        "excel": {"weight": 0.8, "level": "advanced"},
+        "communication": {"weight": 0.8, "level": "intermediate"},
+        "project_management": {"weight": 0.6, "level": "beginner"},
+        "critical_thinking": {"weight": 0.6, "level": "intermediate"},
+        "data_visualization": {"weight": 0.5, "level": "beginner"}
+      },
+      "recommended_tools": ["Salesforce", "SAP", "Microsoft Dynamics", "HubSpot", "Excel"],
+      "avg_salary_range": "$55,000 - $90,000",
+      "growth_outlook": "High"
+    }
+  ]
+}
+

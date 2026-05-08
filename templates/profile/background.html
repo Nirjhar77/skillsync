@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Choose Your Background — SkillSync{% endblock %}
+
+{% block content %}
+<div class="background-selector-page">
+    <div class="choice-ambient" aria-hidden="true">
+        <span class="flow-orb flow-orb-cyan"></span>
+        <span class="flow-orb flow-orb-purple"></span>
+        <span class="flow-orb flow-orb-amber"></span>
+        <span class="flow-stream stream-cyan stream-1"></span>
+        <span class="flow-stream stream-purple stream-2"></span>
+        <span class="flow-stream stream-amber stream-3"></span>
+        <span class="flow-stream stream-cyan stream-4"></span>
+        <span class="flow-dot dot-cyan dot-1"></span>
+        <span class="flow-dot dot-purple dot-2"></span>
+        <span class="flow-dot dot-amber dot-3"></span>
+        <span class="flow-dot dot-cyan dot-4"></span>
+        <span class="flow-dot dot-amber dot-5"></span>
+    </div>
+
+    <div class="background-header">
+        <img src="{{ url_for('static', filename='images/logo-full.png') }}" alt="SkillSync Logo" class="bg-logo">
+        <h1 class="background-title">Welcome to <span class="gradient-text">SkillSync</span></h1>
+        <p class="background-subtitle">First, tell us about your background so we can give you the <strong>right</strong> experience.</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('profile.background') }}" id="background-form">
+        <div class="background-cards">
+
+            <!-- TECH CARD -->
+            <label class="bg-card bg-card-tech" for="bg-tech" id="card-tech">
+                <input type="radio" name="background_type" value="tech" id="bg-tech" class="bg-radio" required>
+                <div class="bg-card-glow glow-cyan"></div>
+                <div class="bg-card-inner">
+                    <div class="bg-card-icon icon-tech">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    </div>
+                    <h2 class="bg-card-title">Tech Background</h2>
+                    <p class="bg-card-desc">I study a technical field like CS, Software Engineering, EEE, IT, Biomedical, or any other discipline with a technical/engineering curriculum.</p>
+                    <ul class="bg-card-examples">
+                        <li>📐 Computer Science / CSE</li>
+                        <li>⚡ Electrical Engineering (EEE)</li>
+                        <li>🔧 Mechanical / Biomedical Eng.</li>
+                        <li>💻 Software Engineering / IT</li>
+                    </ul>
+                    <div class="bg-card-cta">
+                        Get semester-based career matching
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </div>
+                </div>
+                <div class="bg-card-check">✓</div>
+            </label>
+
+            <!-- NON-TECH CARD -->
+            <label class="bg-card bg-card-nontech" for="bg-nontech" id="card-nontech">
+                <input type="radio" name="background_type" value="nontech" id="bg-nontech" class="bg-radio" required>
+                <div class="bg-card-glow glow-amber"></div>
+                <div class="bg-card-inner">
+                    <div class="bg-card-icon icon-nontech">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <h2 class="bg-card-title">Non-Tech Background</h2>
+                    <p class="bg-card-desc">I'm from a non-technical field — arts, business, healthcare, humanities, management — and I want to enter the tech industry.</p>
+                    <ul class="bg-card-examples">
+                        <li>🩺 Healthcare / Medical Sciences</li>
+                        <li>🎨 Arts, Design & Humanities</li>
+                        <li>📊 Business / Marketing / Finance</li>
+                        <li>🏗️ Any other non-tech field</li>
+                    </ul>
+                    <div class="bg-card-cta cta-amber">
+                        Get a personalized AI learning path
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </div>
+                </div>
+                <div class="bg-card-check check-amber">✓</div>
+            </label>
+
+        </div>
+
+        <div class="background-submit">
+            <button type="submit" class="btn btn-primary btn-lg" id="continue-btn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon"><polyline points="9 18 15 12 9 6"/></svg>
+                Continue
+            </button>
+            <p class="background-note">You can always change this later in your settings.</p>
+        </div>
+    </form>
+</div>
+
+<script>
+const radios = document.querySelectorAll('.bg-radio');
+const continueBtn = document.getElementById('continue-btn');
+const cards = document.querySelectorAll('.bg-card');
+
+radios.forEach(radio => {
+    radio.addEventListener('change', () => {
+        continueBtn.disabled = false;
+
+        // Highlight selected card
+        cards.forEach(c => c.classList.remove('selected'));
+        radio.closest('.bg-card').classList.add('selected');
+
+        // Auto-submit for smooth UX after short delay
+        setTimeout(() => {
+            document.getElementById('background-form').submit();
+        }, 350);
+    });
+});
+
+cards.forEach(card => {
+    const mode = card.classList.contains('bg-card-tech') ? 'tech' : 'nontech';
+
+    card.addEventListener('mouseenter', () => {
+        document.querySelector('.background-selector-page')?.setAttribute('data-focus', mode);
+    });
+
+    card.addEventListener('focusin', () => {
+        document.querySelector('.background-selector-page')?.setAttribute('data-focus', mode);
+    });
+
+    card.addEventListener('focusout', () => {
+        document.querySelector('.background-selector-page')?.removeAttribute('data-focus');
+    });
+
+    card.addEventListener('mouseleave', () => {
+        document.querySelector('.background-selector-page')?.removeAttribute('data-focus');
+    });
+});
+</script>
+{% endblock %}

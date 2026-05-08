@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Progress Tracker — SkillSync{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <div class="roadmap-header-top">
+            <div>
+                <h1 class="page-title">
+                    <i data-lucide="trending-up" class="title-icon"></i>
+                    Progress Tracker
+                </h1>
+                <p class="page-subtitle">Your journey to becoming a <strong>{{ career.title }}</strong></p>
+            </div>
+            <div class="roadmap-stats">
+                <div class="stat-card glass-card">
+                    <div class="circular-progress" data-progress="{{ progress }}">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="42" class="progress-bg-circle"></circle>
+                            <circle cx="50" cy="50" r="42" class="progress-fill-circle" style="stroke-dashoffset: {{ 264 - (264 * progress / 100) }}"></circle>
+                        </svg>
+                        <span class="progress-center-text">{{ progress }}%</span>
+                    </div>
+                </div>
+                <div class="stat-card glass-card">
+                    <span class="stat-value">{{ completed_count }}</span>
+                    <span class="stat-label">Completed</span>
+                </div>
+                <div class="stat-card glass-card">
+                    <span class="stat-value">{{ total_count - completed_count }}</span>
+                    <span class="stat-label">Remaining</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Milestone List -->
+    <div class="tracker-list">
+        {% for milestone in milestones %}
+        <div class="tracker-item glass-card {% if milestone.completed %}completed{% elif milestone.clicked %}clicked{% endif %}" id="tracker-{{ milestone.id }}">
+            <div class="tracker-status">
+                <button class="tracker-checkbox {% if milestone.completed %}checked{% endif %}"
+                        onclick="toggleTrackerMilestone({{ milestone.id }})"
+                        id="tracker-check-{{ milestone.id }}">
+                    {% if milestone.completed %}
+                    <i data-lucide="check-circle-2" class="check-icon"></i>
+                    {% else %}
+                    <i data-lucide="circle" class="check-icon"></i>
+                    {% endif %}
+                </button>
+            </div>
+
+            <div class="tracker-content">
+                <div class="tracker-main">
+                    <h3 class="tracker-title {% if milestone.completed %}done{% endif %}">{{ milestone.title }}</h3>
+                    <p class="tracker-desc">{{ milestone.description }}</p>
+                    <div class="tracker-meta">
+                        <span class="meta-badge">
+                            <i data-lucide="clock" class="meta-icon"></i>
+                            {{ milestone.estimated_hours }}h estimated
+                        </span>
+                        <span class="meta-badge type-{{ milestone.resource_type }}">
+                            {% if milestone.resource_type == 'youtube' %}
+                                <i data-lucide="play-circle" class="meta-icon"></i> YouTube
+                            {% elif milestone.resource_type == 'udemy' %}
+                                <i data-lucide="graduation-cap" class="meta-icon"></i> Udemy
+                            {% elif milestone.resource_type == 'project' %}
+                                <i data-lucide="code" class="meta-icon"></i> Project
+                            {% else %}
+                                <i data-lucide="file-text" class="meta-icon"></i> Article
+                            {% endif %}
+                        </span>
+                        {% if milestone.completed %}
+                        <span class="meta-badge badge-success">
+                            <i data-lucide="check" class="meta-icon"></i>
+                            Completed {{ milestone.completed_at.strftime('%b %d') if milestone.completed_at else '' }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="tracker-actions">
+                    {% if milestone.resource_url and milestone.resource_url.startswith('http') %}
+                    <a href="{{ url_for('progress.redirect_to_resource', milestone_id=milestone.id) }}" target="_blank" class="btn btn-accent btn-sm" id="tracker-link-{{ milestone.id }}">
+                        <i data-lucide="external-link" class="btn-icon"></i>
+                        <span>Start Learning</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="tracker-footer">
+        <a href="{{ url_for('career.roadmap_view', roadmap_id=roadmap.id) }}" class="btn btn-secondary" id="view-roadmap-btn">
+            <i data-lucide="map" class="btn-icon"></i>
+            <span>View Full Roadmap</span>
+        </a>
+        <a href="{{ url_for('career.results') }}" class="btn btn-secondary" id="explore-careers-btn">
+            <i data-lucide="compass" class="btn-icon"></i>
+            <span>Explore Other Careers</span>
+        </a>
+    </div>
+</div>
+
+<script>
+function toggleTrackerMilestone(milestoneId) {
+    fetch(`/progress/milestone/${milestoneId}/complete`, { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                // Reload the page to update all UI elements
+                location.reload();
+            }
+        });
+}
+</script>
+{% endblock %}

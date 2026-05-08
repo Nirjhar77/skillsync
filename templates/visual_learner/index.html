@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Visual Learner - SkillSync{% endblock %}
+
+{% block breadcrumbs %}
+<span>Visual Learner</span>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/visual_learner.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="visual-learner-page">
+  <section class="vl-hero">
+    <div>
+      <p class="vl-kicker">Visual Learner</p>
+      <h1>Turn short explanations into study visuals.</h1>
+      <p>Paste a compact paragraph and SkillSync will generate a diagram-style visual through Napkin.</p>
+    </div>
+    <div class="vl-limit-pill">
+      <i data-lucide="list-filter"></i>
+      <span><strong id="wordCount">0</strong>/{{ max_words }} words</span>
+    </div>
+  </section>
+
+  <section class="vl-workspace">
+    <div class="vl-input-card">
+      <label for="visualText">Text to visualize</label>
+      <textarea id="visualText" maxlength="1200" placeholder="Example: Machine learning trains models from data, evaluates patterns, and uses predictions to solve new problems."></textarea>
+      <div class="vl-actions">
+        <button class="btn btn-primary" id="visualizeBtn" onclick="generateVisual()" disabled>
+          <i data-lucide="sparkles" class="btn-icon"></i>
+          Visualize
+        </button>
+        <button class="btn btn-secondary" onclick="clearVisualLearner()">
+          <i data-lucide="eraser" class="btn-icon"></i>
+          Clear
+        </button>
+      </div>
+      <p class="vl-message" id="visualMessage"></p>
+    </div>
+
+    <div class="vl-preview-card">
+      <div class="vl-preview-empty" id="visualEmpty">
+        <i data-lucide="image"></i>
+        <p>Your generated visual will appear here.</p>
+      </div>
+      <div class="vl-preview-loading" id="visualLoading">
+        <div class="vl-spinner"></div>
+        <p>Generating visual with Napkin...</p>
+      </div>
+      <div class="vl-preview-result" id="visualResult">
+        <img id="visualImage" alt="Generated learning visual">
+        <div class="vl-result-actions">
+          <button class="btn btn-secondary" id="openVisualBtn" type="button" onclick="openGeneratedVisual()" disabled>
+            <i data-lucide="external-link" class="btn-icon"></i>
+            Open visual
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="vl-history-card">
+    <div class="vl-history-head">
+      <div>
+        <p class="vl-kicker">History</p>
+        <h2>Past visuals</h2>
+      </div>
+      <span>{{ history|length }} saved</span>
+    </div>
+    <div class="vl-history-list" id="visualHistory">
+      {% if history %}
+        {% for item in history %}
+        <article class="vl-history-item" data-url="{{ item.visual_url }}">
+          <button type="button" class="vl-history-preview" onclick="loadHistoryVisual('{{ item.visual_url }}')">
+            <img src="{{ item.visual_url }}" alt="Saved visual">
+          </button>
+          <div class="vl-history-body">
+            <p>{{ item.input_text }}</p>
+            <div class="vl-history-meta">
+              <span>{{ item.word_count }} words</span>
+              <span>{{ item.source.replace('_', ' ') }}</span>
+              <span>{{ item.created_at.strftime('%b %d, %Y %I:%M %p') }}</span>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="loadHistoryVisual('{{ item.visual_url }}')">
+              <i data-lucide="eye" class="btn-icon"></i>
+              View
+            </button>
+          </div>
+        </article>
+        {% endfor %}
+      {% else %}
+        <div class="vl-history-empty" id="historyEmpty">No saved visuals yet.</div>
+      {% endif %}
+    </div>
+  </section>
+</div>
+
+<script>
+const VL_MAX_WORDS = {{ max_words }};
+const textInput = document.getElementById('visualText');
+const wordCount = document.getElementById('wordCount');
+const visualizeBtn = document.getElementById('visualizeBtn');
+const visualMessage = document.getElementById('visualMessage');
+const visualEmpty = document.getElementById('visualEmpty');
+const visualLoading = document.getElementById('visualLoading');
+const visualResult = document.getElementById('visualResult');
+const visualImage = document.getElementById('visualImage');
+const openVisualBtn = document.getElementById('openVisualBtn');
+let latestVisualUrl = '';
+
+function countWords(text) {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
+function updateWordState() {
+  const count = countWords(textInput.value);
+  wordCount.textContent = count;
+  const overLimit = count > VL_MAX_WORDS;
+  visualizeBtn.disabled = count === 0 || overLimit;
+  visualMessage.textContent = overLimit ? `Please keep it within ${VL_MAX_WORDS} words.` : '';
+  visualMessage.className = overLimit ? 'vl-message error' : 'vl-message';
+}
+
+function setPreviewState(state) {
+  visualEmpty.style.display = state === 'empty' ? 'flex' : 'none';
+  visualLoading.style.display = state === 'loading' ? 'flex' : 'none';
+  visualResult.style.display = state === 'result' ? 'block' : 'none';
+}
+
+function showVisual(url) {
+  latestVisualUrl = url;
+  visualImage.src = url + '?t=' + Date.now();
+  openVisualBtn.disabled = false;
+  setPreviewState('result');
+}
+
+async function generateVisual() {
+  const text = textInput.value.trim();
+  if (!text || countWords(text) > VL_MAX_WORDS) return;
+  setPreviewState('loading');
+  visualizeBtn.disabled = true;
+  visualMessage.textContent = '';
+
+  try {
+    const res = await fetch('/visual-learner/api/visualize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Visual generation failed.');
+
+    showVisual(data.visual_url);
+    prependHistoryItem(data);
+    visualMessage.textContent = 'Visual generated successfully.';
+    visualMessage.className = 'vl-message success';
+  } catch (err) {
+    setPreviewState('empty');
+    visualMessage.textContent = err.message;
+    visualMessage.className = 'vl-message error';
+  } finally {
+    updateWordState();
+  }
+}
+
+function loadHistoryVisual(url) {
+  showVisual(url);
+  visualMessage.textContent = 'Loaded saved visual.';
+  visualMessage.className = 'vl-message success';
+  document.querySelector('.vl-preview-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function prependHistoryItem(item) {
+  const list = document.getElementById('visualHistory');
+  const empty = document.getElementById('historyEmpty');
+  if (empty) empty.remove();
+  const article = document.createElement('article');
+  article.className = 'vl-history-item';
+  article.dataset.url = item.visual_url;
+  article.innerHTML = `
+    <button type="button" class="vl-history-preview">
+      <img src="${item.visual_url}" alt="Saved visual">
+    </button>
+    <div class="vl-history-body">
+      <p></p>
+      <div class="vl-history-meta">
+        <span>${item.word_count} words</span>
+        <span>${(item.source || 'visual_learner').replace('_', ' ')}</span>
+        <span>${item.created_at || 'Just now'}</span>
+      </div>
+      <button type="button" class="btn btn-secondary btn-sm"><i data-lucide="eye" class="btn-icon"></i>View</button>
+    </div>
+  `;
+  article.querySelector('p').textContent = item.input_text || textInput.value.trim();
+  article.querySelector('.vl-history-preview').onclick = () => loadHistoryVisual(item.visual_url);
+  article.querySelector('.btn').onclick = () => loadHistoryVisual(item.visual_url);
+  list.prepend(article);
+  lucide.createIcons({ root: article });
+}
+
+function clearVisualLearner() {
+  textInput.value = '';
+  visualImage.removeAttribute('src');
+  latestVisualUrl = '';
+  openVisualBtn.disabled = true;
+  visualMessage.textContent = '';
+  visualMessage.className = 'vl-message';
+  setPreviewState('empty');
+  updateWordState();
+  textInput.focus();
+}
+
+function openGeneratedVisual() {
+  if (!latestVisualUrl) return;
+  window.open(latestVisualUrl, '_blank', 'noopener');
+}
+
+textInput.addEventListener('input', updateWordState);
+setPreviewState('empty');
+updateWordState();
+</script>
+{% endblock %}

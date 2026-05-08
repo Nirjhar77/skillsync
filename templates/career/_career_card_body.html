@@ -1,0 +1,88 @@
+<div class="career-card-header">
+    <div class="career-info">
+        <span class="career-category">{{ result.career.category }}</span>
+        <h2 class="career-title">{{ result.career.title }}</h2>
+        <p class="career-description">{{ result.career.description }}</p>
+    </div>
+
+    <div class="score-ring" data-score="{{ result.score }}">
+        <svg viewBox="0 0 100 100" class="score-svg">
+            <circle cx="50" cy="50" r="42" class="score-bg"></circle>
+            <circle cx="50" cy="50" r="42" class="score-fill" style="stroke-dashoffset: {{ 264 - (264 * result.score / 100) }}"></circle>
+        </svg>
+        <span class="score-value">{{ result.score | int }}%</span>
+    </div>
+</div>
+
+<div class="career-details">
+    <div class="detail-row">
+        <i data-lucide="dollar-sign" class="detail-icon"></i>
+        <span>{{ result.career.avg_salary_range }}</span>
+    </div>
+    <div class="detail-row">
+        <i data-lucide="trending-up" class="detail-icon"></i>
+        <span>Growth: {{ result.career.growth_outlook }}</span>
+    </div>
+</div>
+
+<!-- Skill Match Breakdown -->
+<div class="skill-breakdown">
+    {% if result.matched_skills %}
+    <div class="skill-group">
+        <h4 class="skill-group-title">
+            <i data-lucide="check-circle" class="sg-icon text-success"></i>
+            Matched Skills
+        </h4>
+        <div class="skill-tags">
+            {% for skill in result.matched_skills %}
+            <span class="skill-tag skill-matched">{{ skill | replace('_', ' ') | title }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if result.curriculum_covered %}
+    <div class="skill-group">
+        <h4 class="skill-group-title">
+            <i data-lucide="book-open" class="sg-icon text-info"></i>
+            Covered by Courses
+        </h4>
+        <div class="skill-tags">
+            {% for skill, info in result.curriculum_covered.items() %}
+            <span class="skill-tag skill-curriculum" title="Via: {{ info.source }}">{{ skill | replace('_', ' ') | title }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if result.gap_skills %}
+    <div class="skill-group">
+        <h4 class="skill-group-title">
+            <i data-lucide="alert-circle" class="sg-icon text-warning"></i>
+            Skills to Learn
+        </h4>
+        <div class="skill-tags">
+            {% for skill in result.gap_skills %}
+            <span class="skill-tag skill-gap">{{ skill | replace('_', ' ') | title }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div style="display: flex; gap: 8px; margin-top: 16px;">
+    <!-- Insights Overview Button -->
+    <a href="{{ url_for('career.overview', career_id=result.career.id) }}" class="btn btn-outline" style="flex: 1; padding: 10px; font-size: 0.85rem; justify-content: center; border-color: rgba(124, 58, 237, 0.4); color: #c084fc;" onclick="showInsightsLoading('{{ result.career.title|replace('\'', '\\\'') }}')">
+        <i data-lucide="book-open" class="btn-icon" style="width: 16px; height: 16px;"></i>
+        <span>Insights</span>
+    </a>
+    
+    <!-- Generate Roadmap Button -->
+    <form method="POST" action="{{ url_for('career.select', career_id=result.career.id) }}" style="flex: 1;">
+        <button type="submit" class="btn btn-primary btn-full career-select-btn" id="select-career-{{ result.career.id }}" style="padding: 10px; font-size: 0.85rem; justify-content: center;">
+            <i data-lucide="sparkles" class="btn-icon" style="width: 16px; height: 16px;"></i>
+            <span>Roadmap</span>
+        </button>
+    </form>
+</div>
+

@@ -1,0 +1,352 @@
+1) ECE — Electronics & Communication Engineering
+
+Semester 1
+
+Basic Electrical Engineering
+Programming for Problem Solving
+Mathematics I
+Mathematics II
+
+Semester 2
+
+Electric Circuits
+Electronic Devices
+Digital Logic Design
+Data Structures Basics
+Engineering Mathematics
+
+Semester 3
+
+Analog Circuits
+Signals and Systems
+Microcontrollers
+Network Theory
+Probability and Random Processes
+
+Semester 4
+
+Digital System Design
+Analog and Digital Communication
+Electronic Devices Lab
+Microcontrollers Lab
+Numerical Methods
+
+Semester 5
+
+Digital Signal Processing
+Computer Networks
+Electromagnetic Waves
+Computer Architecture
+Embedded Systems
+
+Semester 6
+
+VLSI Design
+Mobile Communication
+Control Systems
+DSP Lab
+VLSI Lab
+
+Semester 7
+
+Antennas and Propagation
+Wireless Communication
+Fiber Optic Communication
+MEMS
+High-Speed Electronics
+
+Semester 8
+
+Advanced Mobile Communication
+Nanoelectronics
+Image Processing
+Embedded System Design
+Project / Capstone
+
+2) EEE — Electrical & Electronics Engineering
+
+Semester 1
+
+Basic Electrical Engineering
+Programming for Problem Solving
+Mathematics I (Calculus I: limits, derivatives, integration)
+Physics for Engineers
+
+Semester 2
+
+Circuit Theory
+Electronic Devices
+Engineering Mathematics
+Digital Logic
+
+Semester 3
+
+Electrical Machines I (Fundamentals: DC machines,transformers, basic principles)
+Signals and Systems
+Network Analysis
+Analog Electronics
+
+Semester 4
+
+Electrical Machines II (Advanced: induction motors, synchronous machines, control)
+Control Systems
+Digital Electronics
+Measurement and Instrumentation
+
+Semester 5
+
+Power Systems I (Basics: generation, transmission, distribution concepts)
+Power Electronics
+Microprocessors and Microcontrollers
+Renewable Energy Systems
+
+Semester 6
+
+Power Systems II (Advanced: stability, fault analysis, protection systems)
+Electrical Drives
+Protection and Switchgear
+Embedded Systems
+
+Semester 7
+
+Smart Grid
+High Voltage Engineering
+Industrial Automation
+Power Quality
+
+Semester 8
+
+Advanced Power Electronics
+PLC and SCADA
+Energy Management
+Project / Capstone
+3) IT / Computer Science / Software-focused track
+
+Semester 1
+
+Programming Fundamentals
+Discrete Mathematics
+Calculus
+Computer Basics
+
+Semester 2
+
+Object-Oriented Programming
+Data Structures
+Digital Logic
+Probability and Statistics
+
+Semester 3
+
+Algorithms
+Computer Organization
+Database Systems
+Web Programming Basics
+
+Semester 4
+
+Operating Systems
+Software Engineering
+Computer Networks
+DBMS Lab
+
+Semester 5
+
+Advanced Data Structures
+Theory of Computation
+Web Development
+Mobile App Development
+
+Semester 6
+
+Distributed Systems
+Cloud Computing
+Artificial Intelligence
+Cybersecurity Basics
+
+Semester 7
+
+Machine Learning
+DevOps
+Full Stack Project
+UI/UX for Software Products
+
+Semester 8
+
+Advanced Software Architecture
+System Design
+Internship / Capstone
+Final Project
+
+4) Mechanical Engineering
+
+Semester 1
+
+Engineering Mechanics
+Engineering Mathematics
+Engineering Graphics
+Programming Basics
+
+Semester 2
+
+Engineering Physics
+Materials Science
+Thermodynamics Basics
+Workshop Practice
+
+Semester 3
+
+Statics
+Dynamics
+Strength of Materials
+Fluid Mechanics
+
+Semester 4
+
+Thermodynamics
+Machine Drawing
+Manufacturing Processes
+Kinematics of Machines
+
+Semester 5
+
+Heat Transfer
+Machine Design
+Applied Thermodynamics
+CAD / CAM
+
+Semester 6
+
+Finite Element Analysis
+Internal Combustion Engines
+HVAC Basics
+Mechatronics
+
+Semester 7
+
+Robotics / Automation
+Automobile Engineering
+Computational Fluid Dynamics
+Industrial Engineering
+
+Semester 8
+
+Advanced Machine Design
+Smart Manufacturing
+Renewable / Energy Systems
+Project / Capstone
+
+5) Cybersecurity
+
+Semester 1
+
+Programming Fundamentals
+Discrete Mathematics
+Computer Basics
+Logic Design
+
+Semester 2
+
+Data Structures
+Computer Organization
+Probability and Statistics
+Introduction to Networking
+
+Semester 3
+
+Operating Systems
+Network Fundamentals
+Computer Architecture
+Secure Programming Basics
+
+Semester 4
+
+Computer Security
+Cryptography Basics
+Database Security
+Linux Administration
+
+Semester 5
+
+Ethical Hacking
+Web Security
+Digital Forensics
+Secure Coding
+
+Semester 6
+
+Malware Analysis
+Incident Response
+Network Security
+Cloud Security
+
+Semester 7
+
+Penetration Testing
+Threat Intelligence
+Reverse Engineering
+Application Security
+
+Semester 8
+
+Advanced Cryptography
+Security Governance
+Capstone / Security Lab
+Internship / Project
+6) Data Science
+
+Semester 1
+
+Programming Fundamentals
+Calculus
+Discrete Mathematics
+Intro to Computing
+
+Semester 2
+
+Data Structures
+Probability
+Statistics I
+Linear Algebra
+
+Semester 3
+
+Database Systems
+Data Wrangling
+Statistical Inference
+Python for Data Science
+
+Semester 4
+
+Data Visualization
+Machine Learning Basics
+Regression Analysis
+Exploratory Data Analysis
+
+Semester 5
+
+Applied Machine Learning
+Big Data Analytics
+Data Mining
+SQL for Analytics
+
+Semester 6
+
+Deep Learning
+Natural Language Processing
+Time Series Analysis
+Cloud Data Platforms
+
+Semester 7
+
+Advanced Machine Learning
+MLOps Basics
+Business Analytics
+Recommender Systems
+
+Semester 8
+
+Advanced Data Science Project
+AI in Practice
+Data Engineering Basics
+Capstone / Internship

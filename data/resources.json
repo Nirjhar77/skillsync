@@ -1,0 +1,1355 @@
+{
+  "categories": [
+    {
+      "id": "programming",
+      "label": "Programming Fundamentals",
+      "icon": "code-2",
+      "color": "cyan",
+      "courses": [
+        {
+          "id": "py-cs50p",
+          "title": "CS50's Introduction to Programming with Python",
+          "description": "Harvard's free intro to Python programming. Perfect starting point for absolute beginners. Covers functions, loops, libraries, and more.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "edX (Free)", "url": "https://www.edx.org/learn/python/harvard-university-cs50-s-introduction-to-programming-with-python" }
+          ],
+          "tags": ["python", "beginner", "free", "harvard"]
+        },
+        {
+          "id": "py-automate",
+          "title": "Automate the Boring Stuff with Python",
+          "description": "Practical Python programming for total beginners. Learn to automate real-world tasks with Python scripts.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Official Site (Free)", "url": "https://automatetheboringstuff.com/" },
+            { "name": "Udemy", "url": "https://www.udemy.com/course/automate/" }
+          ],
+          "tags": ["python", "automation", "free"]
+        },
+        {
+          "id": "py-intermediate",
+          "title": "Intermediate Python Programming",
+          "description": "Takes you beyond the basics — decorators, generators, context managers, OOP, and Python internals for writing professional-grade code.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "https://www.youtube.com/watch?v=HGOBQPFzWKo" },
+            { "name": "Udemy", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["python", "intermediate", "oop"]
+        },
+        {
+          "id": "py-advanced",
+          "title": "Python for Everybody Specialization",
+          "description": "University of Michigan's full Python sequence. Covers web scraping, databases, and data access — great for both data and software career tracks.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "https://www.coursera.org/specializations/python" }
+          ],
+          "tags": ["python", "university", "free-audit", "michigan"]
+        },
+        {
+          "id": "js-traversy",
+          "title": "JavaScript Crash Course",
+          "description": "Modern JavaScript from scratch. Covers ES6+, DOM manipulation, async/await, and APIs. Great for web developers.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "https://www.youtube.com/watch?v=hdI2bqOjy3c" }
+          ],
+          "tags": ["javascript", "web", "free"]
+        },
+        {
+          "id": "js-advanced",
+          "title": "JavaScript: The Advanced Concepts",
+          "description": "Master closures, prototypal inheritance, the event loop, async patterns, and performance — everything a senior JS developer knows.",
+          "difficulty": "Advanced",
+          "platforms": [
+            { "name": "Udemy", "url": "ADD_LINK_HERE" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["javascript", "advanced", "closures", "async"]
+        },
+        {
+          "id": "java-mooc",
+          "title": "Java Programming MOOC",
+          "description": "University of Helsinki's comprehensive Java course used by millions worldwide. Covers OOP, algorithms and data structures.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "MOOC.fi (Free)", "url": "https://java-programming.mooc.fi/" }
+          ],
+          "tags": ["java", "oop", "free"]
+        },
+        {
+          "id": "cpp-learncpp",
+          "title": "C++ Programming — LearnCpp",
+          "description": "The most comprehensive free C++ tutorial on the web. Covers everything from variables to templates and smart pointers.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "LearnCpp.com (Free)", "url": "https://www.learncpp.com/" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["cpp", "systems", "free"]
+        },
+        {
+          "id": "dsa-freecodecamp",
+          "title": "Data Structures and Algorithms",
+          "description": "Complete DS&A course covering arrays, linked lists, trees, graphs, sorting and searching algorithms.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "https://www.youtube.com/watch?v=8hly31xKli0" },
+            { "name": "Coursera (Free audit)", "url": "https://www.coursera.org/specializations/data-structures-algorithms" }
+          ],
+          "tags": ["dsa", "algorithms", "interview"]
+        },
+        {
+          "id": "dsa-leetcode",
+          "title": "LeetCode — DSA Interview Prep",
+          "description": "Practice coding interview questions across arrays, strings, trees, graphs, and dynamic programming. The go-to platform for FAANG prep.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "LeetCode (Free tier)", "url": "https://leetcode.com/study-plan/data-structure/" },
+            { "name": "NeetCode (Free)", "url": "https://neetcode.io/" }
+          ],
+          "tags": ["dsa", "interview", "leetcode", "practice"]
+        },
+        {
+          "id": "oop-principles",
+          "title": "Object-Oriented Programming — Full Course",
+          "description": "Deep dive into OOP principles: encapsulation, inheritance, polymorphism, and abstraction with practical examples in Python and Java.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "https://www.youtube.com/watch?v=pTB0EiLXUC8" },
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["oop", "java", "python", "software-engineering"]
+        },
+        {
+          "id": "system-design-primer",
+          "title": "System Design for Beginners",
+          "description": "Learn how to design scalable systems — load balancers, caching, databases, microservices. Essential for software engineering interviews.",
+          "difficulty": "Advanced",
+          "platforms": [
+            { "name": "GitHub (Free)", "url": "https://github.com/donnemartin/system-design-primer" },
+            { "name": "YouTube (Free)", "url": "https://www.youtube.com/watch?v=i53Gi_K3o7I" }
+          ],
+          "tags": ["system-design", "scalability", "interview", "architecture"]
+        },
+        {
+          "id": "git-odin",
+          "title": "Git and GitHub Fundamentals",
+          "description": "Learn version control with Git — tracking changes, branching, merging, and collaborating on GitHub.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "The Odin Project (Free)", "url": "https://www.theodinproject.com/lessons/foundations-git-basics" },
+            { "name": "YouTube (Free)", "url": "https://www.youtube.com/watch?v=RGOj5yH7evk" }
+          ],
+          "tags": ["git", "github", "version-control", "free"]
+        },
+        {
+          "id": "linux-fundamentals",
+          "title": "Linux Command Line Basics",
+          "description": "Master the terminal — file system, permissions, shell scripting, processes, and essential tools every developer and DevOps engineer needs.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "OverTheWire (Free)", "url": "https://overthewire.org/wargames/bandit/" },
+            { "name": "YouTube (Free)", "url": "https://www.youtube.com/watch?v=ZtqBQ68cfJc" },
+            { "name": "Udemy", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["linux", "terminal", "shell", "devops"]
+        },
+        {
+          "id": "software-testing",
+          "title": "Software Testing and Test-Driven Development",
+          "description": "Learn unit testing, integration tests, TDD, and testing frameworks (pytest, Jest). Write reliable code that doesn't break in production.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["testing", "tdd", "pytest", "jest", "software-engineering"]
+        }
+      ]
+    },
+
+    {
+      "id": "webdev",
+      "label": "Web Development",
+      "icon": "globe",
+      "color": "purple",
+      "courses": [
+        {
+          "id": "web-odin",
+          "title": "The Odin Project",
+          "description": "A completely free, open-source curriculum covering the full web development stack. HTML, CSS, JavaScript, Node, React, and SQL.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "The Odin Project (Free)", "url": "https://www.theodinproject.com/" }
+          ],
+          "tags": ["html", "css", "javascript", "react", "full-stack", "free"]
+        },
+        {
+          "id": "web-freecodecamp",
+          "title": "freeCodeCamp – Responsive Web Design",
+          "description": "Learn HTML and CSS by building 20 real projects. Earn a free certification upon completion.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "freeCodeCamp (Free)", "url": "https://www.freecodecamp.org/learn/2022/responsive-web-design/" }
+          ],
+          "tags": ["html", "css", "responsive", "free", "certification"]
+        },
+        {
+          "id": "css-advanced",
+          "title": "Advanced CSS and Sass",
+          "description": "Master Flexbox, CSS Grid, animations, custom properties, and Sass preprocessor to build stunning, modern layouts.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Udemy", "url": "ADD_LINK_HERE" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["css", "sass", "flexbox", "grid", "animations"]
+        },
+        {
+          "id": "react-official",
+          "title": "Official React Documentation & Tutorial",
+          "description": "React's official interactive tutorial with hands-on exercises. Best way to learn React in 2024.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "React.dev (Free)", "url": "https://react.dev/learn" }
+          ],
+          "tags": ["react", "javascript", "frontend", "free"]
+        },
+        {
+          "id": "react-hooks",
+          "title": "React Hooks & Context API — Complete Guide",
+          "description": "useState, useEffect, useContext, useReducer, custom hooks. Everything you need to manage state in modern React apps without Redux.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Udemy", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["react", "hooks", "context", "state-management"]
+        },
+        {
+          "id": "node-express",
+          "title": "Node.js and Express — Backend Development",
+          "description": "Build RESTful APIs and backend services with Node.js and Express. Covers routing, middleware, authentication, and MongoDB integration.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "https://www.youtube.com/watch?v=Oe421EPjeBE" },
+            { "name": "Udemy", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["node", "express", "api", "backend", "javascript"]
+        },
+        {
+          "id": "api-design",
+          "title": "REST API Design & Development",
+          "description": "Learn REST principles, HTTP methods, authentication (JWT, OAuth), API documentation with Swagger, and best practices for scalable APIs.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["api", "rest", "jwt", "backend", "swagger"]
+        },
+        {
+          "id": "fullstack-udemy",
+          "title": "The Complete Web Developer Bootcamp",
+          "description": "Colt Steele's comprehensive bootcamp covering HTML, CSS, JS, Node, Express, MongoDB and more. Frequently on sale.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Udemy", "url": "https://www.udemy.com/course/the-web-developer-bootcamp/" }
+          ],
+          "tags": ["html", "css", "node", "mongodb", "full-stack"]
+        },
+        {
+          "id": "nextjs-official",
+          "title": "Next.js Official Tutorial",
+          "description": "Build a full-stack web app with Next.js, React, and Vercel. The official hands-on tutorial.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Nextjs.org (Free)", "url": "https://nextjs.org/learn" }
+          ],
+          "tags": ["nextjs", "react", "full-stack", "free"]
+        },
+        {
+          "id": "typescript-intro",
+          "title": "TypeScript — Full Course for Beginners",
+          "description": "Add strong typing to JavaScript. Learn types, interfaces, generics, and TypeScript with React and Node. Industry standard for large codebases.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Official Docs (Free)", "url": "https://www.typescriptlang.org/docs/" }
+          ],
+          "tags": ["typescript", "javascript", "typing", "react"]
+        },
+        {
+          "id": "web-databases",
+          "title": "Databases for Web Developers (SQL & NoSQL)",
+          "description": "Covers relational databases (PostgreSQL, MySQL) and document databases (MongoDB). Schema design, queries, indexes, and ORM patterns.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Udemy", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["sql", "mongodb", "postgresql", "database", "orm"]
+        }
+      ]
+    },
+
+    {
+      "id": "ai_ml",
+      "label": "AI & Machine Learning",
+      "icon": "brain",
+      "color": "pink",
+      "courses": [
+        {
+          "id": "ml-andrew",
+          "title": "Machine Learning Specialization – Andrew Ng",
+          "description": "The gold standard ML course. Covers supervised, unsupervised learning, and best practices from the co-founder of Coursera.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "https://www.coursera.org/specializations/machine-learning-introduction" }
+          ],
+          "tags": ["machine-learning", "python", "andrew-ng", "free-audit"]
+        },
+        {
+          "id": "dl-fast",
+          "title": "Practical Deep Learning for Coders",
+          "description": "fast.ai's top-down approach to deep learning — start building real models immediately, learn the theory along the way.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "fast.ai (Free)", "url": "https://course.fast.ai/" }
+          ],
+          "tags": ["deep-learning", "pytorch", "free"]
+        },
+        {
+          "id": "ai-google",
+          "title": "Google Machine Learning Crash Course",
+          "description": "Google's own ML course with TensorFlow exercises, real-world case studies, and interactive visualizations.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Google (Free)", "url": "https://developers.google.com/machine-learning/crash-course" }
+          ],
+          "tags": ["machine-learning", "tensorflow", "google", "free"]
+        },
+        {
+          "id": "nlp-huggingface",
+          "title": "NLP Course – Hugging Face",
+          "description": "Learn to use Transformers, BERT, GPT and other modern NLP models using the industry-standard Hugging Face library.",
+          "difficulty": "Advanced",
+          "platforms": [
+            { "name": "Hugging Face (Free)", "url": "https://huggingface.co/learn/nlp-course" }
+          ],
+          "tags": ["nlp", "transformers", "bert", "gpt", "free"]
+        },
+        {
+          "id": "dl-deeplearning-ai",
+          "title": "Deep Learning Specialization – Andrew Ng",
+          "description": "5-course specialization covering neural networks, CNNs, RNNs, optimization, and hyperparameter tuning. The best structured deep learning curriculum.",
+          "difficulty": "Advanced",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "https://www.coursera.org/specializations/deep-learning" }
+          ],
+          "tags": ["deep-learning", "neural-networks", "cnn", "rnn", "andrew-ng"]
+        },
+        {
+          "id": "ml-scikit",
+          "title": "Scikit-Learn Machine Learning with Python",
+          "description": "Hands-on ML with the most popular Python ML library. Covers classification, regression, clustering, pipelines, and model evaluation.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Official Docs (Free)", "url": "https://scikit-learn.org/stable/tutorial/" }
+          ],
+          "tags": ["scikit-learn", "machine-learning", "python", "classification"]
+        },
+        {
+          "id": "pytorch-intro",
+          "title": "PyTorch for Deep Learning — Full Course",
+          "description": "Learn PyTorch from scratch — tensors, autograd, building neural networks, CNNs, transfer learning, and deploying models.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Official Tutorial (Free)", "url": "https://pytorch.org/tutorials/" }
+          ],
+          "tags": ["pytorch", "deep-learning", "neural-networks", "python"]
+        },
+        {
+          "id": "tensorflow-intro",
+          "title": "TensorFlow 2.0 — Complete Guide",
+          "description": "Build, train, and deploy ML models with TensorFlow 2 and Keras. Covers image classification, NLP, and time-series.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Udemy", "url": "ADD_LINK_HERE" },
+            { "name": "TensorFlow Official (Free)", "url": "https://www.tensorflow.org/tutorials" }
+          ],
+          "tags": ["tensorflow", "keras", "deep-learning", "python"]
+        },
+        {
+          "id": "linear-algebra-ml",
+          "title": "Mathematics for Machine Learning",
+          "description": "Linear algebra, calculus, and statistics specifically for ML — vectors, matrices, eigenvalues, gradients, probability distributions.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "https://www.coursera.org/specializations/mathematics-machine-learning" },
+            { "name": "YouTube – 3Blue1Brown (Free)", "url": "https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab" }
+          ],
+          "tags": ["linear-algebra", "calculus", "statistics", "math", "ml"]
+        },
+        {
+          "id": "mlops-course",
+          "title": "MLOps Fundamentals — Deploying ML in Production",
+          "description": "Learn how to take ML models to production — experiment tracking (MLflow), model serving, CI/CD for ML, monitoring, and data versioning.",
+          "difficulty": "Advanced",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" },
+            { "name": "Made With ML (Free)", "url": "https://madewithml.com/" }
+          ],
+          "tags": ["mlops", "mlflow", "docker", "production", "deployment"]
+        },
+        {
+          "id": "computer-vision",
+          "title": "Computer Vision with OpenCV and Python",
+          "description": "Image processing, object detection, face recognition, and deep learning-based CV. Uses OpenCV, TensorFlow, and YOLO.",
+          "difficulty": "Advanced",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Udemy", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["computer-vision", "opencv", "yolo", "deep-learning", "python"]
+        }
+      ]
+    },
+
+    {
+      "id": "data",
+      "label": "Data Science & Analytics",
+      "icon": "bar-chart-2",
+      "color": "green",
+      "courses": [
+        {
+          "id": "da-freecodecamp",
+          "title": "Data Analysis with Python",
+          "description": "Learn Pandas, NumPy, Matplotlib and Seaborn to clean, analyze and visualize real-world datasets.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "freeCodeCamp (Free)", "url": "https://www.freecodecamp.org/learn/data-analysis-with-python/" },
+            { "name": "YouTube (Free)", "url": "https://www.youtube.com/watch?v=r-uOLxNrNk8" }
+          ],
+          "tags": ["pandas", "numpy", "python", "data-analysis", "free"]
+        },
+        {
+          "id": "sql-mode",
+          "title": "SQL Tutorial – Mode Analytics",
+          "description": "Learn SQL from beginner to advanced with real business datasets and interactive exercises. Browser-based, no install needed.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Mode Analytics (Free)", "url": "https://mode.com/sql-tutorial/" },
+            { "name": "SQLZoo (Free)", "url": "https://sqlzoo.net/" }
+          ],
+          "tags": ["sql", "database", "analytics", "free"]
+        },
+        {
+          "id": "sql-advanced",
+          "title": "Advanced SQL for Data Analysis",
+          "description": "Window functions, CTEs, subqueries, query optimization, and analytical SQL patterns used by professional data analysts.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "DataLemur (Free)", "url": "https://datalemur.com/" }
+          ],
+          "tags": ["sql", "window-functions", "cte", "advanced", "data-analysis"]
+        },
+        {
+          "id": "statistics-for-ds",
+          "title": "Statistics for Data Science",
+          "description": "Descriptive statistics, probability, distributions, hypothesis testing, p-values, and Bayesian thinking — the statistical foundation all data roles need.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Khan Academy (Free)", "url": "https://www.khanacademy.org/math/statistics-probability" },
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["statistics", "probability", "hypothesis-testing", "free", "data-science"]
+        },
+        {
+          "id": "excel-advanced",
+          "title": "Excel for Data Analysis — Advanced",
+          "description": "VLOOKUP, pivot tables, Power Query, Power Pivot, and Excel dashboards. The most-used tool in business and data analyst roles.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["excel", "pivot-table", "power-query", "data-analysis", "business"]
+        },
+        {
+          "id": "powerbi-course",
+          "title": "Power BI Desktop — Full Course",
+          "description": "Microsoft's business intelligence tool. Build interactive dashboards, connect data sources, use DAX formulas, and share reports.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Microsoft Learn (Free)", "url": "https://learn.microsoft.com/en-us/power-bi/fundamentals/service-get-started" }
+          ],
+          "tags": ["power-bi", "dashboard", "bi", "microsoft", "visualization"]
+        },
+        {
+          "id": "tableau-official",
+          "title": "Tableau Training Videos",
+          "description": "Official Tableau training to create beautiful interactive dashboards and data visualizations.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Tableau (Free)", "url": "https://www.tableau.com/learn/training" }
+          ],
+          "tags": ["tableau", "visualization", "dashboard", "free"]
+        },
+        {
+          "id": "kaggle-courses",
+          "title": "Kaggle Learn – Data Science Micro-Courses",
+          "description": "Short, hands-on courses covering Python, Pandas, SQL, ML, deep learning, and feature engineering with live notebooks.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Kaggle (Free)", "url": "https://www.kaggle.com/learn" }
+          ],
+          "tags": ["python", "pandas", "machine-learning", "kaggle", "free"]
+        },
+        {
+          "id": "data-viz-python",
+          "title": "Data Visualization with Python",
+          "description": "Create charts, dashboards, and interactive plots using Matplotlib, Seaborn, Plotly, and Dash.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["matplotlib", "seaborn", "plotly", "python", "visualization"]
+        }
+      ]
+    },
+
+    {
+      "id": "cybersecurity",
+      "label": "Cybersecurity",
+      "icon": "shield",
+      "color": "red",
+      "courses": [
+        {
+          "id": "cs-cs50",
+          "title": "CS50's Introduction to Cybersecurity",
+          "description": "Harvard's cybersecurity course. Covers threats, defenses, hashing, authentication, and privacy. Free with certificate.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "edX (Free)", "url": "https://www.edx.org/learn/cybersecurity/harvard-university-cs50-s-introduction-to-cybersecurity" }
+          ],
+          "tags": ["security", "harvard", "free", "certification"]
+        },
+        {
+          "id": "cs-tryhackme",
+          "title": "TryHackMe – Learning Paths",
+          "description": "Hands-on cybersecurity training through browser-based labs. Great for beginners starting in ethical hacking or defensive security.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "TryHackMe (Free tier)", "url": "https://tryhackme.com/paths" }
+          ],
+          "tags": ["ethical-hacking", "ctf", "labs", "hands-on"]
+        },
+        {
+          "id": "cs-comptia",
+          "title": "CompTIA Security+ Study Guide",
+          "description": "Study materials for the industry-standard Security+ certification. Covers network security, cryptography, risk management.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Professor Messer (Free)", "url": "https://www.professormesser.com/security-plus/sy0-701/sy0-701-video/sy0-701-comptia-security-plus-course/" }
+          ],
+          "tags": ["certification", "security+", "network", "free"]
+        },
+        {
+          "id": "networking-fundamentals",
+          "title": "Computer Networking — Full Course",
+          "description": "Covers TCP/IP, DNS, HTTP, firewalls, VPNs, OSI model, and networking protocols. Essential for both DevOps and Cybersecurity roles.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "YouTube – freeCodeCamp (Free)", "url": "https://www.youtube.com/watch?v=qiQR5rTSshw" },
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["networking", "tcp-ip", "dns", "security", "devops"]
+        },
+        {
+          "id": "cryptography-course",
+          "title": "Cryptography — Stanford University",
+          "description": "Dan Boneh's world-class cryptography course. Covers symmetric/asymmetric encryption, hash functions, digital signatures, and PKI.",
+          "difficulty": "Advanced",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "https://www.coursera.org/learn/crypto" }
+          ],
+          "tags": ["cryptography", "encryption", "security", "stanford"]
+        },
+        {
+          "id": "ethical-hacking",
+          "title": "The Complete Ethical Hacking Course",
+          "description": "Penetration testing, reconnaissance, exploitation, and post-exploitation using Kali Linux, Metasploit, and Burp Suite.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Udemy", "url": "ADD_LINK_HERE" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["ethical-hacking", "penetration-testing", "kali", "metasploit"]
+        },
+        {
+          "id": "incident-response",
+          "title": "Incident Response & Digital Forensics",
+          "description": "Learn how to detect, contain, and recover from cyberattacks. Covers log analysis, SIEM tools, and forensic investigation techniques.",
+          "difficulty": "Advanced",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" },
+            { "name": "SANS Reading Room (Free)", "url": "https://www.sans.org/white-papers/" }
+          ],
+          "tags": ["incident-response", "siem", "forensics", "splunk", "security"]
+        }
+      ]
+    },
+
+    {
+      "id": "cloud_devops",
+      "label": "Cloud & DevOps",
+      "icon": "cloud",
+      "color": "blue",
+      "courses": [
+        {
+          "id": "cloud-aws-free",
+          "title": "AWS Cloud Practitioner Essentials",
+          "description": "Official Amazon course for AWS Cloud Practitioner certification. Covers core AWS services, pricing, and architecture.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "AWS Skill Builder (Free)", "url": "https://explore.skillbuilder.aws/learn/course/external/view/elearning/134/aws-cloud-practitioner-essentials" }
+          ],
+          "tags": ["aws", "cloud", "certification", "free"]
+        },
+        {
+          "id": "aws-developer",
+          "title": "AWS Certified Developer — Associate",
+          "description": "Go deeper into AWS — EC2, Lambda, S3, DynamoDB, API Gateway, IAM, CloudFormation, and CI/CD pipelines on AWS.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Udemy", "url": "ADD_LINK_HERE" },
+            { "name": "AWS Skill Builder (Free)", "url": "https://explore.skillbuilder.aws/" }
+          ],
+          "tags": ["aws", "cloud", "lambda", "ec2", "certification"]
+        },
+        {
+          "id": "gcp-fundamentals",
+          "title": "Google Cloud Fundamentals",
+          "description": "Introduction to Google Cloud Platform — Compute Engine, Cloud Storage, BigQuery, Kubernetes Engine, and Cloud Functions.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "https://www.coursera.org/learn/gcp-fundamentals" },
+            { "name": "Google Cloud (Free tier)", "url": "https://cloud.google.com/training/free" }
+          ],
+          "tags": ["gcp", "google-cloud", "cloud", "bigquery"]
+        },
+        {
+          "id": "devops-docker",
+          "title": "Docker for Beginners",
+          "description": "Learn containerization with Docker — building images, running containers, Docker Compose and deployment.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Docker Official Docs (Free)", "url": "https://docs.docker.com/get-started/" },
+            { "name": "YouTube (Free)", "url": "https://www.youtube.com/watch?v=fqMOX6JJhGo" }
+          ],
+          "tags": ["docker", "containers", "devops", "free"]
+        },
+        {
+          "id": "kubernetes-course",
+          "title": "Kubernetes — Complete Course",
+          "description": "Container orchestration with Kubernetes — pods, deployments, services, Helm, ingress controllers, and scaling production workloads.",
+          "difficulty": "Advanced",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Udemy", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["kubernetes", "k8s", "containers", "devops", "orchestration"]
+        },
+        {
+          "id": "cicd-github-actions",
+          "title": "CI/CD with GitHub Actions",
+          "description": "Automate testing, building, and deployment with GitHub Actions. Learn workflows, jobs, secrets, matrix builds, and deployment pipelines.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "GitHub Docs (Free)", "url": "https://docs.github.com/en/actions/learn-github-actions" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["github-actions", "ci-cd", "automation", "devops", "free"]
+        },
+        {
+          "id": "terraform-iac",
+          "title": "Terraform — Infrastructure as Code",
+          "description": "Provision and manage cloud infrastructure with Terraform. Covers AWS, Azure, GCP resources, state management, and modules.",
+          "difficulty": "Advanced",
+          "platforms": [
+            { "name": "HashiCorp Learn (Free)", "url": "https://developer.hashicorp.com/terraform/tutorials" },
+            { "name": "Udemy", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["terraform", "iac", "aws", "devops", "infrastructure"]
+        },
+        {
+          "id": "devops-roadmap",
+          "title": "DevOps Roadmap + Kubernetes Crash Course",
+          "description": "Complete DevOps roadmap covering Linux, CI/CD, Kubernetes, Terraform, and cloud deployment pipelines.",
+          "difficulty": "Advanced",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "https://www.youtube.com/watch?v=0UVskeWZMlA" },
+            { "name": "roadmap.sh (Free)", "url": "https://roadmap.sh/devops" }
+          ],
+          "tags": ["kubernetes", "ci-cd", "terraform", "linux", "free"]
+        }
+      ]
+    },
+
+    {
+      "id": "digital_marketing",
+      "label": "Digital Marketing",
+      "icon": "trending-up",
+      "color": "amber",
+      "courses": [
+        {
+          "id": "dm-google",
+          "title": "Google Digital Marketing & E-commerce Certificate",
+          "description": "Google's official professional certificate covering digital marketing, SEO, SEM, email marketing, and e-commerce fundamentals.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "https://www.coursera.org/professional-certificates/google-digital-marketing-ecommerce" },
+            { "name": "Google Digital Garage (Free)", "url": "https://learndigital.withgoogle.com/digitalgarage" }
+          ],
+          "tags": ["seo", "sem", "google", "certification", "free-audit"]
+        },
+        {
+          "id": "dm-meta",
+          "title": "Meta Social Media Marketing Certificate",
+          "description": "Official Meta (Facebook) certificate covering social media strategy, content creation, advertising and analytics.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "https://www.coursera.org/professional-certificates/facebook-social-media-marketing" }
+          ],
+          "tags": ["social-media", "facebook", "instagram", "ads", "meta"]
+        },
+        {
+          "id": "dm-seo-ahrefs",
+          "title": "SEO Training Course by Ahrefs",
+          "description": "In-depth SEO course from one of the top SEO tools. Covers keyword research, on-page SEO, link building, and technical SEO.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "https://www.youtube.com/watch?v=xsVTqzratPs" },
+            { "name": "Ahrefs Academy (Free)", "url": "https://ahrefs.com/academy" }
+          ],
+          "tags": ["seo", "keyword-research", "link-building", "free"]
+        },
+        {
+          "id": "content-marketing",
+          "title": "Content Marketing Fundamentals",
+          "description": "Create and distribute content that attracts and retains customers. Covers blog writing, SEO content, email campaigns, and content strategy.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "HubSpot Academy (Free)", "url": "https://academy.hubspot.com/courses/content-marketing" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["content-marketing", "blogging", "seo", "hubspot", "free"]
+        },
+        {
+          "id": "copywriting-course",
+          "title": "Copywriting for Digital Marketing",
+          "description": "Write persuasive ad copy, emails, landing pages, and product descriptions that convert. Covers AIDA, PAS, storytelling frameworks.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Udemy", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["copywriting", "advertising", "conversion", "marketing"]
+        },
+        {
+          "id": "social-media-strategy",
+          "title": "Social Media Marketing & Management",
+          "description": "Grow audiences on Instagram, TikTok, LinkedIn, and Twitter/X. Covers content calendars, analytics, paid ads, and influencer marketing.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "HubSpot Academy (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["social-media", "instagram", "tiktok", "linkedin", "management"]
+        },
+        {
+          "id": "google-analytics",
+          "title": "Google Analytics 4 — Complete Guide",
+          "description": "Set up and use GA4 to track website traffic, user behaviour, conversions, and marketing ROI. Essential for digital marketing roles.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Google Skillshop (Free)", "url": "https://skillshop.exceedlms.com/student/catalog/list?category_ids=53-google-analytics" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["google-analytics", "ga4", "tracking", "data", "free"]
+        },
+        {
+          "id": "dm-fiverr",
+          "title": "Freelancing on Fiverr – Complete Guide",
+          "description": "How to set up a Fiverr profile, price your services, land your first clients, and scale your freelance income.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "https://www.youtube.com/watch?v=qFZXSPlOErM" },
+            { "name": "Fiverr Learn", "url": "https://learn.fiverr.com/" }
+          ],
+          "tags": ["freelancing", "fiverr", "income", "beginner"]
+        }
+      ]
+    },
+
+    {
+      "id": "design",
+      "label": "Design & UX",
+      "icon": "pen-tool",
+      "color": "pink",
+      "courses": [
+        {
+          "id": "ux-google",
+          "title": "Google UX Design Certificate",
+          "description": "Google's 6-course UX design certificate covering the full design process — UX research, wireframing, prototyping, and Figma.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "https://www.coursera.org/professional-certificates/google-ux-design" }
+          ],
+          "tags": ["ux", "ui", "figma", "google", "certification"]
+        },
+        {
+          "id": "design-figma",
+          "title": "Figma for Beginners",
+          "description": "Learn the industry-standard design tool Figma from scratch — frames, components, auto layout, and prototyping.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "https://www.youtube.com/watch?v=HZuk6Wkx_Eg" },
+            { "name": "Figma Official (Free)", "url": "https://help.figma.com/hc/en-us/categories/360002042553-Figma-design" }
+          ],
+          "tags": ["figma", "ui", "design", "free"]
+        },
+        {
+          "id": "figma-advanced",
+          "title": "Figma — Advanced Components & Design Systems",
+          "description": "Build reusable component libraries, design tokens, variants, interactive prototypes, and full design systems in Figma.",
+          "difficulty": "Advanced",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Udemy", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["figma", "design-system", "components", "advanced", "ui"]
+        },
+        {
+          "id": "ux-research",
+          "title": "UX Research — User Interviews & Usability Testing",
+          "description": "Plan and run user interviews, usability tests, surveys, and A/B tests. Translate findings into actionable product decisions.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" },
+            { "name": "Nielsen Norman Group (Free articles)", "url": "https://www.nngroup.com/articles/" }
+          ],
+          "tags": ["ux-research", "user-testing", "interviews", "product"]
+        },
+        {
+          "id": "ui-design-principles",
+          "title": "UI Design Fundamentals",
+          "description": "Visual design principles — typography, colour theory, spacing, hierarchy, and accessibility for screen-based interfaces.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Scrimba (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["ui-design", "typography", "color-theory", "accessibility"]
+        },
+        {
+          "id": "design-canva",
+          "title": "Canva Design School",
+          "description": "Free design tutorials from Canva — social media graphics, presentations, branding, and visual communication.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Canva (Free)", "url": "https://www.canva.com/designschool/" }
+          ],
+          "tags": ["canva", "graphic-design", "social-media", "free", "non-tech"]
+        },
+        {
+          "id": "interaction-design",
+          "title": "Interaction Design Foundation — UX Courses",
+          "description": "Comprehensive UX/UI courses from the world's largest UX design school — design thinking, information architecture, and more.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "IDF (Paid, affordable)", "url": "https://www.interaction-design.org/courses" }
+          ],
+          "tags": ["ux", "interaction-design", "design-thinking", "ia"]
+        }
+      ]
+    },
+
+    {
+      "id": "soft_skills",
+      "label": "Soft Skills & Career",
+      "icon": "users",
+      "color": "green",
+      "courses": [
+        {
+          "id": "ss-coursera-think",
+          "title": "Learning How to Learn",
+          "description": "World's most popular online course. Science-backed techniques for effective studying, memory, and overcoming procrastination.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "https://www.coursera.org/learn/learning-how-to-learn" }
+          ],
+          "tags": ["study-skills", "productivity", "free-audit", "popular"]
+        },
+        {
+          "id": "ss-linkedin",
+          "title": "LinkedIn Profile & Job Search Mastery",
+          "description": "How to build a strong LinkedIn profile, network effectively, write cold outreach, and land tech job interviews.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "https://www.youtube.com/watch?v=BcfGWi8CqC8" },
+            { "name": "LinkedIn Learning", "url": "https://www.linkedin.com/learning/" }
+          ],
+          "tags": ["linkedin", "job-search", "networking", "career"]
+        },
+        {
+          "id": "ss-writing",
+          "title": "Technical Writing Fundamentals",
+          "description": "Learn to write clear documentation, articles, how-to guides and reports. Essential for technical writers and developers.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Google (Free)", "url": "https://developers.google.com/tech-writing" }
+          ],
+          "tags": ["technical-writing", "documentation", "google", "free"]
+        },
+        {
+          "id": "ss-speak",
+          "title": "Public Speaking & Communication",
+          "description": "Build confidence in presentations, interviews and meetings. Covers body language, storytelling and audience engagement.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "https://www.coursera.org/learn/public-speaking" },
+            { "name": "YouTube (Free)", "url": "https://www.youtube.com/watch?v=AykYRO5d_lI" }
+          ],
+          "tags": ["presentation", "communication", "soft-skills", "free-audit"]
+        },
+        {
+          "id": "project-management",
+          "title": "Project Management Fundamentals",
+          "description": "Agile, Scrum, Kanban, and Waterfall methodologies. Covers sprint planning, backlog management, stakeholder communication, and delivery.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["project-management", "agile", "scrum", "kanban", "pm"]
+        },
+        {
+          "id": "critical-thinking",
+          "title": "Critical Thinking & Problem Solving",
+          "description": "Structured analytical thinking, logical reasoning, cognitive bias awareness, and frameworks for complex decision-making.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["critical-thinking", "problem-solving", "analytical", "soft-skills"]
+        },
+        {
+          "id": "business-analysis",
+          "title": "Business Analysis Fundamentals",
+          "description": "Gather requirements, map processes, write user stories, and bridge business needs with technology solutions.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Udemy", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["business-analysis", "requirements", "user-stories", "process-mapping"]
+        },
+        {
+          "id": "interview-prep",
+          "title": "Tech Interview Preparation",
+          "description": "Behavioral questions (STAR method), coding interview strategies, system design interviews, and salary negotiation tactics.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Exponent (Free tier)", "url": "https://www.tryexponent.com/" }
+          ],
+          "tags": ["interview", "star-method", "behavioral", "coding-interview", "career"]
+        }
+      ]
+    },
+
+    {
+      "id": "product_management",
+      "label": "Product Management",
+      "icon": "package",
+      "color": "orange",
+      "courses": [
+        {
+          "id": "pm-fundamentals",
+          "title": "Product Management Fundamentals",
+          "description": "Learn the complete PM lifecycle — discovery, roadmapping, prioritisation (RICE, MoSCoW), sprint planning, and go-to-market strategy.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["product-management", "roadmap", "prioritization", "agile"]
+        },
+        {
+          "id": "pm-google-cert",
+          "title": "Google Project Management Certificate",
+          "description": "Google's full project management professional certificate covering Agile, Scrum, and Waterfall with real-world capstone projects.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "https://www.coursera.org/professional-certificates/google-project-management" }
+          ],
+          "tags": ["project-management", "agile", "scrum", "google", "certification"]
+        },
+        {
+          "id": "pm-user-research",
+          "title": "Customer & User Research for PMs",
+          "description": "Understand customers deeply — user interviews, surveys, NPS, journey mapping, and synthesising insights into product decisions.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "ProductSchool (Free content)", "url": "https://productschool.com/resources/" }
+          ],
+          "tags": ["user-research", "product-management", "interviews", "journey-map"]
+        },
+        {
+          "id": "pm-analytics",
+          "title": "Product Analytics — Metrics & Data for PMs",
+          "description": "Define and track north-star metrics, funnels, retention curves, and A/B test results to make data-driven product decisions.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Amplitude Academy (Free)", "url": "https://academy.amplitude.com/" }
+          ],
+          "tags": ["product-analytics", "metrics", "ab-testing", "data", "pm"]
+        }
+      ]
+    },
+
+    {
+      "id": "business_analytics",
+      "label": "Business & Finance",
+      "icon": "briefcase",
+      "color": "amber",
+      "courses": [
+        {
+          "id": "ba-excel-fundamentals",
+          "title": "Microsoft Excel — Beginner to Advanced",
+          "description": "Complete Excel course from basics to advanced formulas, charts, and automation using VBA macros. Most requested skill in business roles.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["excel", "spreadsheet", "vba", "data-analysis", "business"]
+        },
+        {
+          "id": "ba-communication",
+          "title": "Business Communication — Writing & Presenting",
+          "description": "Write professional emails, business reports, proposals, and presentations. Covers executive communication, stakeholder management.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["communication", "business-writing", "presentations", "emails"]
+        },
+        {
+          "id": "ba-data-driven",
+          "title": "Data-Driven Decision Making for Business",
+          "description": "Use data to make smarter business decisions — KPI tracking, scenario analysis, dashboards, and business intelligence fundamentals.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["business-analysis", "kpi", "decision-making", "bi", "data"]
+        }
+      ]
+    },
+
+    {
+      "id": "ai_automation",
+      "label": "AI Automation & LLMs",
+      "icon": "bot",
+      "color": "cyan",
+      "courses": [
+        {
+          "id": "ai-prompt-eng",
+          "title": "Prompt Engineering for Developers",
+          "description": "Learn to write effective prompts for ChatGPT, Claude, and other LLMs. Covers few-shot, chain-of-thought, RAG patterns, and building AI-powered apps.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "DeepLearning.AI (Free)", "url": "https://www.deeplearning.ai/short-courses/chatgpt-prompt-engineering-for-developers/" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["prompt-engineering", "chatgpt", "llm", "openai", "free"]
+        },
+        {
+          "id": "ai-langchain",
+          "title": "LangChain — Building LLM Applications",
+          "description": "Build AI agents, RAG pipelines, and LLM-powered apps using LangChain. Connect LLMs to databases, APIs, and external tools.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "DeepLearning.AI (Free)", "url": "https://www.deeplearning.ai/short-courses/langchain-for-llm-application-development/" },
+            { "name": "Official Docs (Free)", "url": "https://python.langchain.com/docs/get_started/introduction" }
+          ],
+          "tags": ["langchain", "llm", "rag", "ai-agents", "python"]
+        },
+        {
+          "id": "ai-openai-api",
+          "title": "OpenAI API — Complete Guide",
+          "description": "Use the OpenAI API (GPT-4, DALL-E, Whisper) to build chatbots, content generators, code assistants, and AI automation tools.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Official Docs (Free)", "url": "https://platform.openai.com/docs/" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["openai", "gpt-4", "api", "chatbot", "python"]
+        },
+        {
+          "id": "ai-agents",
+          "title": "Building AI Agents — From Scratch",
+          "description": "Design autonomous AI agents that can plan, reason, use tools, and complete multi-step tasks. Covers CrewAI, AutoGPT, and agent frameworks.",
+          "difficulty": "Advanced",
+          "platforms": [
+            { "name": "DeepLearning.AI (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["ai-agents", "crewai", "autogpt", "autonomous", "python"]
+        },
+        {
+          "id": "ai-nocode-automation",
+          "title": "No-Code AI Automation (n8n, Make, Zapier)",
+          "description": "Automate business workflows without coding — connect APIs, trigger actions, build chatbots, and create AI pipelines using visual tools.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "n8n Academy (Free)", "url": "https://docs.n8n.io/" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["automation", "n8n", "zapier", "make", "no-code", "workflow"]
+        },
+        {
+          "id": "ai-huggingface-deploy",
+          "title": "Deploy ML Models with Hugging Face",
+          "description": "Fine-tune and deploy transformer models using Hugging Face Hub, Spaces, and Inference API. Build real AI products.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Hugging Face (Free)", "url": "https://huggingface.co/learn" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["hugging-face", "transformers", "deployment", "fine-tuning", "free"]
+        },
+        {
+          "id": "ai-fastapi",
+          "title": "FastAPI — Build AI-Powered APIs",
+          "description": "Build high-performance Python APIs with FastAPI. Perfect for serving ML models, building AI backends, and creating microservices.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Official Docs (Free)", "url": "https://fastapi.tiangolo.com/tutorial/" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["fastapi", "api", "python", "ml-serving", "backend"]
+        },
+        {
+          "id": "ai-rag",
+          "title": "RAG (Retrieval-Augmented Generation) — Complete Guide",
+          "description": "Build production-ready RAG systems — vector databases, embeddings, document chunking, and retrieval pipelines for LLM applications.",
+          "difficulty": "Advanced",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Pinecone Docs (Free)", "url": "https://docs.pinecone.io/docs/overview" }
+          ],
+          "tags": ["rag", "vector-database", "embeddings", "llm", "pinecone"]
+        }
+      ]
+    },
+
+    {
+      "id": "mobile_dev",
+      "label": "Mobile Development",
+      "icon": "smartphone",
+      "color": "blue",
+      "courses": [
+        {
+          "id": "mob-react-native",
+          "title": "React Native — Complete Course",
+          "description": "Build cross-platform iOS and Android apps with React Native. Covers navigation, state management, native modules, and deployment.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Official Docs (Free)", "url": "https://reactnative.dev/docs/getting-started" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["react-native", "mobile", "cross-platform", "javascript"]
+        },
+        {
+          "id": "mob-flutter",
+          "title": "Flutter & Dart — Full Course",
+          "description": "Google's UI toolkit for building natively compiled apps for mobile, web, and desktop from a single codebase using Dart.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Official Docs (Free)", "url": "https://docs.flutter.dev/get-started/codelab" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Udemy", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["flutter", "dart", "mobile", "google", "cross-platform"]
+        },
+        {
+          "id": "mob-swift",
+          "title": "iOS Development with Swift",
+          "description": "Build native iOS apps with Swift and SwiftUI. Covers Xcode, UIKit, networking, Core Data, and App Store deployment.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Apple (Free)", "url": "https://developer.apple.com/tutorials/swiftui" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["swift", "ios", "swiftui", "apple", "mobile"]
+        },
+        {
+          "id": "mob-kotlin",
+          "title": "Android Development with Kotlin",
+          "description": "Build native Android apps with Kotlin and Jetpack Compose. Covers activities, fragments, Room database, and Material Design.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Android Developers (Free)", "url": "https://developer.android.com/courses" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["kotlin", "android", "jetpack-compose", "google", "mobile"]
+        },
+        {
+          "id": "mob-firebase",
+          "title": "Firebase — Backend for Mobile Apps",
+          "description": "Real-time database, authentication, cloud functions, push notifications, and analytics — the complete backend-as-a-service for mobile apps.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Firebase Docs (Free)", "url": "https://firebase.google.com/docs/guides" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["firebase", "backend", "auth", "realtime-db", "mobile"]
+        }
+      ]
+    },
+
+    {
+      "id": "blockchain",
+      "label": "Blockchain & Web3",
+      "icon": "link-2",
+      "color": "purple",
+      "courses": [
+        {
+          "id": "bc-fundamentals",
+          "title": "Blockchain Fundamentals",
+          "description": "Understand how blockchain works — distributed ledgers, consensus mechanisms, mining, wallets, and smart contracts explained from scratch.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["blockchain", "distributed-ledger", "consensus", "crypto"]
+        },
+        {
+          "id": "bc-solidity",
+          "title": "Solidity — Smart Contract Development",
+          "description": "Write, test, and deploy Ethereum smart contracts using Solidity. Covers ERC-20 tokens, NFTs, DeFi protocols, and security patterns.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "CryptoZombies (Free)", "url": "https://cryptozombies.io/" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["solidity", "ethereum", "smart-contracts", "defi", "nft"]
+        },
+        {
+          "id": "bc-web3js",
+          "title": "Web3 Development — Ethers.js & Hardhat",
+          "description": "Build decentralized applications (dApps) with Ethers.js, Hardhat, and React. Connect frontends to smart contracts on Ethereum.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Hardhat Docs (Free)", "url": "https://hardhat.org/tutorial" }
+          ],
+          "tags": ["web3", "ethers-js", "hardhat", "dapp", "ethereum"]
+        },
+        {
+          "id": "bc-fullstack",
+          "title": "Full-Stack Blockchain Developer Course",
+          "description": "End-to-end blockchain development — Solidity, React, IPFS, TheGraph, and deploying on mainnet. Build real-world dApps.",
+          "difficulty": "Advanced",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Alchemy University (Free)", "url": "https://university.alchemy.com/" }
+          ],
+          "tags": ["full-stack", "blockchain", "ipfs", "thegraph", "web3"]
+        }
+      ]
+    },
+
+    {
+      "id": "qa_testing",
+      "label": "QA & Testing",
+      "icon": "check-circle",
+      "color": "green",
+      "courses": [
+        {
+          "id": "qa-fundamentals",
+          "title": "Software Testing Fundamentals",
+          "description": "Manual and automated testing concepts — test plans, test cases, bug tracking, regression testing, and QA methodologies.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Coursera (Free audit)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["qa", "testing", "test-plan", "bug-tracking", "manual-testing"]
+        },
+        {
+          "id": "qa-selenium",
+          "title": "Selenium WebDriver — Automated Browser Testing",
+          "description": "Automate web application testing with Selenium. Covers locators, waits, Page Object Model, and CI/CD integration.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" },
+            { "name": "Official Docs (Free)", "url": "https://www.selenium.dev/documentation/" }
+          ],
+          "tags": ["selenium", "automation", "browser-testing", "python", "qa"]
+        },
+        {
+          "id": "qa-cypress",
+          "title": "Cypress — Modern E2E Testing",
+          "description": "Fast, reliable end-to-end testing for modern web apps. Covers component testing, API testing, and CI integration with Cypress.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Official Docs (Free)", "url": "https://docs.cypress.io/guides/getting-started/installing-cypress" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["cypress", "e2e", "javascript", "testing", "frontend"]
+        },
+        {
+          "id": "qa-pytest",
+          "title": "pytest — Python Unit Testing",
+          "description": "Write clean, scalable unit and integration tests in Python using pytest. Covers fixtures, parameterize, mocking, and coverage reports.",
+          "difficulty": "Intermediate",
+          "platforms": [
+            { "name": "Official Docs (Free)", "url": "https://docs.pytest.org/en/stable/" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["pytest", "python", "unit-testing", "tdd", "coverage"]
+        },
+        {
+          "id": "qa-postman",
+          "title": "API Testing with Postman",
+          "description": "Test REST APIs with Postman — collections, environments, assertions, Newman CLI, and automated API test suites.",
+          "difficulty": "Beginner",
+          "platforms": [
+            { "name": "Postman Academy (Free)", "url": "https://academy.postman.com/" },
+            { "name": "YouTube (Free)", "url": "ADD_LINK_HERE" }
+          ],
+          "tags": ["postman", "api-testing", "rest", "newman", "automation"]
+        }
+      ]
+    }
+  ]
+}

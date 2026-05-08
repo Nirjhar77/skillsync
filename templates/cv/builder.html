@@ -1,0 +1,664 @@
+{% extends "base.html" %}
+{% block title %}CV Builder — SkillSync{% endblock %}
+{% block breadcrumbs %}<span>CV Generator</span>{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cv-builder-layout {
+        max-width: 860px;
+        margin: 0 auto;
+    }
+
+    .cv-header-section {
+        margin-bottom: 28px;
+    }
+
+    .cv-header-section h1 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .cv-header-section p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        margin-top: 6px;
+    }
+
+    /* Steps indicator */
+    .steps-bar {
+        display: flex;
+        gap: 0;
+        margin-bottom: 32px;
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .step {
+        flex: 1;
+        padding: 12px;
+        text-align: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        background: rgba(255,255,255,0.02);
+        cursor: pointer;
+        transition: all 0.2s;
+        border-right: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .step:last-child { border-right: none; }
+    .step.active { background: rgba(var(--accent-rgb),0.1); color: var(--accent-cyan); }
+    .step.done { background: rgba(16,185,129,0.08); color: #10b981; }
+
+    /* Form Panels */
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+
+    .panel-card {
+        background: #111827;
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: var(--radius-md);
+        padding: var(--space-xl);
+        margin-bottom: var(--space-lg);
+    }
+
+    .panel-card h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: var(--space-lg);
+        padding-bottom: var(--space-sm);
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        color: var(--text-primary);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-md);
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: var(--space-md); }
+    .form-group:last-child { margin-bottom: 0; }
+
+    .form-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .form-input, .form-textarea, .form-select {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: var(--radius-sm);
+        color: var(--text-primary);
+        font-family: var(--font-family);
+        font-size: 0.9rem;
+        padding: 10px 14px;
+        transition: border-color 0.2s;
+        outline: none;
+        width: 100%;
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+        border-color: var(--accent-cyan);
+        box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.08);
+    }
+
+    .form-textarea { resize: vertical; min-height: 80px; }
+
+    /* Repeatable Item */
+    .repeatable-list { display: flex; flex-direction: column; gap: var(--space-md); }
+
+    .repeatable-item {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: var(--radius-sm);
+        padding: var(--space-md);
+        position: relative;
+    }
+
+    .remove-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(239,68,68,0.1);
+        border: 1px solid rgba(239,68,68,0.2);
+        color: #ef4444;
+        border-radius: 6px;
+        padding: 3px 8px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        font-family: var(--font-family);
+        transition: all 0.2s;
+    }
+
+    .remove-btn:hover { background: rgba(239,68,68,0.2); }
+
+    .add-btn {
+        width: 100%;
+        background: rgba(var(--accent-rgb),0.05);
+        border: 1px dashed rgba(var(--accent-rgb),0.3);
+        color: var(--accent-cyan);
+        border-radius: var(--radius-sm);
+        padding: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: var(--font-family);
+        transition: all 0.2s;
+        margin-top: var(--space-sm);
+    }
+
+    .add-btn:hover { background: rgba(var(--accent-rgb),0.1); }
+
+    /* Skill level range */
+    .skill-row {
+        display: grid;
+        grid-template-columns: 1fr 120px 30px;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .skill-level-input {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 5px;
+        border-radius: 3px;
+        background: rgba(255,255,255,0.1);
+        outline: none;
+        cursor: pointer;
+    }
+
+    .skill-level-input::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--accent-cyan);
+        cursor: pointer;
+    }
+
+    .skill-level-display {
+        font-size: 0.8rem;
+        color: var(--accent-cyan);
+        font-weight: 600;
+        text-align: center;
+    }
+
+    /* Color Accent Picker */
+    .color-grid {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .color-swatch {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 3px solid transparent;
+        transition: all 0.2s;
+    }
+
+    .color-swatch.selected, .color-swatch:hover {
+        border-color: white;
+        transform: scale(1.15);
+    }
+
+    /* Navigation buttons */
+    .nav-buttons {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: var(--space-lg);
+    }
+
+    .btn-nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 24px;
+        border-radius: var(--radius-sm);
+        font-family: var(--font-family);
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+    }
+
+    .btn-prev {
+        background: rgba(255,255,255,0.05);
+        color: var(--text-secondary);
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .btn-next {
+        background: var(--gradient-primary);
+        color: white;
+        box-shadow: 0 4px 14px rgba(var(--accent-rgb),0.25);
+    }
+
+    .btn-generate {
+        background: var(--gradient-success);
+        color: white;
+        box-shadow: 0 4px 14px rgba(16,185,129,0.25);
+    }
+
+    .btn-nav:hover { opacity: 0.85; }
+
+    /* ── Photo Upload ── */
+    .photo-upload-section {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 16px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: var(--radius-sm);
+        margin-bottom: var(--space-lg);
+    }
+
+    .photo-preview {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        border: 2px solid rgba(var(--accent-rgb),0.4);
+        background: rgba(var(--accent-rgb),0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--accent-cyan);
+    }
+
+    .photo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .photo-upload-info {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .upload-photo-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(var(--accent-rgb),0.08);
+        border: 1px solid rgba(var(--accent-rgb),0.3);
+        color: var(--accent-cyan);
+        border-radius: var(--radius-sm);
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        width: fit-content;
+    }
+
+    .upload-photo-btn:hover { background: rgba(var(--accent-rgb),0.15); }
+
+    .upload-hint {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cv-builder-layout">
+
+    <div class="cv-header-section">
+        <h1>CV Builder</h1>
+        <p>Fill in your details step by step. Your resume preview will be generated at the end.</p>
+    </div>
+
+    <!-- Steps Bar -->
+    <div class="steps-bar">
+        <div class="step active" id="step-tab-1" onclick="goToStep(1)">1 · Basics</div>
+        <div class="step" id="step-tab-2" onclick="goToStep(2)">2 · Experience</div>
+        <div class="step" id="step-tab-3" onclick="goToStep(3)">3 · Education</div>
+        <div class="step" id="step-tab-4" onclick="goToStep(4)">4 · Skills</div>
+        <div class="step" id="step-tab-5" onclick="goToStep(5)">5 · Projects</div>
+        <div class="step" id="step-tab-6" onclick="goToStep(6)">6 · Style</div>
+    </div>
+
+    <form id="cv-form" method="POST" action="{{ url_for('cv.preview') }}" enctype="multipart/form-data">
+
+        <!-- ── STEP 1: Basics ───────────────────────────── -->
+        <div class="form-panel active" id="step-1">
+            <div class="panel-card">
+                <h3>Personal Information</h3>
+
+                <!-- Photo Upload -->
+                <div class="photo-upload-section">
+                    <div class="photo-preview" id="photo-preview">
+                        <span id="photo-initials">?</span>
+                        <img id="photo-img" src="" alt="Profile" style="display:none;">
+                    </div>
+                    <div class="photo-upload-info">
+                        <label for="photo-input" class="upload-photo-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Upload Photo
+                        </label>
+                        <input type="file" id="photo-input" name="photo" accept="image/*" style="display:none;" onchange="previewPhoto(this)">
+                        <p class="upload-hint">JPG, PNG or WebP · Max 2MB · Will appear in the top-left of your CV</p>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Full Name *</label>
+                        <input class="form-input" type="text" name="name" placeholder="e.g. Alex Johnson" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Job Title / Headline *</label>
+                        <input class="form-input" type="text" name="title" placeholder="e.g. Full Stack Developer">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input class="form-input" type="email" name="email" placeholder="you@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input class="form-input" type="tel" name="phone" placeholder="+880 123 456 789">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Location</label>
+                        <input class="form-input" type="text" name="location" placeholder="Dhaka, Bangladesh">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Website / LinkedIn</label>
+                        <input class="form-input" type="url" name="website" placeholder="https://linkedin.com/in/you">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Professional Summary</label>
+                    <textarea class="form-textarea" name="summary" rows="4" placeholder="A brief paragraph about your background, skills, and what you're looking for..."></textarea>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <span></span>
+                <button type="button" class="btn-nav btn-next" onclick="goToStep(2)">Next: Experience →</button>
+            </div>
+        </div>
+
+        <!-- ── STEP 2: Experience ───────────────────────── -->
+        <div class="form-panel" id="step-2">
+            <div class="panel-card">
+                <h3>Work Experience</h3>
+                <div class="repeatable-list" id="experience-list">
+                    <div class="repeatable-item">
+                        <button type="button" class="remove-btn" onclick="removeItem(this)">✕ Remove</button>
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Job Title</label><input class="form-input" type="text" name="exp_role[]" placeholder="e.g. Software Engineer"></div>
+                            <div class="form-group"><label class="form-label">Company</label><input class="form-input" type="text" name="exp_company[]" placeholder="e.g. Google"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Start Date</label><input class="form-input" type="text" name="exp_start[]" placeholder="Jan 2023"></div>
+                            <div class="form-group"><label class="form-label">End Date</label><input class="form-input" type="text" name="exp_end[]" placeholder="Present"></div>
+                        </div>
+                        <div class="form-group"><label class="form-label">Location</label><input class="form-input" type="text" name="exp_location[]" placeholder="Remote / City"></div>
+                        <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" name="exp_description[]" placeholder="Key responsibilities and achievements..."></textarea></div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addExperience()">+ Add Another Experience</button>
+            </div>
+
+            <div class="nav-buttons">
+                <button type="button" class="btn-nav btn-prev" onclick="goToStep(1)">← Back</button>
+                <button type="button" class="btn-nav btn-next" onclick="goToStep(3)">Next: Education →</button>
+            </div>
+        </div>
+
+        <!-- ── STEP 3: Education ────────────────────────── -->
+        <div class="form-panel" id="step-3">
+            <div class="panel-card">
+                <h3>Education</h3>
+                <div class="repeatable-list" id="education-list">
+                    <div class="repeatable-item">
+                        <button type="button" class="remove-btn" onclick="removeItem(this)">✕ Remove</button>
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Degree</label><input class="form-input" type="text" name="edu_degree[]" placeholder="e.g. B.Sc. in Computer Science"></div>
+                            <div class="form-group"><label class="form-label">Institution</label><input class="form-input" type="text" name="edu_institution[]" placeholder="e.g. BUET"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Start Year</label><input class="form-input" type="text" name="edu_start[]" placeholder="2020"></div>
+                            <div class="form-group"><label class="form-label">End Year</label><input class="form-input" type="text" name="edu_end[]" placeholder="2024 / Present"></div>
+                        </div>
+                        <div class="form-group"><label class="form-label">Notes (GPA, achievements...)</label><textarea class="form-textarea" name="edu_description[]" placeholder="e.g. CGPA: 3.8 / 4.0, Dean's List"></textarea></div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addEducation()">+ Add Another Degree</button>
+            </div>
+
+            <div class="nav-buttons">
+                <button type="button" class="btn-nav btn-prev" onclick="goToStep(2)">← Back</button>
+                <button type="button" class="btn-nav btn-next" onclick="goToStep(4)">Next: Skills →</button>
+            </div>
+        </div>
+
+        <!-- ── STEP 4: Skills ───────────────────────────── -->
+        <div class="form-panel" id="step-4">
+            <div class="panel-card">
+                <h3>Skills</h3>
+                <div class="repeatable-list" id="skills-list">
+                    <div class="repeatable-item">
+                        <button type="button" class="remove-btn" onclick="removeItem(this)">✕ Remove</button>
+                        <div class="skill-row">
+                            <div class="form-group" style="margin-bottom:0"><input class="form-input" type="text" name="skill_name[]" placeholder="e.g. Python"></div>
+                            <input type="range" class="skill-level-input" name="skill_level[]" min="10" max="100" value="70" oninput="updateSkillDisplay(this)">
+                            <span class="skill-level-display">70%</span>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addSkill()">+ Add Skill</button>
+            </div>
+
+            <div class="panel-card">
+                <h3>Languages</h3>
+                <div class="repeatable-list" id="languages-list">
+                    <div class="repeatable-item">
+                        <button type="button" class="remove-btn" onclick="removeItem(this)">✕ Remove</button>
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Language</label><input class="form-input" type="text" name="lang_name[]" placeholder="e.g. Bengali"></div>
+                            <div class="form-group">
+                                <label class="form-label">Level</label>
+                                <select class="form-select" name="lang_level[]">
+                                    <option>Native</option>
+                                    <option>Fluent</option>
+                                    <option>Professional</option>
+                                    <option>Conversational</option>
+                                    <option>Basic</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addLanguage()">+ Add Language</button>
+            </div>
+
+            <div class="nav-buttons">
+                <button type="button" class="btn-nav btn-prev" onclick="goToStep(3)">← Back</button>
+                <button type="button" class="btn-nav btn-next" onclick="goToStep(5)">Next: Projects →</button>
+            </div>
+        </div>
+
+        <!-- ── STEP 5: Projects ─────────────────────────── -->
+        <div class="form-panel" id="step-5">
+            <div class="panel-card">
+                <h3>Projects</h3>
+                <div class="repeatable-list" id="projects-list">
+                    <div class="repeatable-item">
+                        <button type="button" class="remove-btn" onclick="removeItem(this)">✕ Remove</button>
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Project Name</label><input class="form-input" type="text" name="proj_name[]" placeholder="e.g. SkillSync"></div>
+                            <div class="form-group"><label class="form-label">Live URL (optional)</label><input class="form-input" type="url" name="proj_url[]" placeholder="https://github.com/..."></div>
+                        </div>
+                        <div class="form-group"><label class="form-label">Tech Stack</label><input class="form-input" type="text" name="proj_tech[]" placeholder="e.g. Python, Flask, SQLAlchemy"></div>
+                        <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" name="proj_description[]" placeholder="What it does, your role, impact..."></textarea></div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addProject()">+ Add Another Project</button>
+            </div>
+
+            <div class="nav-buttons">
+                <button type="button" class="btn-nav btn-prev" onclick="goToStep(4)">← Back</button>
+                <button type="button" class="btn-nav btn-next" onclick="goToStep(6)">Next: Style →</button>
+            </div>
+        </div>
+
+        <!-- ── STEP 6: Style ────────────────────────────── -->
+        <div class="form-panel" id="step-6">
+            <div class="panel-card">
+                <h3>Accent Color</h3>
+                <p style="font-size:0.85rem; color: var(--text-secondary); margin-bottom: 16px;">Choose a color for headings and timeline accents.</p>
+                <input type="hidden" name="accent_color" id="accent-color-input" value="#2563eb">
+                <div class="color-grid">
+                    <div class="color-swatch selected" style="background:#2563eb" onclick="selectColor('#2563eb', this)" title="Blue"></div>
+                    <div class="color-swatch" style="background:#7c3aed" onclick="selectColor('#7c3aed', this)" title="Violet"></div>
+                    <div class="color-swatch" style="background:#0891b2" onclick="selectColor('#0891b2', this)" title="Cyan"></div>
+                    <div class="color-swatch" style="background:#059669" onclick="selectColor('#059669', this)" title="Green"></div>
+                    <div class="color-swatch" style="background:#d97706" onclick="selectColor('#d97706', this)" title="Amber"></div>
+                    <div class="color-swatch" style="background:#dc2626" onclick="selectColor('#dc2626', this)" title="Red"></div>
+                    <div class="color-swatch" style="background:#0f172a" onclick="selectColor('#0f172a', this)" title="Dark"></div>
+                    <div class="color-swatch" style="background:#be185d" onclick="selectColor('#be185d', this)" title="Pink"></div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button type="button" class="btn-nav btn-prev" onclick="goToStep(5)">← Back</button>
+                <button type="submit" class="btn-nav btn-generate">Generate Resume →</button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<script>
+let currentStep = 1;
+const totalSteps = 6;
+
+function goToStep(step) {
+    document.getElementById(`step-${currentStep}`).classList.remove('active');
+    document.getElementById(`step-tab-${currentStep}`).classList.remove('active');
+    if (currentStep < step) document.getElementById(`step-tab-${currentStep}`).classList.add('done');
+
+    currentStep = step;
+    document.getElementById(`step-${step}`).classList.add('active');
+    document.getElementById(`step-tab-${step}`).classList.add('active');
+    document.getElementById(`step-tab-${step}`).classList.remove('done');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function removeItem(btn) {
+    const item = btn.closest('.repeatable-item');
+    const list = item.parentElement;
+    if (list.querySelectorAll('.repeatable-item').length > 1) {
+        item.remove();
+    }
+}
+
+function updateSkillDisplay(input) {
+    input.nextElementSibling.textContent = input.value + '%';
+}
+
+function selectColor(color, el) {
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('accent-color-input').value = color;
+}
+
+function addExperience() {
+    const list = document.getElementById('experience-list');
+    const template = list.querySelector('.repeatable-item').cloneNode(true);
+    template.querySelectorAll('input, textarea').forEach(el => el.value = '');
+    list.appendChild(template);
+}
+
+function addEducation() {
+    const list = document.getElementById('education-list');
+    const template = list.querySelector('.repeatable-item').cloneNode(true);
+    template.querySelectorAll('input, textarea').forEach(el => el.value = '');
+    list.appendChild(template);
+}
+
+function addSkill() {
+    const list = document.getElementById('skills-list');
+    const template = list.querySelector('.repeatable-item').cloneNode(true);
+    template.querySelectorAll('input').forEach(el => el.value = el.type === 'range' ? '70' : '');
+    template.querySelector('.skill-level-display').textContent = '70%';
+    list.appendChild(template);
+}
+
+function addLanguage() {
+    const list = document.getElementById('languages-list');
+    const template = list.querySelector('.repeatable-item').cloneNode(true);
+    template.querySelectorAll('input').forEach(el => el.value = '');
+    list.appendChild(template);
+}
+
+function addProject() {
+    const list = document.getElementById('projects-list');
+    const template = list.querySelector('.repeatable-item').cloneNode(true);
+    template.querySelectorAll('input, textarea').forEach(el => el.value = '');
+    list.appendChild(template);
+}
+
+function previewPhoto(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = document.getElementById('photo-img');
+            const initials = document.getElementById('photo-initials');
+            img.src = e.target.result;
+            img.style.display = 'block';
+            initials.style.display = 'none';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Update the preview circle initials as user types their name
+document.addEventListener('DOMContentLoaded', () => {
+    const nameInput = document.querySelector('input[name="name"]');
+    const initialsEl = document.getElementById('photo-initials');
+    if (nameInput) {
+        nameInput.addEventListener('input', () => {
+            const val = nameInput.value.trim();
+            const img = document.getElementById('photo-img');
+            if (img.style.display === 'none' || !img.src) {
+                if (val.length > 0) {
+                    const parts = val.split(' ');
+                    initialsEl.textContent = parts.length >= 2
+                        ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+                        : val[0].toUpperCase();
+                } else {
+                    initialsEl.textContent = '?';
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

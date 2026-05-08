@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Resources — SkillSync{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/resources.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="resources-page">
+
+  <!-- ── Hero Header ───────────────────────────────────────── -->
+  <header class="resources-hero">
+    <div class="resources-hero-inner">
+      <div class="resources-hero-text">
+        <div class="resources-eyebrow">
+          <i data-lucide="library" class="eyebrow-icon"></i>
+          <span>Learning Resources</span>
+        </div>
+        <h1 class="resources-title">
+          Find Your Next<br>
+          <span class="gradient-text">Course & Source</span>
+        </h1>
+        <p class="resources-subtitle">
+          Curated, handpicked learning paths across {{ categories | length }} specializations
+          — {{ total_courses }} courses with direct links to the best platforms.
+        </p>
+      </div>
+      <div class="resources-stats">
+        <div class="stat-pill">
+          <i data-lucide="layers" class="stat-icon"></i>
+          <span>{{ categories | length }} Categories</span>
+        </div>
+        <div class="stat-pill">
+          <i data-lucide="book-open" class="stat-icon"></i>
+          <span>{{ total_courses }} Courses</span>
+        </div>
+        <div class="stat-pill">
+          <i data-lucide="link" class="stat-icon"></i>
+          <span>Multiple Sources Each</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Controls Bar ──────────────────────────────────────── -->
+  <div class="resources-controls glass-card">
+    <!-- Search -->
+    <div class="search-bar-wrapper">
+      <i data-lucide="search" class="search-icon"></i>
+      <input
+        type="text"
+        id="resource-search"
+        class="search-input"
+        placeholder="Search courses, topics, or tags…"
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <button class="search-clear" id="search-clear" aria-label="Clear search" style="display:none;">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <!-- Category Filter Pills -->
+    <div class="category-filter-bar" id="category-filter-bar">
+      <button class="category-pill active" data-category="all" id="pill-all">
+        <i data-lucide="grid-3x3" class="pill-icon"></i>
+        All
+      </button>
+      {% for cat in categories %}
+      <button
+        class="category-pill"
+        data-category="{{ cat.id }}"
+        data-color="{{ cat.color }}"
+        id="pill-{{ cat.id }}"
+        style="--pill-color: var(--res-{{ cat.color }});"
+      >
+        <i data-lucide="{{ cat.icon }}" class="pill-icon"></i>
+        {{ cat.label }}
+      </button>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ── No Results State ──────────────────────────────────── -->
+  <div class="no-results" id="no-results" style="display:none;">
+    <i data-lucide="search-x" class="no-results-icon"></i>
+    <h3>No courses found</h3>
+    <p>Try a different keyword or browse the categories above.</p>
+    <button class="btn btn-secondary btn-sm" id="clear-search-btn">
+      <i data-lucide="refresh-cw" class="btn-icon"></i> Clear Search
+    </button>
+  </div>
+
+  <!-- ── Category Sections ─────────────────────────────────── -->
+  <div class="resources-sections" id="resources-sections">
+    {% for cat in categories %}
+    <section
+      class="res-category-section"
+      id="section-{{ cat.id }}"
+      data-category="{{ cat.id }}"
+      data-color="{{ cat.color }}"
+    >
+      <!-- Section Header -->
+      <div class="res-section-header">
+        <div class="res-section-icon-wrap" style="--sec-color: var(--res-{{ cat.color }});">
+          <i data-lucide="{{ cat.icon }}" class="res-section-icon"></i>
+        </div>
+        <div class="res-section-meta">
+          <h2 class="res-section-title">{{ cat.label }}</h2>
+          <span class="res-course-count">{{ cat.courses | length }} courses</span>
+        </div>
+      </div>
+
+      <!-- Course Cards Grid -->
+      <div class="course-card-grid">
+        {% for course in cat.courses %}
+        <a
+          href="{{ url_for('resources.course_detail', course_id=course.id) }}"
+          class="course-card"
+          data-course-id="{{ course.id }}"
+          data-title="{{ course.title | lower }}"
+          data-tags="{{ course.tags | join(' ') | lower }}"
+          data-desc="{{ course.description | lower }}"
+          style="--card-accent: var(--res-{{ cat.color }});"
+        >
+          <!-- Top accent bar -->
+          <div class="course-card-accent-bar"></div>
+
+          <div class="course-card-body">
+            <!-- Header row -->
+            <div class="course-card-header">
+              <span class="difficulty-badge difficulty-{{ course.difficulty | lower }}">
+                {% if course.difficulty == 'Beginner' %}
+                  <i data-lucide="circle" class="diff-icon"></i>
+                {% elif course.difficulty == 'Intermediate' %}
+                  <i data-lucide="triangle" class="diff-icon"></i>
+                {% else %}
+                  <i data-lucide="zap" class="diff-icon"></i>
+                {% endif %}
+                {{ course.difficulty }}
+              </span>
+              {% if 'free' in course.tags or 'popular' in course.tags or 'harvard' in course.tags %}
+              <span class="recommended-badge">
+                <i data-lucide="star" class="star-icon"></i> Popular
+              </span>
+              {% endif %}
+            </div>
+
+            <!-- Title -->
+            <h3 class="course-card-title">{{ course.title }}</h3>
+
+            <!-- Description -->
+            <p class="course-card-desc">{{ course.description }}</p>
+
+            <!-- Footer -->
+            <div class="course-card-footer">
+              <!-- Tags -->
+              <div class="course-tags">
+                {% for tag in course.tags[:3] %}
+                <span class="course-tag">#{{ tag }}</span>
+                {% endfor %}
+              </div>
+
+              <!-- Source count + arrow -->
+              <div class="course-card-cta">
+                <span class="source-count-chip">
+                  <i data-lucide="external-link" class="chip-icon"></i>
+                  {{ course.platforms | length }} source{{ 's' if course.platforms | length > 1 else '' }}
+                </span>
+                <i data-lucide="arrow-right" class="card-arrow"></i>
+              </div>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/resources.js') }}"></script>
+{% endblock %}

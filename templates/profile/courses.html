@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Select Courses — SkillSync{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i data-lucide="book-open" class="title-icon"></i>
+            Course Selection
+        </h1>
+        <p class="page-subtitle">Select your completed, in-progress, and upcoming courses. This helps our AI understand what skills your curriculum already covers.</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('profile.courses') }}" id="courses-form">
+        <div class="course-legend glass-card">
+            <span class="legend-item">
+                <span class="legend-dot dot-completed"></span> Completed
+            </span>
+            <span class="legend-item">
+                <span class="legend-dot dot-progress"></span> In Progress
+            </span>
+            <span class="legend-item">
+                <span class="legend-dot dot-upcoming"></span> Upcoming
+            </span>
+            <span class="legend-item">
+                <span class="legend-dot dot-none"></span> Not Taking
+            </span>
+        </div>
+
+        {% for semester, courses in courses_by_semester.items() %}
+        <div class="semester-section glass-card {% if semester <= current_semester %}past-semester{% elif semester == current_semester %}current-semester{% else %}future-semester{% endif %}">
+            <div class="semester-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                <h2 class="semester-title">
+                    <i data-lucide="calendar" class="section-icon"></i>
+                    Semester {{ semester }}
+                    {% if semester == current_semester %}
+                    <span class="badge badge-accent">Current</span>
+                    {% elif semester < current_semester %}
+                    <span class="badge badge-success">Past</span>
+                    {% else %}
+                    <span class="badge badge-info">Upcoming</span>
+                    {% endif %}
+                </h2>
+                <i data-lucide="chevron-down" class="collapse-icon"></i>
+            </div>
+
+            <div class="semester-courses">
+                {% for course in courses %}
+                <div class="course-card" id="course-{{ course.code }}">
+                    <div class="course-info">
+                        <span class="course-code">{{ course.code }}</span>
+                        <h3 class="course-name">{{ course.name }}</h3>
+                        <div class="course-skills">
+                            {% for skill, level in course.skills_covered.items() %}
+                            <span class="skill-tag skill-{{ level }}">{{ skill | replace('_', ' ') | title }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="course-status">
+                        {% set existing = existing_courses.get(course.code, '') %}
+                        <label class="status-radio">
+                            <input type="radio" name="course_{{ course.code }}" value="completed" {% if existing == 'completed' %}checked{% endif %}>
+                            <span class="status-btn status-completed">✓ Done</span>
+                        </label>
+                        <label class="status-radio">
+                            <input type="radio" name="course_{{ course.code }}" value="in_progress" {% if existing == 'in_progress' %}checked{% endif %}>
+                            <span class="status-btn status-progress">⟳ Current</span>
+                        </label>
+                        <label class="status-radio">
+                            <input type="radio" name="course_{{ course.code }}" value="upcoming" {% if existing == 'upcoming' %}checked{% endif %}>
+                            <span class="status-btn status-upcoming">◎ Planned</span>
+                        </label>
+                        <label class="status-radio">
+                            <input type="radio" name="course_{{ course.code }}" value="" {% if not existing %}checked{% endif %}>
+                            <span class="status-btn status-none">✕ Skip</span>
+                        </label>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="form-actions">
+            <a href="{{ url_for('profile.setup') }}" class="btn btn-secondary" id="back-to-profile-btn">
+                <i data-lucide="arrow-left" class="btn-icon"></i>
+                <span>Back to Profile</span>
+            </a>
+            <button type="submit" class="btn btn-primary btn-lg" id="save-courses-btn">
+                <span>Save & Find Career Paths</span>
+                <i data-lucide="sparkles" class="btn-icon"></i>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
