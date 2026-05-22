@@ -29,6 +29,7 @@ class User(UserMixin, db.Model):
     nontech_profile = db.relationship("NonTechProfile", backref="user", uselist=False, cascade="all, delete-orphan")
     career_scores = db.relationship("CareerScore", backref="user", cascade="all, delete-orphan")
     roadmaps = db.relationship("Roadmap", backref="user", cascade="all, delete-orphan")
+    aptitude_profile = db.relationship("AptitudeProfile", backref="user", uselist=False, cascade="all, delete-orphan")
     visual_items = db.relationship("VisualLearnerItem", backref="user", cascade="all, delete-orphan",
                                    order_by="VisualLearnerItem.created_at.desc()")
 
@@ -123,6 +124,64 @@ class CareerScore(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     career_path = db.relationship("CareerPath")
+
+
+class AptitudeProfile(db.Model):
+    """Persisted IQ, aptitude, and mock interview progress for dashboard signals."""
+    __tablename__ = "aptitude_profiles"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), unique=True, nullable=False)
+    xp = db.Column(db.Integer, default=1240)
+    streak = db.Column(db.Integer, default=2)
+    attempted = db.Column(db.Integer, default=12)
+    correct = db.Column(db.Integer, default=10)
+    longest_streak = db.Column(db.Integer, default=7)
+    skills_json = db.Column(db.Text, default="{}")
+    activity_json = db.Column(db.Text, default="[]")
+    evaluation_json = db.Column(db.Text, default="{}")
+    evidence_json = db.Column(db.Text, default="[]")
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def get_skills(self):
+        try:
+            data = json.loads(self.skills_json) if self.skills_json else {}
+            return data if isinstance(data, dict) else {}
+        except (json.JSONDecodeError, TypeError):
+            return {}
+
+    def get_activity(self):
+        try:
+            data = json.loads(self.activity_json) if self.activity_json else []
+            return data if isinstance(data, list) else []
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    def get_evaluation(self):
+        try:
+            data = json.loads(self.evaluation_json) if self.evaluation_json else {}
+            return data if isinstance(data, dict) else {}
+        except (json.JSONDecodeError, TypeError):
+            return {}
+
+    def get_evidence(self):
+        try:
+            data = json.loads(self.evidence_json) if self.evidence_json else []
+            return data if isinstance(data, list) else []
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    def to_dict(self):
+        return {
+            "xp": self.xp,
+            "streak": self.streak,
+            "attempted": self.attempted,
+            "correct": self.correct,
+            "longestStreak": self.longest_streak,
+            "skills": self.get_skills(),
+            "activity": self.get_activity(),
+            "evaluation": self.get_evaluation(),
+        }
 
 
 class Roadmap(db.Model):
@@ -302,6 +361,26 @@ class StudySession(db.Model):
     roadmap = db.relationship("Roadmap", foreign_keys=[roadmap_id])
 
 
+class JobMarketPulseCache(db.Model):
+    """Persisted job market snapshots so the dashboard survives API outages and restarts."""
+
+    __tablename__ = "job_market_pulse_cache"
+
+    id = db.Column(db.Integer, primary_key=True)
+    cache_key = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    career_title = db.Column(db.String(200), nullable=False)
+    payload = db.Column(db.Text, nullable=False)
+    source = db.Column(db.String(64), default="unknown")
+    fetched_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    def get_data(self) -> dict:
+        import json
+        try:
+            return json.loads(self.payload) if self.payload else {}
+        except (json.JSONDecodeError, TypeError):
+            return {}
+
+
 class ActivityLog(db.Model):
     __tablename__ = "activity_logs"
 
@@ -310,6 +389,86 @@ class ActivityLog(db.Model):
     action = db.Column(db.String(150), nullable=False)
     status = db.Column(db.String(20), default="success")  # success / active / pending
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class MockInterviewSession(db.Model):
+    """Persisted mock interview session (timer, questions, scores)."""
+    __tablename__ = "mock_interview_sessions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    career_title = db.Column(db.String(120), nullable=False)
+    round_label = db.Column(db.String(80), default="Technical Round 2")
+    difficulty = db.Column(db.String(40), default="Intermediate")
+    status = db.Column(db.String(20), default="pending")  # pending | active | completed | abandoned
+
+    total_questions = db.Column(db.Integer, default=8)
+    current_index = db.Column(db.Integer, default=0)
+
+    timer_total_sec = db.Column(db.Integer, default=900)
+    timer_remaining_sec = db.Column(db.Integer, default=900)
+    started_at = db.Column(db.DateTime, nullable=True)
+    ended_at = db.Column(db.DateTime, nullable=True)
+
+    current_phase = db.Column(db.String(32), default="introduction")
+    hints_remaining = db.Column(db.Integer, default=2)
+    current_question_text = db.Column(db.Text, nullable=True)
+    current_question_meta = db.Column(db.Text, default="{}")
+    history_json = db.Column(db.Text, default="[]")
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = db.relationship("User", backref=db.backref("mock_interviews", lazy="dynamic"))
+
+    def get_question_meta(self):
+        try:
+            data = json.loads(self.current_question_meta) if self.current_question_meta else {}
+            return data if isinstance(data, dict) else {}
+        except (json.JSONDecodeError, TypeError):
+            return {}
+
+    def set_question_meta(self, meta):
+        self.current_question_meta = json.dumps(meta or {})
+
+    def get_history(self):
+        try:
+            data = json.loads(self.history_json) if self.history_json else []
+            return data if isinstance(data, list) else []
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    def append_history(self, entry):
+        history = self.get_history()
+        history.append(entry)
+        self.history_json = json.dumps(history[-24:])
+
+    def sync_timer(self):
+        if self.status != "active" or not self.started_at:
+            return
+        elapsed = int((datetime.utcnow() - self.started_at).total_seconds())
+        self.timer_remaining_sec = max(0, self.timer_total_sec - elapsed)
+
+    def to_dict(self):
+        self.sync_timer()
+        meta = self.get_question_meta()
+        return {
+            "id": self.id,
+            "career_title": self.career_title,
+            "round_label": self.round_label,
+            "difficulty": self.difficulty,
+            "status": self.status,
+            "total_questions": self.total_questions,
+            "current_index": self.current_index,
+            "timer_total_sec": self.timer_total_sec,
+            "timer_remaining_sec": self.timer_remaining_sec,
+            "current_phase": self.current_phase,
+            "hints_remaining": self.hints_remaining,
+            "question": self.current_question_text,
+            "question_meta": meta,
+            "history_count": len(self.get_history()),
+            "started": self.status == "active",
+        }
 
 
 def log_activity(user_id, action, status="success"):

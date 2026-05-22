@@ -1587,6 +1587,18 @@ body.theme-light .m-dot {
     background: #fff;
 }
 
+body.theme-light .project-card,
+body.theme-light .project-preview-card,
+body.theme-light .project-lane {
+    background: #ffffff;
+    border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+}
+
+body.theme-light .project-card.done {
+    background: rgba(52, 211, 153, 0.05);
+}
+
 /* Responsive */
 
 @media (max-width: 980px) {
@@ -1692,4 +1704,53 @@ body.theme-light .m-dot {
         border-radius: 0;
     }
 
+}
+
+/* ── Page Transition Animations ── */
+[data-route-direction="fade"] .roadmap-page,
+[data-route-direction="fade"] .guide-wrap {
+    animation: rmSlideFadeIn 0.35s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+[data-route-direction="left"] .roadmap-page,
+[data-route-direction="left"] .guide-wrap {
+    animation: rmSlideInLeft 0.38s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+[data-route-direction="right"] .roadmap-page,
+[data-route-direction="right"] .guide-wrap {
+    animation: rmSlideInRight 0.38s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+@keyframes rmSlideFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes rmSlideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-35px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes rmSlideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(35px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }

@@ -18,9 +18,9 @@ class RoadmapLayoutEngine {
       secNodeW: opts.secNodeW ?? 236,
       secNodeH: opts.secNodeH ?? 48,
       topicNodeW: opts.topicNodeW ?? 218,
-      topicNodeH: opts.topicNodeH ?? 40,
+      topicNodeH: opts.topicNodeH ?? 44,
       topicHGap: opts.topicHGap ?? 96,
-      topicVGap: opts.topicVGap ?? 9,
+      topicVGap: opts.topicVGap ?? 14,
       sectionVGap: opts.sectionVGap ?? 66,
       startY: opts.startY ?? 24,
     };
@@ -45,10 +45,11 @@ class RoadmapLayoutEngine {
       const unsided = topics.filter((t) => !['left', 'right'].includes(String(t.side || '').toLowerCase()));
       const leftT = explicitLeft.concat(unsided.filter((_, i) => i % 2 === 0));
       const rightT = explicitRight.concat(unsided.filter((_, i) => i % 2 === 1));
-      const maxRows = Math.max(leftT.length, rightT.length, 0);
-      const topicBlockH = maxRows > 0
-        ? maxRows * this.C.topicNodeH + Math.max(0, maxRows - 1) * this.C.topicVGap
-        : 0;
+      const leftHeights = leftT.map((t) => this._estimateTopicHeight(t.label || ''));
+      const rightHeights = rightT.map((t) => this._estimateTopicHeight(t.label || ''));
+      const leftBlockH = this._columnBlockHeight(leftHeights);
+      const rightBlockH = this._columnBlockHeight(rightHeights);
+      const topicBlockH = Math.max(leftBlockH, rightBlockH, 0);
       const laneH = Math.max(this.C.secNodeH, topicBlockH);
       const secId = sec.id || `sec_${si}`;
       const secY = curY + (laneH - this.C.secNodeH) / 2;
@@ -75,16 +76,22 @@ class RoadmapLayoutEngine {
       const leftX = this.centerX - this.C.secNodeW / 2 - this.C.topicHGap - this.C.topicNodeW;
       const rightX = this.centerX + this.C.secNodeW / 2 + this.C.topicHGap;
 
+      let leftY = topicBaseY;
       leftT.forEach((t, i) => {
-        const tn = this._makeTopicNode(t, `${secId}_l${i}`, leftX, topicBaseY, i, 'left', phase, secId, sec.label || '');
+        const h = leftHeights[i];
+        const tn = this._makeTopicNode(t, `${secId}_l${i}`, leftX, leftY, i, 'left', phase, secId, sec.label || '', h);
         nodes.push(tn);
         edges.push(this._makeTopicEdge(secId, tn.id, 'left', phase));
+        leftY += h + this.C.topicVGap;
       });
 
+      let rightY = topicBaseY;
       rightT.forEach((t, i) => {
-        const tn = this._makeTopicNode(t, `${secId}_r${i}`, rightX, topicBaseY, i, 'right', phase, secId, sec.label || '');
+        const h = rightHeights[i];
+        const tn = this._makeTopicNode(t, `${secId}_r${i}`, rightX, rightY, i, 'right', phase, secId, sec.label || '', h);
         nodes.push(tn);
         edges.push(this._makeTopicEdge(secId, tn.id, 'right', phase));
+        rightY += h + this.C.topicVGap;
       });
 
       curY += laneH + this.C.sectionVGap;
@@ -111,8 +118,21 @@ class RoadmapLayoutEngine {
     };
   }
 
-  _makeTopicNode(topic, id, colX, baseY, rowIndex, side, phase, sectionId, sectionLabel) {
-    const y = baseY + rowIndex * (this.C.topicNodeH + this.C.topicVGap);
+  _estimateTopicHeight(label) {
+    const text = String(label || '').trim();
+    const innerW = this.C.topicNodeW - 28;
+    const charsPerLine = Math.max(14, Math.floor(innerW / 7.4));
+    const lines = Math.min(3, Math.max(1, Math.ceil(text.length / charsPerLine)));
+    return Math.max(this.C.topicNodeH, lines * 19 + 14);
+  }
+
+  _columnBlockHeight(heights) {
+    if (!heights.length) return 0;
+    return heights.reduce((sum, h, i) => sum + h + (i > 0 ? this.C.topicVGap : 0), 0);
+  }
+
+  _makeTopicNode(topic, id, colX, y, rowIndex, side, phase, sectionId, sectionLabel, height) {
+    const h = height || this.C.topicNodeH;
     return this._makeNode({
       id,
       kind: 'topic',
@@ -120,7 +140,7 @@ class RoadmapLayoutEngine {
       x: colX,
       y,
       w: this.C.topicNodeW,
-      h: this.C.topicNodeH,
+      h,
       phase,
       meta: {
         topicType: topic.type || 'required',

@@ -2,8 +2,452 @@
 {% block title %}Dashboard — SkillSync{% endblock %}
 {% block breadcrumbs %}<span>Dashboard</span>{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
+{% endblock %}
 {% block content %}
 <div class="dashboard-container">
+    {% set overall_pct = ((completed_milestones / total_milestones) * 100) | int if total_milestones > 0 else 0 %}
+    {% set xp_earned = aptitude_state.xp if aptitude_state and aptitude_state.xp else 1280 %}
+
+    <section class="dashboard-v2">
+        <div class="dash-v2-topbar">
+            <div class="dash-v2-greeting">
+                <h1 id="dynamic-greeting">Welcome, {{ current_user.username }}!</h1>
+                <p>Keep learning, keep growing. You're on the right track.</p>
+            </div>
+            <div class="dash-v2-actions">
+                <label class="dash-v2-search">
+                    <i data-lucide="search"></i>
+                    <input type="search" placeholder="Search anything..." aria-label="Search dashboard">
+                    <span>⌘K</span>
+                </label>
+                <div class="dash-v2-notifications">
+                    <button class="dash-icon-btn" type="button" aria-label="Notifications" id="notif-btn">
+                        <i data-lucide="bell"></i>
+                        <span id="notif-count" class="notif-count hidden">0</span>
+                    </button>
+                    <div id="notif-dropdown" class="notif-dropdown hidden" role="dialog" aria-label="Notifications">
+                        <div class="notif-header">
+                            <div>
+                                <strong>Job Match Feed</strong>
+                                <span id="notif-career">Career job alerts</span>
+                            </div>
+                            <span id="notif-signal" class="notif-signal">Syncing</span>
+                        </div>
+                        <div id="notif-list" class="notif-list">
+                            <div class="notif-loading">
+                                <span></span>
+                                <p>Checking your roadmap, skills, and market signals...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dash-v2-hero-grid">
+            <div class="dash-v2-mission">
+                {% if next_milestone %}
+                <div class="dash-v2-mission-icon"><i data-lucide="target"></i></div>
+                <div class="dash-v2-mission-copy">
+                    <span>TODAY'S MISSION</span>
+                    <h2>Complete "{{ next_milestone.title }}"</h2>
+                    <div class="mission-meta">
+                        <span class="mission-tag"><i data-lucide="clock" style="width:13px;height:13px;"></i>{{
+                            next_milestone.estimated_hours }}h estimated</span>
+                        <span class="mission-tag mission-tag--green"><i data-lucide="trending-up"
+                                style="width:13px;height:13px;"></i>Impact: +{{ mission_impact_pct }}% progress</span>
+                    </div>
+                </div>
+                <div class="dash-v2-mission-actions">
+                    <a href="{{ url_for('dashboard.start_now') }}" class="btn btn-primary"><i data-lucide="play"
+                            class="btn-icon"></i> Start Now</a>
+                    {% if active_roadmap %}<a href="{{ url_for('career.guide_view', roadmap_id=active_roadmap.id) }}" class="btn btn-secondary">View
+                        Roadmap</a>{% endif %}
+                </div>
+                <div class="dash-v2-mini-donut">
+                    <svg viewBox="0 0 72 72">
+                        <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="7" />
+                        <circle cx="36" cy="36" r="28" fill="none" stroke="url(#dashV2DonutGrad)" stroke-width="7"
+                            stroke-linecap="round" stroke-dasharray="176"
+                            stroke-dashoffset="{{ 176 - (176 * overall_pct / 100) }}" transform="rotate(-90 36 36)" />
+                        <defs>
+                            <linearGradient id="dashV2DonutGrad">
+                                <stop offset="0%" stop-color="#00d4ff" />
+                                <stop offset="100%" stop-color="#7c6fff" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <strong>{{ overall_pct }}%</strong>
+                    <span>Overall</span>
+                </div>
+                {% else %}
+                <div class="dash-v2-mission-icon"><i data-lucide="compass"></i></div>
+                <div class="dash-v2-mission-copy">
+                    <span>GET STARTED</span>
+                    <h2>Ready to start your learning journey?</h2>
+                    <p>Generate a personalised roadmap to unlock your first mission.</p>
+                </div>
+                <div class="dash-v2-mission-actions">
+                    <a href="{{ navigator_url }}" class="btn btn-primary"><i data-lucide="play" class="btn-icon"></i> {{
+                        navigator_cta }}</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="dash-v2-panel dash-v2-momentum">
+                <div class="dash-v2-panel-head">
+                    <h3><i data-lucide="flame"></i>Momentum Tracker</h3>
+                    <span class="momentum-badge {{ learning_status_class }}">{{ learning_status }}</span>
+                </div>
+                <div class="dash-v2-momentum-stats">
+                    <div><strong>{{ day_streak }}</strong><span>Day Streak</span></div>
+                    <div><strong>{{ last_active_days }}d</strong><span>Last Active</span></div>
+                </div>
+                <div class="dash-v2-week-bars" aria-label="Weekly momentum">
+                    {% set days = ['M','T','W','T','F','S','S'] %}
+                    {% set today_idx = now.weekday() if now else 0 %}
+                    {% for h in weekly_bars %}
+                    <span style="--h:{{ [h, 8] | max }}%;"
+                          class="{% if loop.index0 == today_idx %}active{% endif %}"
+                          title="{{ days[loop.index0] }} — Activity Level"
+                          data-pct="{{ h }}%">
+                        <em>{{ days[loop.index0] }}</em>
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="dash-v2-content-grid">
+            <div class="dash-v2-metric dash-v2-metric--active-roadmap"><span class="metric-icon-wrap metric-icon-purple"><i
+                        data-lucide="map" class="metric-icon"></i></span>
+                <div><strong title="{{ active_roadmap_name | default('Not started', true) }}">{{ active_roadmap_name | default('Not started', true) }}</strong><small>Active Roadmap</small></div>
+            </div>
+            <div class="dash-v2-metric"><span class="metric-icon-wrap metric-icon-blue"><i data-lucide="clock"
+                        class="metric-icon"></i></span>
+                <div><strong>{{ study_hours }}h</strong><small>Weekly Capacity</small></div>
+            </div>
+            <div class="dash-v2-metric"><span class="metric-icon-wrap metric-icon-green"><i data-lucide="trending-up"
+                        class="metric-icon"></i></span>
+                <div><strong>{{ overall_pct }}%</strong><small>Avg. Progress</small></div>
+            </div>
+            <div class="dash-v2-metric"><span class="metric-icon-wrap metric-icon-orange"><i data-lucide="flame"
+                        class="metric-icon"></i></span>
+                <div><strong>{{ day_streak }}</strong><small>Day Streak</small></div>
+            </div>
+            <div class="dash-v2-metric"><span class="metric-icon-wrap metric-icon-yellow"><i data-lucide="star"
+                        class="metric-icon"></i></span>
+                <div><strong>{{ xp_earned }}</strong><small>XP Earned</small></div>
+            </div>
+            <div class="dash-v2-metric dash-v2-metric--week"><span class="metric-icon-wrap metric-icon-cyan"><i
+                        data-lucide="check-circle-2" class="metric-icon"></i></span>
+                <div><strong>{{ milestones_this_week }}</strong><small>Milestones This Week</small></div>
+            </div>
+            <section class="dash-v2-panel dash-v2-roadmap">
+                <div class="dash-v2-panel-head">
+                    <h3>Active Roadmap</h3>
+                    {% if active_roadmap %}<a href="{{ url_for('progress.tracker') }}">View Full <i
+                            data-lucide="arrow-right"></i></a>{% endif %}
+                </div>
+                {% if next_milestones %}
+                <div class="roadmap-mini-list">
+                    {% for m in next_milestones %}
+                    <div class="rml-item {% if loop.first %}rml-current{% endif %}">
+                        <div class="rml-num">{{ loop.index }}</div>
+                        <div class="rml-body">
+                            <div class="rml-title">{{ m.title }}{% if loop.first %}<span
+                                    class="rml-badge">CURRENT</span>{% endif %}</div>
+                            <div class="rml-sub">{{ m.phase_title }} · <span
+                                    class="rml-type rml-type--{{ m.card_type }}">{{ m.card_type }}</span></div>
+                        </div>
+                        <div class="rml-time">{{ m.estimated_hours }}h</div>
+                        <a href="{{ url_for('dashboard.start_now') if loop.first else '#' }}"
+                            class="rml-arrow {% if not loop.first %}rml-arrow--muted{% endif %}"><i
+                                data-lucide="chevron-right"></i></a>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="dash-v2-progress-line"><span>{{ completed_milestones }} of {{ total_milestones }}
+                        completed</span>
+                    <div><i style="width:{{ overall_pct }}%;"></i></div><b>{{ overall_pct }}%</b>
+                </div>
+                {% else %}
+                <p class="chart-empty">Generate a roadmap to see your active learning path here.</p>
+                {% endif %}
+            </section>
+
+            <!-- Career Flexibility (compact) -->
+            <section class="dash-v2-panel dash-v2-career">
+                <div class="dash-v2-panel-head">
+                    <h3>Career Flexibility</h3>
+                    <span class="ctf-badge" id="ctf-badge-top">
+                        <i data-lucide="zap"></i> Skill Pivot
+                    </span>
+                </div>
+
+                <div class="ctf-panel-body">
+                {% set ctf_display = ctf_display | default([]) %}
+                {% set ctf_is_preview = ctf_is_preview | default(false) %}
+                {% if ctf_display %}
+                {% if ctf_is_preview %}
+                <p class="ctf-preview-note">Estimated fit from your career analysis. Complete milestones to unlock proven pivot scores.</p>
+                {% endif %}
+                <div class="ctf-list" id="ctf-list-top">
+                    {% for career in ctf_display %}
+                    {% set pct = career.transferability %}
+                    {% if pct >= 70 %}{% set color = '#34d399' %}{% set label = 'High' %}
+                    {% elif pct >= 50 %}{% set color = '#00d4ff' %}{% set label = 'Medium' %}
+                    {% else %}{% set color = '#f59e0b' %}{% set label = 'Possible' %}{% endif %}
+                    <div class="ctf-row">
+                        <div class="ctf-row-head">
+                            <span class="ctf-name">{{ career.title | truncate(22, true, '\u2026') }}</span>
+                            <span class="ctf-pct" style="color:{{ color }}">{{ pct }}%</span>
+                        </div>
+                        <div class="ctf-track">
+                            <div class="ctf-fill" data-target="{{ pct }}" style="width:0%;background:linear-gradient(90deg,{{ color }}88,{{ color }})"></div>
+                        </div>
+                        <div class="ctf-skills">
+                            {% if ctf_is_preview %}
+                            <span class="ctf-preview-tag">Estimated fit</span>
+                            {% else %}
+                            <span>{{ career.shared }}/{{ career.required }} shared skills</span>
+                            <span class="ctf-match-pill" style="--ctf-color:{{ color }}">{{ label }} match</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="ctf-empty-rich" id="ctf-empty-top">
+                    <i data-lucide="shuffle"></i>
+                    <p><strong>No pivot data yet</strong></p>
+                    <p>Finish roadmap milestones to see which careers your proven skills unlock.</p>
+                </div>
+                <div class="ctf-list" id="ctf-list-top" hidden></div>
+                {% endif %}
+                </div>
+
+            </section>
+
+
+            <section class="dash-v2-panel dash-v2-job-pulse">
+                {% set jp = job_pulse_data %}
+                <div class="dash-v2-panel-head">
+                    <h3><i data-lucide="radar"></i>Live Job Market Pulse</h3>
+                    {% if jp %}
+                    <span class="jmp-demand-badge" style="color:{{ jp.demand_color }};border-color:{{ jp.demand_color }}40">
+                        {{ jp.demand_label }}
+                    </span>
+                    {% else %}
+                    <span class="jmp-demand-badge jmp-demand-badge--muted">Checking</span>
+                    {% endif %}
+                </div>
+                <div class="jmp-card jmp-card--v2" id="jmp-card" data-career="{{ active_roadmap_name | default('', true) | e }}">
+                    {% if jp %}
+                    <div class="jmp-header">
+                        <div class="jmp-header-left">
+                            <div class="jmp-icon"><i data-lucide="briefcase-business"></i></div>
+                            <div>
+                                <div class="jmp-career-name">{{ jp.career_title }}</div>
+                                <div class="jmp-timeframe">Last 30 days - {{ jp.source or 'Live' }} listings</div>
+                            </div>
+                        </div>
+                        <span class="jmp-live-dot {% if jp.is_live or jp.total_jobs %}jmp-live-dot--on{% endif %}" title="{% if jp.is_live %}Live market feed{% else %}Market data loaded{% endif %}"></span>
+                    </div>
+                    <div class="jmp-big-stat">
+                        <span class="jmp-big-num" id="jmp-total">{{ "{:,}".format(jp.total_jobs) }}</span>
+                        <span class="jmp-big-label">open roles right now</span>
+                    </div>
+                    <div class="jmp-quick-stats">
+                        <div class="jmp-qs-item">
+                            <i data-lucide="wifi"></i>
+                            <span><strong>{{ jp.remote_pct }}%</strong> remote</span>
+                        </div>
+                        <div class="jmp-qs-item">
+                            <i data-lucide="users"></i>
+                            <span><strong>{{ jp.seniority }}</strong></span>
+                        </div>
+                        {% if jp.avg_salary_usd %}
+                        <div class="jmp-qs-item">
+                            <i data-lucide="dollar-sign"></i>
+                            <span><strong>${{ "{:,.0f}".format(jp.avg_salary_usd) }}</strong> avg</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if jp.top_skills %}
+                    <div class="jmp-skills-section">
+                        <div class="jmp-skills-label">Top skills appearing in listings</div>
+                        <div class="jmp-skills-tags">
+                            {% for skill in jp.top_skills %}
+                            <span class="jmp-skill-tag">{{ skill.label }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if jp.companies %}
+                    <div class="jmp-companies">
+                        <div class="jmp-companies-label">Hiring signals</div>
+                        <div class="jmp-companies-list">
+                            {% for co in jp.companies %}
+                            <div class="jmp-company">
+                                {% if co.logo %}
+                                <img src="{{ co.logo }}" alt="{{ co.name }}" class="jmp-co-logo"
+                                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                {% endif %}
+                                <span class="jmp-co-fallback" {% if co.logo %}style="display:none"{% endif %}>
+                                    {{ co.name[0] | upper }}
+                                </span>
+                                <span class="jmp-co-name">{{ co.name | truncate(18, true, '...') }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <div class="jmp-empty" id="jmp-loading">
+                        <div class="jmp-spinner"></div>
+                        <p>Collecting live market data...</p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% if jp %}
+                <div class="jmp-meta" id="jmp-meta">
+                    <span class="jmp-meta-source">{{ jp.source or 'Live' }}</span>
+                    {% if jp.cached_age_minutes is defined %}
+                    <span class="jmp-meta-age">Updated {{ jp.cached_age_minutes }}m ago</span>
+                    {% endif %}
+                    {% if jp.is_stale %}<span class="jmp-meta-stale">Syncing</span>{% endif %}
+                    <button type="button" class="jmp-refresh-btn" id="jmp-refresh-btn">Refresh</button>
+                </div>
+                {% else %}
+                <div class="jmp-meta" id="jmp-meta" hidden></div>
+                {% endif %}
+            </section>
+
+            <section class="dash-v2-panel chart-card dash-v2-milestone">
+                <div class="dash-v2-panel-head">
+                    <h3>Milestone Progress</h3><a href="{{ url_for('progress.tracker') }}">View All <i
+                            data-lucide="arrow-right"></i></a>
+                </div>
+                <div class="donut-wrap dash-v2-donut-wrap">
+                    <svg class="donut-svg" viewBox="0 0 120 120" width="96" height="96">
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="12" />
+                        <circle cx="60" cy="60" r="50" fill="none" stroke="url(#donutGradV2)" stroke-width="12"
+                            stroke-linecap="round" stroke-dasharray="314"
+                            stroke-dashoffset="{{ 314 - (314 * overall_pct / 100) }}" transform="rotate(-90 60 60)" />
+                        <defs>
+                            <linearGradient id="donutGradV2">
+                                <stop offset="0%" stop-color="#00d4ff" />
+                                <stop offset="100%" stop-color="#7c6fff" />
+                            </linearGradient>
+                        </defs>
+                        <text x="60" y="58" text-anchor="middle" fill="var(--text-primary)"
+                            font-family="Inter,sans-serif" font-size="20" font-weight="900">{{ overall_pct }}%</text>
+                        <text x="60" y="72" text-anchor="middle" fill="var(--text-muted)" font-family="Inter,sans-serif"
+                            font-size="8">Complete</text>
+                    </svg>
+                    <div class="donut-legend">
+                        <div class="dl-item"><span class="dl-dot" style="background:#00d4ff"></span><span
+                                class="dl-label">Done</span><span class="dl-val">{{ completed_milestones }}</span></div>
+                        <div class="dl-item"><span class="dl-dot" style="background:rgba(255,255,255,.12)"></span><span
+                                class="dl-label">Remaining</span><span class="dl-val">{{ total_milestones -
+                                completed_milestones }}</span></div>
+                        <div class="dl-item"><span class="dl-dot" style="background:#7c6fff"></span><span
+                                class="dl-label">Total</span><span class="dl-val">{{ total_milestones }}</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="dash-v2-panel dash-v2-recent">
+                <div class="dash-v2-panel-head">
+                    <h3>Recent Activity</h3><a href="{{ url_for('progress.tracker') }}">View All <i
+                            data-lucide="arrow-right"></i></a>
+                </div>
+                <div class="dash-v2-activity-list">
+                    {% if recent_activity %}
+                    {% for log in recent_activity %}
+                    <div><span class="activity-icon"><i
+                                data-lucide="{% if log.status == 'success' %}check-circle{% elif log.status == 'active' %}zap{% else %}clock{% endif %}"></i></span>
+                        <p>{{ log.action }}</p><small>{{ log.created_at.strftime('%b %d') }}</small>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="chart-empty">No activity logged yet.</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="dash-v2-panel dash-v2-cognitive">
+                <div class="cognitive-card">
+                    <div class="cognitive-panel-head">
+                        <div class="cognitive-title-block">
+                            <span class="cognitive-chip"><i data-lucide="brain-circuit"></i></span>
+                            <div><strong>Cognitive Skill Graph</strong><span>AI-derived profile from your aptitude and
+                                    learning behavior.</span></div>
+                        </div>
+                        <a href="{{ url_for('aptitude.index') }}" class="cognitive-train-link">Train Skills <i
+                                data-lucide="arrow-right"></i></a>
+                    </div>
+                    <div class="cognitive-body">
+                        <div class="cognitive-visual">
+                            <svg class="cognitive-radar" viewBox="0 0 260 230" aria-label="Aptitude skill radar">
+                                <defs>
+                                    <linearGradient id="cogRadarGradV2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#00d4ff" />
+                                        <stop offset="52%" stop-color="#7c6fff" />
+                                        <stop offset="100%" stop-color="#34d399" />
+                                    </linearGradient>
+                                    <radialGradient id="cogGlowV2" cx="50%" cy="46%" r="60%">
+                                        <stop offset="0%" stop-color="#00d4ff" stop-opacity=".28" />
+                                        <stop offset="100%" stop-color="#00d4ff" stop-opacity="0" />
+                                    </radialGradient>
+                                </defs>
+                                <circle cx="130" cy="112" r="104" class="radar-halo-v2" />
+                                <polygon points="130,30 208,87 178,179 82,179 52,87"
+                                    class="radar-grid radar-grid-outer" />
+                                <polygon points="130,58 181,95 161,155 99,155 79,95" class="radar-grid" />
+                                <polygon points="130,86 154,103 145,132 115,132 106,103" class="radar-grid" />
+                                <line x1="130" y1="112" x2="130" y2="30" class="radar-axis" />
+                                <line x1="130" y1="112" x2="208" y2="87" class="radar-axis" />
+                                <line x1="130" y1="112" x2="178" y2="179" class="radar-axis" />
+                                <line x1="130" y1="112" x2="82" y2="179" class="radar-axis" />
+                                <line x1="130" y1="112" x2="52" y2="87" class="radar-axis" />
+                                <polygon id="dashboard-v2-radar-polygon" points="130,52 186,94 166,162 94,162 74,94"
+                                    class="radar-signal-v2" />
+                                <g id="dashboard-v2-radar-points"></g>
+                                <text x="130" y="18" text-anchor="middle" class="radar-label">Logical</text><text
+                                    x="214" y="84" text-anchor="start" class="radar-label">Comm.</text><text x="190"
+                                    y="202" text-anchor="middle" class="radar-label">Analytical</text><text x="70"
+                                    y="202" text-anchor="middle" class="radar-label">Problem</text><text x="38" y="84"
+                                    text-anchor="end" class="radar-label">System</text>
+                            </svg>
+                            <div class="cognitive-score"><strong
+                                    id="dashboard-v2-cognitive-avg">72%</strong><span>Aptitude signal</span></div>
+                        </div>
+                        <div class="cognitive-details">
+                            <div class="cognitive-head"><strong>Core Cognitive Skills</strong></div>
+                            <div class="cognitive-list" id="dashboard-v2-skill-list"></div>
+                            <div class="cognitive-insight"><span class="cognitive-insight-icon"><i
+                                        data-lucide="sparkles"></i></span><span>Strengthen <strong
+                                        id="dashboard-v2-cognitive-focus">Analytical Thinking</strong> to improve your
+                                    match by <strong id="dashboard-v2-cognitive-boost">+6%</strong></span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="dash-v2-tip-strip">
+                <span class="dash-v2-tip-icon"><i data-lucide="lightbulb"></i></span>
+                <div>
+                    <strong>Today’s focus:</strong>
+                    <span>Small daily progress compounds faster than occasional marathon sessions. Finish one roadmap item, then protect your streak.</span>
+                </div>
+                <a href="{{ url_for('dashboard.start_now') }}">Continue <i data-lucide="arrow-right"></i></a>
+            </section>
+        </div>
+    </section>
 
     <!-- ── TODAY'S MISSION (full-width hero) ────────────────────────────── -->
     <div class="mission-card">
@@ -31,22 +475,21 @@
                     <i data-lucide="play" class="btn-icon"></i> Start Now
                 </a>
                 {% if active_roadmap %}
-                <a href="{{ url_for('progress.tracker') }}" class="btn btn-secondary">View Roadmap</a>
+                <a href="{{ url_for('career.guide_view', roadmap_id=active_roadmap.id) }}" class="btn btn-secondary">View Roadmap</a>
                 {% endif %}
             </div>
             <div class="mission-progress-wrap">
                 {% set pct = ((completed_milestones / total_milestones) * 100) | int if total_milestones > 0 else 0 %}
                 <svg class="mission-donut" viewBox="0 0 80 80">
-                    <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="8"/>
-                    <circle cx="40" cy="40" r="32" fill="none" stroke="url(#mGrad)"
-                            stroke-width="8" stroke-linecap="round"
-                            stroke-dasharray="{{ (2 * 3.14159 * 32) | round(1) }}"
-                            stroke-dashoffset="{{ ((2 * 3.14159 * 32) * (1 - pct/100)) | round(1) }}"
-                            transform="rotate(-90 40 40)"/>
+                    <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="8" />
+                    <circle cx="40" cy="40" r="32" fill="none" stroke="url(#mGrad)" stroke-width="8"
+                        stroke-linecap="round" stroke-dasharray="{{ (2 * 3.14159 * 32) | round(1) }}"
+                        stroke-dashoffset="{{ ((2 * 3.14159 * 32) * (1 - pct/100)) | round(1) }}"
+                        transform="rotate(-90 40 40)" />
                     <defs>
                         <linearGradient id="mGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#00d4ff"/>
-                            <stop offset="100%" stop-color="#7c6fff"/>
+                            <stop offset="0%" stop-color="#00d4ff" />
+                            <stop offset="100%" stop-color="#7c6fff" />
                         </linearGradient>
                     </defs>
                 </svg>
@@ -81,44 +524,66 @@
         <!-- LEFT MAIN COLUMN ─────────────────────────────────────────────── -->
         <div class="dash-main">
 
-            <!-- Career Trajectory -->
+            <!-- Career Flexibility -->
             <div class="dashboard-section">
-                <h3 class="section-title">Career Trajectory</h3>
-                <div class="dashboard-card trajectory-card">
-                    <div class="traj-header">
-                        <div class="traj-heading">
-                            <h3 class="traj-title">{{ target_role }}</h3>
-                            {% if active_career %}
-                            <span class="traj-badge">Top Match</span>
-                            {% endif %}
-                        </div>
-                        <div class="traj-stats-row">
-                            <div class="traj-stat">
-                                <span class="traj-stat-val {% if skill_gap_pct > 50 %}text-amber{% endif %}">{{ skill_gap_pct }}%</span>
-                                <span class="traj-stat-label">Skill Gap</span>
+                <h3 class="section-title">Career Flexibility</h3>
+                <div class="dashboard-card ctf-card">
+
+                    <div class="ctf-header">
+                        <div class="ctf-header-left">
+                            <div class="ctf-icon"><i data-lucide="shuffle"></i></div>
+                            <div>
+                                <div class="ctf-subtitle">Based on milestones you&rsquo;ve completed</div>
+                                <span class="ctf-proven-badge" id="ctf-proven-main">
+                                    <i data-lucide="check-circle-2"></i>
+                                    {% if transferability_data %}{{ transferability_data | length }} pivot path{{ 's' if transferability_data | length != 1 else '' }} found{% else %}No paths yet{% endif %}
+                                </span>
                             </div>
-                            {% if estimated_weeks %}
-                            <div class="traj-stat">
-                                <span class="traj-stat-val">{{ estimated_weeks }}w</span>
-                                <span class="traj-stat-label">Est. Time</span>
-                            </div>
-                            {% endif %}
                         </div>
+                        <a href="{{ navigator_url }}" class="text-link" style="white-space:nowrap;">Explore →</a>
                     </div>
-                    {% if gap_focus %}
-                    <div class="traj-focus">
-                        <span class="traj-focus-label">Next Focus</span>
-                        <div class="traj-tags">
-                            {% for skill in gap_focus %}
-                            <span class="skill-tag">{{ skill }}</span>
-                            {% endfor %}
+
+                    {% if transferability_data %}
+                    <div class="ctf-grid" id="ctf-main-list">
+                        {% for career in transferability_data %}
+                        {% set pct = career.transferability %}
+                        {% if pct >= 70 %}{% set color = '#34d399' %}{% set label = 'High' %}
+                        {% elif pct >= 50 %}{% set color = '#00d4ff' %}{% set label = 'Medium' %}
+                        {% else %}{% set color = '#f59e0b' %}{% set label = 'Possible' %}{% endif %}
+                        <div class="ctf-card-item">
+                            <div class="ctf-item-head">
+                                <span class="ctf-item-name">{{ career.title }}</span>
+                                <span class="ctf-item-label" style="color:{{ color }};border-color:{{ color }}40">{{ label }}</span>
+                            </div>
+                            <div class="ctf-item-bar-row">
+                                <div class="ctf-item-track">
+                                    <div class="ctf-item-fill" data-target="{{ pct }}"
+                                        style="width:0%;background:linear-gradient(90deg,{{ color }}77,{{ color }})"></div>
+                                </div>
+                                <span class="ctf-item-pct" style="color:{{ color }}">{{ pct }}%</span>
+                            </div>
+                            <div class="ctf-item-footer">
+                                <span class="ctf-item-match">{{ career.shared }} of {{ career.required }} required skills proven</span>
+                                <div class="ctf-item-tags">
+                                    {% for skill in career.shared_skills[:3] %}
+                                    <span class="ctf-skill-tag">{{ skill | replace('_', ' ') | title }}</span>
+                                    {% endfor %}
+                                    {% if career.shared_skills | length > 3 %}
+                                    <span class="ctf-skill-tag ctf-skill-more">+{{ career.shared_skills | length - 3 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="ctf-empty-state">
+                        <i data-lucide="route"></i>
+                        <p>Complete more milestones to unlock career pivot insights.</p>
+                        <a href="{{ url_for('progress.tracker') }}" class="text-link">Go to Progress Tracker →</a>
                     </div>
                     {% endif %}
-                    <div class="traj-footer">
-                        <a href="{{ navigator_url }}" class="text-link">View Details →</a>
-                        <a href="{{ profile_edit_url }}" class="text-link" style="margin-left:auto;">Edit Profile →</a>
-                    </div>
+
                 </div>
             </div>
 
@@ -141,7 +606,8 @@
                                     {{ m.title }}
                                     {% if loop.first %}<span class="rml-badge">CURRENT</span>{% endif %}
                                 </div>
-                                <div class="rml-sub">{{ m.phase_title }} · <span class="rml-type rml-type--{{ m.card_type }}">{{ m.card_type }}</span></div>
+                                <div class="rml-sub">{{ m.phase_title }} · <span
+                                        class="rml-type rml-type--{{ m.card_type }}">{{ m.card_type }}</span></div>
                             </div>
                             <div class="rml-time">{{ m.estimated_hours }}h</div>
                             {% if loop.first %}
@@ -163,40 +629,173 @@
                 </div>
             </div>
 
-            <!-- Skill Funnel (metric cards) -->
-            <div class="dashboard-section">
-                <h3 class="section-title">{{ funnel_title }}</h3>
-                <div class="metrics-grid">
-                    <div class="metric-card metric-blue">
-                        <div class="metric-icon-wrap metric-icon-blue">
-                            <i data-lucide="map" class="metric-icon"></i>
+            <!-- Bottom 2-col row: Cognitive Graph + Job Market Pulse -->
+            <div class="bottom-row-grid">
+
+                <!-- Cognitive Skill Graph (compact) -->
+                <div class="dashboard-section">
+                    <h3 class="section-title">Cognitive Skill Graph</h3>
+                    <div class="dashboard-card cognitive-card cognitive-card--compact">
+                        <div class="cognitive-panel-head">
+                            <div class="cognitive-title-block">
+                                <span class="cognitive-chip">
+                                    <i data-lucide="brain-circuit"></i>
+                                </span>
+                                <div>
+                                    <strong>Cognitive Skill Graph</strong>
+                                    <span>AI-derived aptitude profile.</span>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('aptitude.index') }}" class="cognitive-train-link">
+                                Train <i data-lucide="arrow-right"></i>
+                            </a>
                         </div>
-                        <span class="metric-value">{{ roadmaps_generated }}</span>
-                        <span class="metric-label">ROADMAPS</span>
-                    </div>
-                    <div class="metric-card metric-purple">
-                        <div class="metric-icon-wrap metric-icon-purple">
-                            <i data-lucide="check-circle" class="metric-icon"></i>
+
+                        <div class="cognitive-body cognitive-body--compact">
+                            <div class="cognitive-visual cognitive-visual--compact">
+                                <svg class="cognitive-radar" viewBox="0 0 260 230" aria-label="Aptitude skill radar">
+                                    <defs>
+                                        <linearGradient id="cogRadarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#00d4ff" />
+                                            <stop offset="52%" stop-color="#7c6fff" />
+                                            <stop offset="100%" stop-color="#34d399" />
+                                        </linearGradient>
+                                        <radialGradient id="cogGlow" cx="50%" cy="46%" r="60%">
+                                            <stop offset="0%" stop-color="#00d4ff" stop-opacity=".28" />
+                                            <stop offset="100%" stop-color="#00d4ff" stop-opacity="0" />
+                                        </radialGradient>
+                                    </defs>
+                                    <circle cx="130" cy="112" r="104" class="radar-halo" />
+                                    <polygon points="130,30 208,87 178,179 82,179 52,87"
+                                        class="radar-grid radar-grid-outer" />
+                                    <polygon points="130,58 181,95 161,155 99,155 79,95" class="radar-grid" />
+                                    <polygon points="130,86 154,103 145,132 115,132 106,103" class="radar-grid" />
+                                    <line x1="130" y1="112" x2="130" y2="30" class="radar-axis" />
+                                    <line x1="130" y1="112" x2="208" y2="87" class="radar-axis" />
+                                    <line x1="130" y1="112" x2="178" y2="179" class="radar-axis" />
+                                    <line x1="130" y1="112" x2="82" y2="179" class="radar-axis" />
+                                    <line x1="130" y1="112" x2="52" y2="87" class="radar-axis" />
+                                    <polygon id="cognitive-radar-polygon" points="130,52 186,94 166,162 94,162 74,94"
+                                        class="radar-signal" />
+                                    <g id="cognitive-radar-points"></g>
+                                    <text x="130" y="15" text-anchor="middle" class="radar-label">Logical</text>
+                                    <text x="216" y="83" text-anchor="start" class="radar-label">Comm.</text>
+                                    <text x="190" y="204" text-anchor="middle" class="radar-label">Analytical</text>
+                                    <text x="70" y="204" text-anchor="middle" class="radar-label">Problem</text>
+                                    <text x="36" y="83" text-anchor="end" class="radar-label">System</text>
+                                </svg>
+                                <div class="cognitive-score">
+                                    <strong id="cognitive-avg">72%</strong>
+                                    <span>Aptitude</span>
+                                </div>
+                            </div>
+                            <div class="cognitive-details">
+                                <div class="cognitive-list" id="dashboard-skill-list"></div>
+                                <div class="cognitive-insight">
+                                    <span class="cognitive-insight-icon"><i data-lucide="sparkles"></i></span>
+                                    <span>Strengthen <strong id="cognitive-focus">Analytical Thinking</strong>
+                                        to improve match by <strong id="cognitive-boost">+6%</strong></span>
+                                </div>
+                            </div>
                         </div>
-                        <span class="metric-value">{{ completed_milestones }}</span>
-                        <span class="metric-label">MILESTONES DONE</span>
-                    </div>
-                    <div class="metric-card metric-green">
-                        <div class="metric-icon-wrap metric-icon-green">
-                            <i data-lucide="book-open" class="metric-icon"></i>
-                        </div>
-                        <span class="metric-value">{{ courses_enrolled }}</span>
-                        <span class="metric-label">{{ courses_label }}</span>
-                    </div>
-                    <div class="metric-card metric-orange">
-                        <div class="metric-icon-wrap metric-icon-orange">
-                            <i data-lucide="zap" class="metric-icon"></i>
-                        </div>
-                        <span class="metric-value">{{ skills_verified }}</span>
-                        <span class="metric-label">{{ skills_label }}</span>
                     </div>
                 </div>
-            </div>
+
+                <!-- Job Market Pulse -->
+                <div class="dashboard-section">
+                    <h3 class="section-title">
+                        Job Market Pulse
+                        <span class="jmp-live-dot" title="Live data from TheirStack"></span>
+                    </h3>
+                    <div class="dashboard-card jmp-card" id="jmp-card-legacy">
+
+                        {% if job_pulse_data %}
+                        {% set jp = job_pulse_data %}
+
+                        <!-- Header -->
+                        <div class="jmp-header">
+                            <div class="jmp-header-left">
+                                <div class="jmp-icon"><i data-lucide="trending-up"></i></div>
+                                <div>
+                                    <div class="jmp-career-name">{{ jp.career_title }}</div>
+                                    <div class="jmp-timeframe">Last 30 days &bull; Global</div>
+                                </div>
+                            </div>
+                            <span class="jmp-demand-badge" style="color:{{ jp.demand_color }};border-color:{{ jp.demand_color }}40">
+                                {{ jp.demand_label }}
+                            </span>
+                        </div>
+
+                        <!-- Big stat -->
+                        <div class="jmp-big-stat">
+                            <span class="jmp-big-num" id="jmp-total">{{ "{:,}".format(jp.total_jobs) }}</span>
+                            <span class="jmp-big-label">open roles</span>
+                        </div>
+
+                        <!-- Quick stats row -->
+                        <div class="jmp-quick-stats">
+                            <div class="jmp-qs-item">
+                                <i data-lucide="wifi"></i>
+                                <span><strong>{{ jp.remote_pct }}%</strong> Remote</span>
+                            </div>
+                            <div class="jmp-qs-item">
+                                <i data-lucide="users"></i>
+                                <span><strong>{{ jp.seniority }}</strong></span>
+                            </div>
+                            {% if jp.avg_salary_usd %}
+                            <div class="jmp-qs-item">
+                                <i data-lucide="dollar-sign"></i>
+                                <span><strong>${{ "{:,.0f}".format(jp.avg_salary_usd) }}</strong> avg</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Top demanded skills -->
+                        {% if jp.top_skills %}
+                        <div class="jmp-skills-section">
+                            <div class="jmp-skills-label">Top Skills in Listings</div>
+                            <div class="jmp-skills-tags">
+                                {% for skill in jp.top_skills %}
+                                <span class="jmp-skill-tag">{{ skill.label }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Hiring companies -->
+                        {% if jp.companies %}
+                        <div class="jmp-companies">
+                            <div class="jmp-companies-label">Actively Hiring</div>
+                            <div class="jmp-companies-list">
+                                {% for co in jp.companies %}
+                                <div class="jmp-company">
+                                    {% if co.logo %}
+                                    <img src="{{ co.logo }}" alt="{{ co.name }}" class="jmp-co-logo"
+                                        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                    {% endif %}
+                                    <span class="jmp-co-fallback" {% if co.logo %}style="display:none"{% endif %}>
+                                        {{ co.name[0] | upper }}
+                                    </span>
+                                    <span class="jmp-co-name">{{ co.name | truncate(18, true, '…') }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% else %}
+                        <!-- No data / loading state -->
+                        <div class="jmp-empty" id="jmp-loading-legacy">
+                            <div class="jmp-spinner"></div>
+                            <p>Loading market data…</p>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div><!-- /.bottom-row-grid -->
+
 
         </div><!-- /.dash-main -->
 
@@ -223,65 +822,43 @@
                         <span class="momentum-label">Status</span>
                     </div>
                 </div>
-                <a href="{{ url_for('dashboard.start_now') }}" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:var(--space-md);">
+                <a href="{{ url_for('dashboard.start_now') }}" class="btn btn-primary"
+                    style="width:100%;justify-content:center;margin-top:var(--space-md);">
                     Continue Learning <i data-lucide="arrow-right" class="btn-icon"></i>
                 </a>
                 <div class="momentum-hint">
-                    <div class="action-dot {% if milestones_this_week >= 3 %}action-dot--green{% elif milestones_this_week > 0 %}action-dot--blue{% else %}action-dot--amber{% endif %}"></div>
+                    <div
+                        class="action-dot {% if milestones_this_week >= 3 %}action-dot--green{% elif milestones_this_week > 0 %}action-dot--blue{% else %}action-dot--amber{% endif %}">
+                    </div>
                     <span>{{ action_message }}</span>
                 </div>
             </div>
 
-            <!-- Career Match Scores -->
-            <div class="dashboard-section">
-                <h3 class="section-title">{{ chart_title }}</h3>
-                <div class="dashboard-card chart-card">
-                    {% if career_chart %}
-                    <div class="bar-chart">
-                        {% for item in career_chart %}
-                        {% set bar_colors = ['#00d4ff','#7c6fff','#34d399','#fbbf24','#ec4899'] %}
-                        {% set col = bar_colors[loop.index0 % 5] %}
-                        <div class="bar-row">
-                            <span class="bar-label" title="{{ item.title }}">{{ item.title | truncate(22, true, '…') }}</span>
-                            <div class="bar-track">
-                                <div class="bar-fill"
-                                     data-pct="{{ item.score }}"
-                                     style="background: linear-gradient(90deg, {{ col }}cc, {{ col }}); width: 0%;">
-                                </div>
-                            </div>
-                            <span class="bar-pct">{{ item.score }}%</span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <p class="chart-empty">{{ chart_empty }}</p>
-                    {% endif %}
-                </div>
-            </div>
 
             <!-- Milestone Progress Donut -->
             <div class="dashboard-section">
                 <h3 class="section-title">Milestone Progress</h3>
                 <div class="dashboard-card chart-card">
-                    {% set pct = ((completed_milestones / total_milestones) * 100) | int if total_milestones > 0 else 0 %}
+                    {% set pct = ((completed_milestones / total_milestones) * 100) | int if total_milestones > 0 else 0
+                    %}
                     <div class="donut-wrap">
                         <svg class="donut-svg" viewBox="0 0 120 120" width="120" height="120">
-                            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="12"/>
-                            <circle id="donut-arc" cx="60" cy="60" r="50"
-                                fill="none" stroke="url(#donutGrad)" stroke-width="12"
-                                stroke-linecap="round" stroke-dasharray="314"
-                                stroke-dashoffset="314" transform="rotate(-90 60 60)"/>
+                            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,.07)"
+                                stroke-width="12" />
+                            <circle id="donut-arc" cx="60" cy="60" r="50" fill="none" stroke="url(#donutGrad)"
+                                stroke-width="12" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314"
+                                transform="rotate(-90 60 60)" />
                             <defs>
                                 <linearGradient id="donutGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" stop-color="#00d4ff"/>
-                                    <stop offset="100%" stop-color="#7c6fff"/>
+                                    <stop offset="0%" stop-color="#00d4ff" />
+                                    <stop offset="100%" stop-color="#7c6fff" />
                                 </linearGradient>
                             </defs>
                             <text x="60" y="55" text-anchor="middle" fill="var(--text-primary)"
-                                  font-family="Outfit,sans-serif" font-size="20" font-weight="900"
-                                  id="donut-pct-text">{{ pct }}%</text>
+                                font-family="Outfit,sans-serif" font-size="20" font-weight="900" id="donut-pct-text">{{
+                                pct }}%</text>
                             <text x="60" y="70" text-anchor="middle" fill="var(--text-muted)"
-                                  font-family="Inter,sans-serif" font-size="8">Complete</text>
+                                font-family="Inter,sans-serif" font-size="8">Complete</text>
                         </svg>
                         <div class="donut-legend">
                             <div class="dl-item">
@@ -301,37 +878,35 @@
                             </div>
                             <div style="margin-top:.6rem;font-size:.75rem;color:var(--text-muted);line-height:1.5;">
                                 {% if pct == 0 %}Start completing milestones to fill this chart!
-                                {% elif pct < 25 %}Great start — keep pushing forward!
-                                {% elif pct < 50 %}💪 You're building momentum. Keep it up!
-                                {% elif pct < 75 %}🔥 Past the halfway mark — finish strong!
-                                {% elif pct < 100 %}⚡ Almost there — the finish line is close!
-                                {% else %}🏆 Roadmap complete! Time for a new challenge.{% endif %}
+                                {% elif pct < 25 %}Great start — keep pushing forward! {% elif pct < 50 %}💪 You're
+                                    building momentum. Keep it up! {% elif pct < 75 %}🔥 Past the halfway mark — finish
+                                    strong! {% elif pct < 100 %}⚡ Almost there — the finish line is close! {% else %}🏆
+                                    Roadmap complete! Time for a new challenge.{% endif %} </div>
                             </div>
                         </div>
+                        {% if total_milestones == 0 %}
+                        <p class="chart-empty">Generate a roadmap to track your milestone progress here.</p>
+                        {% endif %}
                     </div>
-                    {% if total_milestones == 0 %}
-                    <p class="chart-empty">Generate a roadmap to track your milestone progress here.</p>
-                    {% endif %}
                 </div>
-            </div>
 
-        </div><!-- /.dash-side -->
-    </div><!-- /.dash-wrap -->
+            </div><!-- /.dash-side -->
+        </div><!-- /.dash-wrap -->
 
-    <!-- ── RECENT ACTIVITY (full width) ─────────────────────────────────── -->
-    <div class="dashboard-section">
-        <h3 class="section-title">Recent Activity</h3>
-        <div class="dashboard-card activity-card">
-            <table class="activity-table">
-                <thead>
-                    <tr>
-                        <th>DATE</th>
-                        <th>ACTION</th>
-                        <th>STATUS</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if recent_activity %}
+        <!-- ── RECENT ACTIVITY (full width) ─────────────────────────────────── -->
+        <div class="dashboard-section">
+            <h3 class="section-title">Recent Activity</h3>
+            <div class="dashboard-card activity-card">
+                <table class="activity-table">
+                    <thead>
+                        <tr>
+                            <th>DATE</th>
+                            <th>ACTION</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if recent_activity %}
                         {% for log in recent_activity %}
                         <tr>
                             <td>{{ log.created_at.strftime('%b %d') }}</td>
@@ -347,76 +922,4104 @@
                             </td>
                         </tr>
                         {% endfor %}
-                    {% else %}
+                        {% else %}
                         <tr>
                             <td colspan="3">
                                 <div style="text-align:center;padding:2rem 1rem;color:var(--text-muted);">
                                     <div style="font-size:2rem;margin-bottom:.5rem;opacity:.4;">&#128203;</div>
                                     <div style="font-size:.85rem;margin-bottom:.75rem;">No activity logged yet.</div>
-                                    <a href="{{ url_for('progress.tracker') }}" style="font-size:.82rem;color:var(--accent-cyan);text-decoration:none;font-weight:600;">Complete a milestone to see activity →</a>
+                                    <a href="{{ url_for('progress.tracker') }}"
+                                        style="font-size:.82rem;color:var(--accent-cyan);text-decoration:none;font-weight:600;">Complete
+                                        a milestone to see activity →</a>
                                 </div>
                             </td>
                         </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
 
-</div><!-- /.dashboard-container -->
+    </div><!-- /.dashboard-container -->
 
-<style>
-/* ── Chart cards ───────────────────────────────────────── */
-.chart-card { padding: 1.2rem 1.4rem; min-height: 160px; }
-.donut-wrap  { display: flex; align-items: center; gap: 1.4rem; flex-wrap: wrap; }
-.donut-svg   { flex-shrink: 0; overflow: visible; }
-.donut-legend { display: flex; flex-direction: column; gap: .5rem; }
-.dl-item  { display: flex; align-items: center; gap: .5rem; font-size: .8rem; }
-.dl-dot   { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.dl-label { color: var(--text-muted); flex: 1; }
-.dl-val   { font-weight: 700; color: var(--text-primary); min-width: 24px; text-align: right; }
+    <style>
+        .dashboard-container {
+            max-width: 1600px !important;
+            width: 100%;
+            margin: 0 !important;
+            gap: 0;
+        }
 
-/* Bar chart */
-.bar-chart { display: flex; flex-direction: column; gap: .65rem; width: 100%; }
-.bar-row   { display: grid; grid-template-columns: 120px 1fr 36px; align-items: center; gap: .55rem; }
-.bar-label { font-size: .75rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.bar-track { background: rgba(255,255,255,.06); border-radius: 6px; height: 7px; overflow: hidden; }
-.bar-fill  { height: 100%; border-radius: 6px; transition: width 1s cubic-bezier(.22,1,.36,1); }
-.bar-pct   { font-size: .73rem; font-weight: 700; color: var(--text-muted); text-align: right; }
-.chart-empty { font-size: .83rem; color: var(--text-muted); text-align: center; margin-top: 1rem; line-height: 1.6; }
+        .dashboard-container> :not(.dashboard-v2) {
+            display: none !important;
+        }
 
-body.theme-light .bar-track { background: rgba(0,0,0,.07); }
-body.theme-light .donut-svg circle:first-child { stroke: rgba(0,0,0,.08); }
+        .app-main:has(.dashboard-v2) .app-header {
+            display: none;
+        }
 
-@media (max-width: 560px) {
-    .chart-card { padding: .9rem; }
-    .donut-wrap { justify-content: center; gap: 1rem; }
-    .donut-legend { width: 100%; }
-    .bar-row { grid-template-columns: 1fr 36px; gap: .4rem; }
-    .bar-label { grid-column: 1 / -1; }
-}
-</style>
+        .app-main:has(.dashboard-v2) .app-content {
+            padding: 20px 28px 12px;
+        }
 
-<script>
-/* Animate donut arc */
-(function () {
-    const arc = document.getElementById('donut-arc');
-    if (!arc) return;
-    const pct = {{ pct }};
-    const offset = 314 - (pct / 100) * 314;
-    setTimeout(() => {
-        arc.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(.22,1,.36,1)';
-        arc.style.strokeDashoffset = offset;
-    }, 300);
-})();
+        .dashboard-v2 {
+            display: grid;
+            gap: 14px;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
 
-/* Animate bar fills */
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        document.querySelectorAll('.bar-fill').forEach(bar => {
-            bar.style.width = (bar.dataset.pct || 0) + '%';
-        });
-    }, 200);
+        .dashboard-v2 * {
+            box-sizing: border-box;
+        }
+
+        .dash-v2-topbar,
+        .dash-v2-actions,
+        .dash-v2-panel-head,
+        .dash-v2-mission-actions,
+        .dash-v2-momentum-stats,
+        .dash-v2-career-top {
+            display: flex;
+        }
+
+        .dash-v2-topbar,
+        .dash-v2-panel-head,
+        .dash-v2-career-top {
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .dash-v2-greeting h1 {
+            margin: 0;
+            font-size: 1.22rem;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .dash-v2-greeting p {
+            margin: 5px 0 0;
+            color: var(--text-secondary);
+            font-size: .88rem;
+        }
+
+        .dash-v2-actions {
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .dash-v2-search {
+            min-width: 280px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 12px;
+            border: 1px solid var(--bg-glass-border);
+            border-radius: 12px;
+            color: var(--text-muted);
+            background: rgba(15, 23, 42, .72);
+        }
+
+        .dash-v2-search svg,
+        .dash-icon-btn svg {
+            width: 17px;
+            height: 17px;
+        }
+
+        .dash-v2-search input {
+            width: 100%;
+            border: 0;
+            outline: 0;
+            color: var(--text-primary);
+            background: transparent;
+            font: inherit;
+            font-size: .84rem;
+        }
+
+        .dash-v2-search span {
+            padding: 2px 6px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, .06);
+            color: var(--text-muted);
+            font-size: .68rem;
+            font-weight: 800;
+        }
+
+        .dash-icon-btn {
+            position: relative;
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border: 1px solid var(--bg-glass-border);
+            border-radius: 50%;
+            color: var(--text-secondary);
+            background: rgba(15, 23, 42, .72);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .dash-icon-btn:hover {
+            color: #00d4ff;
+            border-color: rgba(0, 212, 255, 0.4);
+            background: rgba(20, 32, 58, 0.85);
+            box-shadow: 0 0 18px rgba(0, 212, 255, 0.35),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .dash-icon-btn:active {
+            transform: translateY(0) scale(0.95);
+        }
+
+        /* Continuous subtle pulse shadow if user has active notifications */
+        .dash-icon-btn.has-alerts {
+            animation: button-glow-pulse 2.2s infinite ease-in-out;
+            border-color: rgba(0, 212, 255, 0.4);
+        }
+
+        @keyframes button-glow-pulse {
+            0%, 100% {
+                box-shadow: 0 0 4px rgba(0, 212, 255, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 14px rgba(0, 212, 255, 0.5), 0 0 0 4px rgba(0, 212, 255, 0.15);
+                border-color: rgba(0, 212, 255, 0.6);
+            }
+        }
+
+        /* Subtle wiggling animation on hover to make it feel alive */
+        .dash-icon-btn:hover svg {
+            animation: bell-ring 0.65s ease-in-out;
+        }
+
+        @keyframes bell-ring {
+            0% { transform: rotate(0); }
+            15% { transform: rotate(12deg); }
+            30% { transform: rotate(-10deg); }
+            45% { transform: rotate(8deg); }
+            60% { transform: rotate(-6deg); }
+            75% { transform: rotate(3deg); }
+            100% { transform: rotate(0); }
+        }
+
+        .dash-icon-btn span {
+            position: absolute;
+            top: -4px;
+            right: -2px;
+            width: 18px;
+            height: 18px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b35, #ef4444);
+            color: #fff;
+            font-size: .68rem;
+            font-weight: 900;
+            box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+            transition: transform 0.3s ease;
+        }
+
+        /* Make the badge breath/pulse so it's super active */
+        .dash-icon-btn.has-alerts span {
+            animation: badge-breath 1.2s infinite alternate;
+        }
+
+        @keyframes badge-breath {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(1.15);
+                box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
+            }
+        }
+
+        .dash-v2-panel,
+        .dash-v2-mission,
+        .dash-v2-metric {
+            border: 1px solid var(--bg-glass-border);
+            border-radius: 12px;
+            background: linear-gradient(145deg, rgba(15, 23, 42, .86), rgba(6, 14, 28, .82)), var(--bg-secondary);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035);
+        }
+
+        .dash-v2-panel {
+            padding: 16px;
+            min-width: 0;
+        }
+
+        .dash-v2-panel-head {
+            margin-bottom: 14px;
+        }
+
+        .dash-v2-panel-head h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            color: var(--text-primary);
+            font-size: .98rem;
+        }
+
+        .dash-v2-panel-head h3::before {
+            content: "";
+            width: 3px;
+            height: 1rem;
+            border-radius: 99px;
+            background: linear-gradient(180deg, #00d4ff, #7c6fff);
+        }
+
+        .dash-v2-panel-head h3 svg,
+        .dash-v2-panel-head a svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .dash-v2-panel-head a {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-size: .78rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .dash-v2-hero-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 300px;
+            gap: 14px;
+        }
+
+        .dash-v2-mission {
+            position: relative;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto auto;
+            align-items: center;
+            gap: 18px;
+            min-height: 124px;
+            padding: 22px;
+            overflow: hidden;
+            background: radial-gradient(circle at 8% 50%, rgba(37, 99, 235, .28), transparent 34%), linear-gradient(135deg, rgba(30, 41, 120, .58), rgba(3, 10, 24, .94));
+        }
+
+        .dash-v2-mission::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(124, 111, 255, .16), transparent 42%, rgba(0, 212, 255, .08));
+            pointer-events: none;
+        }
+
+        .dash-v2-mission>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        .dash-v2-mission-icon {
+            width: 70px;
+            height: 70px;
+            display: grid;
+            place-items: center;
+            border-radius: 22px;
+            color: var(--accent-cyan);
+            background: rgba(0, 212, 255, .11);
+            border: 1px solid rgba(0, 212, 255, .18);
+        }
+
+        .dash-v2-mission-icon svg {
+            width: 34px;
+            height: 34px;
+        }
+
+        .dash-v2-mission-copy {
+            min-width: 0;
+        }
+
+        .dash-v2-mission-copy span {
+            color: #c4b5fd;
+            font-size: .72rem;
+            font-weight: 900;
+            letter-spacing: .08em;
+        }
+
+        .dash-v2-mission-copy h2 {
+            margin: 7px 0 6px;
+            color: #fff;
+            font-size: 1.45rem;
+            line-height: 1.15;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .dash-v2-mission-copy p {
+            margin: 0;
+            color: var(--text-secondary);
+        }
+
+        .dash-v2-mission-actions {
+            gap: 10px;
+        }
+
+        .dash-v2-mini-donut {
+            position: relative;
+            width: 72px;
+            height: 72px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+        }
+
+        .dash-v2-mini-donut svg {
+            position: absolute;
+            inset: 0;
+        }
+
+        .dash-v2-mini-donut strong {
+            color: #fff;
+            font-size: .88rem;
+            line-height: 1;
+        }
+
+        .dash-v2-mini-donut span {
+            display: block;
+            margin-top: 18px;
+            color: var(--text-muted);
+            font-size: .62rem;
+        }
+
+        .dash-v2-momentum .dash-v2-panel-head h3::before {
+            display: none;
+        }
+
+        .dash-v2-momentum .dash-v2-panel-head h3 {
+            color: var(--text-muted);
+            font-size: .78rem;
+            font-weight: 900;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .dash-v2-momentum .dash-v2-panel-head h3 svg {
+            color: #f59e0b;
+        }
+
+        .dash-v2-momentum-stats {
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .dash-v2-momentum-stats strong {
+            display: block;
+            color: #fff;
+            font-size: 1.45rem;
+        }
+
+        .dash-v2-momentum-stats div:first-child strong {
+            color: #f59e0b;
+        }
+
+        .dash-v2-momentum-stats span {
+            color: var(--text-muted);
+            font-size: .72rem;
+        }
+
+        .dash-v2-week-bars {
+            height: 76px;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            align-items: end;
+            gap: 10px;
+        }
+
+        .dash-v2-week-bars span {
+            position: relative;
+            height: var(--h);
+            min-height: 18px;
+            border-radius: 99px 99px 4px 4px;
+            background: linear-gradient(180deg, #7c6fff, #1f8bff);
+            box-shadow: 0 0 18px rgba(124, 111, 255, .15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .dash-v2-week-bars span:hover,
+        .dash-v2-week-bars span.active {
+            box-shadow: 0 0 24px rgba(96, 165, 250, .6);
+            background: linear-gradient(180deg, #60a5fa, #3b82f6);
+        }
+
+        .dash-v2-week-bars span:hover {
+            transform: scaleY(1.08) scaleX(1.1);
+            transform-origin: bottom;
+        }
+
+        .dash-v2-week-bars span:hover::before,
+        .dash-v2-week-bars span.active::before {
+            content: attr(style);
+            position: absolute;
+            left: 50%;
+            top: -22px;
+            transform: translateX(-50%);
+            padding: 2px 7px;
+            border-radius: 999px;
+            color: #fff;
+            background: #60a5fa;
+            font-size: .67rem;
+            font-weight: 900;
+            white-space: nowrap;
+            content: attr(data-pct);
+        }
+
+        .dash-v2-week-bars em {
+            position: absolute;
+            left: 50%;
+            bottom: -20px;
+            transform: translateX(-50%);
+            color: var(--text-muted);
+            font-size: .68rem;
+            font-style: normal;
+            font-weight: 800;
+        }
+
+        .dash-v2-metrics,
+        .dash-v2-content-grid {
+            display: grid;
+            /* 6 cols: roadmap uses 2; career + pulse split the other 4 evenly (50/50) */
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 12px;
+            align-items: start;
+        }
+
+        .dash-v2-metric--active-roadmap strong {
+            font-size: clamp(.82rem, .95vw, 1.05rem);
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-break: break-word;
+        }
+
+        .dash-v2-content-grid > .dash-v2-metric:nth-child(1) { grid-column: 1; grid-row: 1; }
+        .dash-v2-content-grid > .dash-v2-metric:nth-child(2) { grid-column: 2; grid-row: 1; }
+        .dash-v2-content-grid > .dash-v2-metric:nth-child(3) { grid-column: 3; grid-row: 1; }
+        .dash-v2-content-grid > .dash-v2-metric:nth-child(4) { grid-column: 4; grid-row: 1; }
+        .dash-v2-content-grid > .dash-v2-metric:nth-child(5) { grid-column: 5; grid-row: 1; }
+        .dash-v2-content-grid > .dash-v2-metric:nth-child(6) { grid-column: 6; grid-row: 1; }
+
+        .metric-icon-cyan {
+            background: rgba(0, 212, 255, .12);
+            color: #00d4ff;
+        }
+
+        .dash-v2-content-grid .dash-v2-roadmap { grid-column: 1 / span 2; grid-row: 2; }
+        .dash-v2-content-grid .dash-v2-career { grid-column: 3 / span 2; grid-row: 2; }
+        .dash-v2-content-grid .dash-v2-job-pulse { grid-column: 5 / span 2; grid-row: 2; }
+        .dash-v2-content-grid .dash-v2-milestone { grid-column: 1 / span 2; grid-row: 3; }
+        .dash-v2-content-grid .dash-v2-cognitive { grid-column: 3 / span 4; grid-row: 3 / span 2; }
+        .dash-v2-content-grid .dash-v2-recent { grid-column: 1 / span 2; grid-row: 4; }
+        .dash-v2-content-grid .dash-v2-tip-strip { grid-column: 1 / -1; grid-row: 5; }
+
+        .dash-v2-metric {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-height: 86px;
+            padding: 16px;
+        }
+
+        .dash-v2-metric strong {
+            display: block;
+            color: #fff;
+            font-size: 1.42rem;
+            line-height: 1;
+        }
+
+        .dash-v2-metric small {
+            display: block;
+            margin-top: 5px;
+            color: var(--text-secondary);
+            font-size: .78rem;
+        }
+
+        .metric-icon-yellow {
+            background: rgba(250, 204, 21, .12);
+            color: #facc15;
+        }
+
+        .dash-v2-main-grid {
+            display: grid;
+            grid-template-columns: minmax(360px, 1.1fr) minmax(340px, 1fr) 360px;
+            grid-auto-rows: min-content;
+            gap: 14px;
+            align-items: start;
+        }
+
+        .dash-v2-roadmap {
+            min-height: 0;
+        }
+
+        .dash-v2-match {
+            grid-column: 3;
+            grid-row: 1;
+        }
+
+        .dash-v2-milestone {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        .dash-v2-roadmap .rml-item {
+            padding: 11px 10px;
+        }
+
+        .dash-v2-progress-line {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 12px;
+            align-items: center;
+            margin-top: 14px;
+            color: var(--text-muted);
+            font-size: .78rem;
+        }
+
+        .dash-v2-progress-line div {
+            height: 4px;
+            overflow: hidden;
+            border-radius: 99px;
+            background: rgba(255, 255, 255, .08);
+        }
+
+        .dash-v2-progress-line i {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #00d4ff, #7c6fff);
+        }
+
+        .dash-v2-progress-line b {
+            color: var(--text-secondary);
+        }
+
+        .dash-v2-career-top {
+            align-items: flex-start;
+            margin-bottom: 22px;
+        }
+
+        .dash-v2-career-top h2 {
+            margin: 0 0 8px;
+            color: #fff;
+            font-size: 1.38rem;
+        }
+
+        .career-mini-radar {
+            display: grid;
+            place-items: center;
+            min-height: 174px;
+            margin-top: 4px;
+        }
+
+        .career-mini-radar svg {
+            width: min(260px, 100%);
+            height: auto;
+            overflow: visible;
+        }
+
+        .mini-glow {
+            fill: url(#careerRadarGlow);
+        }
+
+        .mini-grid {
+            fill: rgba(0, 212, 255, .035);
+            stroke: rgba(148, 163, 184, .18);
+        }
+
+        .mini-axis {
+            stroke: rgba(148, 163, 184, .14);
+        }
+
+        .mini-you {
+            fill: rgba(0, 212, 255, .18);
+            stroke: #00d4ff;
+            stroke-width: 3;
+            filter: drop-shadow(0 0 10px rgba(0, 212, 255, .32));
+        }
+
+        .mini-required {
+            fill: rgba(124, 111, 255, .14);
+            stroke: #a855f7;
+            stroke-width: 3;
+            filter: drop-shadow(0 0 10px rgba(168, 85, 247, .28));
+        }
+
+        .career-radar-dot {
+            fill: #00d4ff;
+            stroke: #06111f;
+            stroke-width: 2;
+        }
+
+        .career-axis-label {
+            fill: var(--text-secondary);
+            font-size: 9px;
+            font-weight: 700;
+        }
+
+        .career-mini-radar div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: .75rem;
+        }
+
+        .career-mini-radar span {
+            width: 22px;
+            height: 4px;
+            border-radius: 99px;
+        }
+
+        .career-mini-radar .you {
+            background: #00d4ff;
+        }
+
+        .career-mini-radar .required {
+            background: #a855f7;
+        }
+
+        .dash-v2-donut-wrap {
+            gap: 18px;
+        }
+
+        .dash-v2-recent {
+            grid-column: 3;
+            grid-row: 3;
+            min-height: 216px;
+        }
+
+        .dash-v2-activity-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .dash-v2-activity-list>div {
+            display: grid;
+            grid-template-columns: 30px minmax(0, 1fr) auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .dash-v2-activity-list p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: .84rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .dash-v2-activity-list small {
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .activity-icon {
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            color: #34d399;
+            background: rgba(52, 211, 153, .12);
+        }
+
+        .activity-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .dash-v2-cognitive {
+            grid-column: 1 / span 2;
+            grid-row: 3;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .dash-v2-cognitive .cognitive-card {
+            border: 0;
+            border-radius: 12px;
+            min-height: 224px;
+        }
+
+        .radar-halo-v2 {
+            fill: url(#cogGlowV2);
+            opacity: .65;
+        }
+
+        .radar-signal-v2 {
+            fill: rgba(0, 212, 255, .17);
+            stroke: url(#cogRadarGradV2);
+            stroke-width: 3.5;
+            filter: drop-shadow(0 0 16px rgba(124, 111, 255, .48));
+        }
+
+        @media (max-width: 1320px) {
+            .dash-v2-main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dash-v2-mission {
+                grid-template-columns: auto minmax(0, 1fr);
+            }
+
+            .dash-v2-mini-donut {
+                display: none;
+            }
+
+            .dash-v2-mission-actions {
+                grid-column: 2;
+                justify-content: flex-start;
+            }
+
+            .dash-v2-roadmap,
+            .dash-v2-career,
+            .dash-v2-match,
+            .dash-v2-milestone,
+            .dash-v2-recent,
+            .dash-v2-cognitive {
+                grid-column: auto;
+                grid-row: auto;
+            }
+
+            .dash-v2-roadmap,
+            .dash-v2-career {
+                min-height: 0;
+            }
+        }
+
+        @media (max-width: 980px) {
+
+            .dash-v2-topbar,
+            .dash-v2-hero-grid,
+            .dash-v2-mission,
+            .dash-v2-career-top {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .dash-v2-hero-grid {
+                display: flex;
+            }
+
+            .dash-v2-mission {
+                display: flex;
+            }
+
+            .dash-v2-mission-copy h2 {
+                white-space: normal;
+            }
+
+            .dash-v2-metrics {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .dash-v2-search {
+                min-width: 0;
+                flex: 1;
+            }
+        }
+
+        @media (max-width: 640px) {
+
+            .dash-v2-actions,
+            .dash-v2-mission-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .dash-v2-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .dash-v2-metric,
+            .dash-v2-panel,
+            .dash-v2-mission {
+                padding: 14px;
+            }
+
+            .dash-v2-mini-donut {
+                display: none;
+            }
+        }
+
+        /* ── Bottom 2-col row ───────────────────────────────────── */
+        .bottom-row-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-lg);
+            align-items: start;
+        }
+
+        /* Compact cognitive overrides */
+        .cognitive-card--compact .cognitive-body { gap: .6rem; }
+        .cognitive-visual--compact { flex-shrink: 0; }
+        .cognitive-visual--compact .cognitive-radar { width: 120px; height: 106px; }
+        .cognitive-body--compact   { flex-wrap: wrap; gap: .6rem; }
+
+        /* ── Job Market Pulse card ──────────────────────────────── */
+        .jmp-card {
+            padding: 1.15rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: .9rem;
+            position: relative;
+            overflow: hidden;
+            background:
+                linear-gradient(135deg, rgba(4,21,43,.96), rgba(2,8,23,.98) 58%, rgba(7,17,38,.96)),
+                var(--bg-secondary);
+            border-color: rgba(52, 211, 153, .15);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 18px 42px rgba(0,0,0,.22);
+        }
+
+        .jmp-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 80% 10%, rgba(52,211,153,.1), transparent 40%);
+            pointer-events: none;
+        }
+
+        /* Live dot — pulsing glow beside career title */
+        .jmp-live-dot {
+            flex-shrink: 0;
+            display: block;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #64748b;
+            margin-top: 4px;
+            opacity: .55;
+        }
+
+        .jmp-live-dot--on {
+            background: #34d399;
+            opacity: 1;
+            animation: jmp-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes jmp-pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(52, 211, 153, .65), 0 0 10px rgba(52, 211, 153, .45);
+            }
+            50% {
+                opacity: .85;
+                transform: scale(1.2);
+                box-shadow: 0 0 0 6px rgba(52, 211, 153, 0), 0 0 16px rgba(52, 211, 153, .55);
+            }
+        }
+
+        /* Header */
+        .jmp-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: .6rem;
+        }
+
+        .jmp-header-left { display: flex; align-items: center; gap: .65rem; }
+
+        .jmp-icon {
+            width: 36px; height: 36px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, rgba(52,211,153,.2), rgba(0,212,255,.12));
+            display: flex; align-items: center; justify-content: center;
+            color: #34d399; flex-shrink: 0;
+        }
+
+        .jmp-icon svg { width: 16px; height: 16px; }
+
+        .jmp-career-name { font-size: .8rem; font-weight: 700; color: var(--text-primary); }
+        .jmp-timeframe   { font-size: .67rem; color: var(--text-muted); }
+
+        .jmp-demand-badge {
+            font-size: .65rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .06em;
+            padding: .15rem .5rem;
+            border-radius: 99px; border: 1px solid;
+            white-space: nowrap; flex-shrink: 0;
+        }
+
+        /* Big job count */
+        .jmp-big-stat {
+            display: flex; align-items: baseline; gap: .4rem;
+        }
+
+        .jmp-big-num {
+            font-size: 2rem; font-weight: 900;
+            background: linear-gradient(90deg, #34d399, #00d4ff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; line-height: 1;
+        }
+
+        .jmp-big-label { font-size: .73rem; color: var(--text-muted); }
+
+        /* Quick stats */
+        .jmp-quick-stats {
+            display: flex; gap: .8rem; flex-wrap: wrap;
+            padding: .6rem .75rem;
+            background: rgba(255,255,255,.03);
+            border: 1px solid rgba(148,163,184,.08);
+            border-radius: 10px;
+        }
+
+        .jmp-qs-item {
+            display: flex; align-items: center; gap: .3rem;
+            font-size: .72rem; color: var(--text-muted);
+        }
+
+        .jmp-qs-item svg { width: 13px; height: 13px; color: #00d4ff; }
+        .jmp-qs-item strong { color: var(--text-primary); }
+
+        /* Top skills */
+        .jmp-skills-section { display: flex; flex-direction: column; gap: .4rem; }
+        .jmp-skills-label   { font-size: .68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+
+        .jmp-skills-tags { display: flex; flex-wrap: wrap; gap: .35rem; }
+
+        .jmp-skill-tag {
+            font-size: .64rem; font-weight: 700;
+            background: rgba(52, 211, 153, .1);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, .22);
+            padding: .12rem .45rem;
+            border-radius: 6px;
+        }
+
+        /* Companies */
+        .jmp-companies { display: flex; flex-direction: column; gap: .4rem; }
+        .jmp-companies-label { font-size: .68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+
+        .jmp-companies-list { display: flex; gap: .6rem; flex-wrap: wrap; }
+
+        .jmp-company {
+            display: flex; align-items: center; gap: .4rem;
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(148,163,184,.09);
+            border-radius: 8px;
+            padding: .3rem .6rem;
+        }
+
+        .jmp-co-logo {
+            width: 18px; height: 18px; border-radius: 4px;
+            object-fit: contain; background: white;
+        }
+
+        .jmp-co-fallback {
+            width: 18px; height: 18px; border-radius: 4px;
+            background: linear-gradient(135deg,#00d4ff,#7c6fff);
+            display: flex; align-items: center; justify-content: center;
+            font-size: .6rem; font-weight: 900; color: white; flex-shrink: 0;
+        }
+
+        .jmp-co-name { font-size: .68rem; font-weight: 600; color: var(--text-secondary); }
+
+        /* Empty / loading */
+        .jmp-empty {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 2rem 1rem; gap: .75rem;
+            color: var(--text-muted); font-size: .8rem;
+        }
+
+        .jmp-spinner {
+            width: 28px; height: 28px;
+            border: 2px solid rgba(52,211,153,.2);
+            border-top-color: #34d399;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Chart cards ───────────────────────────────────────── */
+        .cognitive-card {
+
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow: hidden;
+            position: relative;
+            padding: 1.15rem 1.25rem 1.2rem;
+            background:
+                linear-gradient(135deg, rgba(4, 21, 43, .96), rgba(2, 8, 23, .98) 58%, rgba(7, 17, 38, .96)),
+                var(--bg-secondary);
+            border-color: rgba(56, 189, 248, .18);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04), 0 18px 42px rgba(0, 0, 0, .22);
+        }
+
+        .cognitive-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 16% 24%, rgba(0, 212, 255, .16), transparent 30%),
+                radial-gradient(circle at 82% 4%, rgba(124, 111, 255, .12), transparent 28%),
+                linear-gradient(90deg, rgba(0, 212, 255, .08), transparent 35%, rgba(124, 111, 255, .06));
+            pointer-events: none;
+        }
+
+        .cognitive-panel-head,
+        .cognitive-body,
+        .cognitive-visual,
+        .cognitive-details {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cognitive-panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding-bottom: .85rem;
+            border-bottom: 1px solid rgba(148, 163, 184, .12);
+        }
+
+        .cognitive-title-block {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            min-width: 0;
+        }
+
+        .cognitive-title-block strong,
+        .cognitive-title-block span {
+            display: block;
+        }
+
+        .cognitive-title-block strong {
+            color: var(--text-primary);
+            font-size: .95rem;
+            line-height: 1.1;
+        }
+
+        .cognitive-title-block span {
+            color: var(--text-muted);
+            font-size: .76rem;
+            margin-top: .22rem;
+        }
+
+        .cognitive-chip {
+            width: 28px;
+            height: 28px;
+            border-radius: 9px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--accent-cyan);
+            background: rgba(0, 212, 255, .12);
+            border: 1px solid rgba(0, 212, 255, .25);
+            box-shadow: 0 0 20px rgba(0, 212, 255, .12);
+        }
+
+        .cognitive-chip i,
+        .cognitive-train-link i,
+        .cognitive-insight-icon i {
+            width: 15px;
+            height: 15px;
+        }
+
+        .cognitive-train-link {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-size: .76rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .cognitive-body {
+            display: grid;
+            grid-template-columns: minmax(205px, 250px) minmax(0, 1fr);
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .cognitive-visual {
+            min-height: 244px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .cognitive-radar {
+            width: min(250px, 100%);
+            height: auto;
+            overflow: visible;
+            filter: drop-shadow(0 0 28px rgba(0, 212, 255, .18));
+        }
+
+        .radar-halo {
+            fill: url(#cogGlow);
+            opacity: .65;
+        }
+
+        .radar-grid {
+            fill: rgba(56, 189, 248, .018);
+            stroke: rgba(148, 163, 184, .18);
+            stroke-width: 1;
+        }
+
+        .radar-grid-outer {
+            stroke: rgba(0, 212, 255, .32);
+        }
+
+        .radar-axis {
+            stroke: rgba(148, 163, 184, .16);
+            stroke-width: 1;
+        }
+
+        .radar-signal {
+            fill: rgba(0, 212, 255, .17);
+            stroke: url(#cogRadarGrad);
+            stroke-width: 3.5;
+            filter: drop-shadow(0 0 16px rgba(124, 111, 255, .48));
+        }
+
+        .radar-dot {
+            fill: #020817;
+            stroke: #00d4ff;
+            stroke-width: 3;
+            filter: drop-shadow(0 0 8px rgba(0, 212, 255, .65));
+        }
+
+        .radar-dot:nth-child(2n) {
+            stroke: #7c6fff;
+        }
+
+        .radar-label {
+            fill: rgba(226, 232, 240, .9);
+            font-family: Inter, sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .02em;
+        }
+
+        .cognitive-score {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 99px;
+            background: rgba(0, 212, 255, .08);
+            border: 1px solid rgba(0, 212, 255, .22);
+            box-shadow: 0 0 16px rgba(0, 212, 255, .1);
+        }
+
+        .cognitive-score strong {
+            font-size: .92rem;
+            line-height: 1;
+            color: #00d4ff;
+            font-weight: 900;
+        }
+
+        .cognitive-score span {
+            color: var(--text-muted);
+            font-size: .72rem;
+            line-height: 1.2;
+        }
+
+        .cognitive-head {
+            margin-bottom: .85rem;
+        }
+
+        .cognitive-head strong,
+        .cognitive-head span {
+            display: block;
+        }
+
+        .cognitive-head strong {
+            color: var(--text-primary);
+            font-size: .88rem;
+        }
+
+        .cognitive-head span {
+            color: var(--text-muted);
+            font-size: .74rem;
+            margin-top: .22rem;
+        }
+
+        .cognitive-list {
+            display: grid;
+            gap: .72rem;
+        }
+
+        .cognitive-row {
+            display: grid;
+            grid-template-columns: minmax(7.5rem, 1.15fr) auto 1.6fr auto;
+            gap: .5rem .65rem;
+            align-items: center;
+            font-size: .78rem;
+        }
+
+        .cognitive-row strong {
+            color: var(--text-secondary);
+            font-weight: 700;
+            min-width: 0;
+        }
+
+        .cognitive-row small {
+            color: #a78bfa;
+            font-weight: 800;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .cognitive-row em {
+            color: var(--text-secondary);
+            font-size: .74rem;
+            font-style: normal;
+            font-weight: 800;
+            text-align: right;
+        }
+
+        .cognitive-bar {
+            height: 7px;
+            border-radius: 99px;
+            background: rgba(148, 163, 184, .12);
+            overflow: hidden;
+        }
+
+        .cognitive-bar span {
+            display: block;
+            width: var(--w, 0%);
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--bar-color, #00d4ff), #7c6fff);
+            box-shadow: 0 0 16px rgba(0, 212, 255, .28);
+        }
+
+        .cognitive-insight {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+            margin-top: 1rem;
+            padding: .72rem .85rem;
+            border-radius: 9px;
+            color: var(--text-secondary);
+            font-size: .78rem;
+            line-height: 1.45;
+            background: rgba(15, 23, 42, .6);
+            border: 1px solid rgba(56, 189, 248, .13);
+        }
+
+        .cognitive-insight strong {
+            color: #34d399;
+            font-weight: 900;
+        }
+
+        .cognitive-insight-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--accent-cyan);
+            background: rgba(0, 212, 255, .11);
+        }
+
+        body.theme-light .cognitive-score {
+            background: rgba(0, 212, 255, .12);
+            border-color: rgba(0, 212, 255, .3);
+        }
+
+        body.theme-light .cognitive-bar {
+            background: rgba(15, 23, 42, .1);
+        }
+
+        body.theme-light .cognitive-card {
+            background:
+                linear-gradient(135deg, rgba(239, 246, 255, .96), rgba(255, 255, 255, .98) 60%, rgba(238, 242, 255, .96)),
+                var(--bg-secondary);
+            border-color: rgba(14, 165, 233, .2);
+        }
+
+        body.theme-light .radar-label {
+            fill: rgba(15, 23, 42, .74);
+        }
+
+        body.theme-light .cognitive-insight {
+            background: rgba(241, 245, 249, .78);
+            border-color: rgba(14, 165, 233, .16);
+        }
+
+        body.theme-light .jmp-card {
+            background: linear-gradient(135deg, rgba(239, 246, 255, .96), rgba(255, 255, 255, .98) 60%, rgba(238, 242, 255, .96)), var(--bg-secondary);
+            border-color: rgba(16, 185, 129, .2);
+        }
+        body.theme-light .jmp-card::before {
+            background: radial-gradient(circle at 80% 10%, rgba(16,185,129,.05), transparent 40%);
+        }
+        body.theme-light .jmp-quick-stats {
+            background: rgba(241, 245, 249, .6);
+            border-color: rgba(14, 165, 233, .15);
+        }
+        body.theme-light .jmp-skill-tag {
+            background: rgba(14, 165, 233, .08);
+            border-color: rgba(14, 165, 233, .2);
+            color: #0284c7;
+        }
+        body.theme-light .jmp-company {
+            background: #ffffff;
+            border-color: rgba(0,0,0,.08);
+            color: #334155;
+            box-shadow: 0 2px 4px rgba(0,0,0,.02);
+        }
+        body.theme-light .jmp-co-fallback {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .chart-card {
+            padding: 1.2rem 1.4rem;
+            min-height: 160px;
+        }
+
+        .donut-wrap {
+            display: flex;
+            align-items: center;
+            gap: 1.4rem;
+            flex-wrap: wrap;
+        }
+
+        .donut-svg {
+            flex-shrink: 0;
+            overflow: visible;
+        }
+
+        .donut-legend {
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+        }
+
+        .dl-item {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .8rem;
+        }
+
+        .dl-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .dl-label {
+            color: var(--text-muted);
+            flex: 1;
+        }
+
+        .dl-val {
+            font-weight: 700;
+            color: var(--text-primary);
+            min-width: 24px;
+            text-align: right;
+        }
+
+        /* ── Trajectory Card (reference design) ────────────────────────────────── */
+        .trajectory-card {
+            padding: 1.4rem 1.5rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: .9rem;
+            background: linear-gradient(145deg, rgba(4, 16, 34, .97), rgba(2, 8, 22, .98));
+            border-color: rgba(0, 212, 255, .16);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04), 0 18px 48px rgba(0, 0, 0, .28);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .trajectory-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 12% 8%, rgba(0, 212, 255, .14), transparent 32%),
+                radial-gradient(circle at 88% 12%, rgba(124, 111, 255, .1), transparent 30%);
+            pointer-events: none;
+        }
+
+        .tc-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .tc-label {
+            font-size: .7rem;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: .35rem;
+            border-left: 3px solid #00d4ff;
+            padding-left: .5rem;
+        }
+
+        .tc-title {
+            margin: 0 0 .45rem;
+            font-size: 1.38rem;
+            font-weight: 900;
+            line-height: 1.15;
+            color: #fff;
+        }
+
+        .tc-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: .22rem .7rem;
+            border-radius: 99px;
+            font-size: .7rem;
+            font-weight: 800;
+            color: rgba(148, 163, 184, .9);
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid rgba(255, 255, 255, .1);
+        }
+
+        .tc-badge--active {
+            color: #6ee7b7;
+            background: rgba(52, 211, 153, .12);
+            border-color: rgba(52, 211, 153, .28);
+        }
+
+        .tc-stats {
+            display: flex;
+            gap: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .tc-stat {
+            text-align: right;
+        }
+
+        .tc-stat-val {
+            display: block;
+            font-size: 1.7rem;
+            font-weight: 900;
+            line-height: 1;
+            color: #fff;
+        }
+
+        .tc-stat--amber {
+            color: #f59e0b;
+        }
+
+        .tc-stat-lbl {
+            display: block;
+            font-size: .68rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-top: .2rem;
+        }
+
+        .tc-focus {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: .55rem;
+            position: relative;
+        }
+
+        .tc-focus-lbl {
+            font-size: .65rem;
+            font-weight: 900;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .tc-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .45rem;
+        }
+
+        .tc-tag {
+            padding: .22rem .7rem;
+            border-radius: 99px;
+            font-size: .72rem;
+            font-weight: 800;
+            color: #c4b5fd;
+            background: rgba(124, 111, 255, .14);
+            border: 1px solid rgba(124, 111, 255, .3);
+        }
+
+        .tc-radar-wrap {
+            display: grid;
+            place-items: center;
+            position: relative;
+        }
+
+        .tc-radar-svg {
+            width: 100%;
+            max-width: 280px;
+            height: auto;
+            overflow: visible;
+            filter: drop-shadow(0 0 32px rgba(0, 212, 255, .18));
+        }
+
+        .tc-grid-ring {
+            fill: rgba(56, 189, 248, .022);
+            stroke: rgba(148, 163, 184, .2);
+            stroke-width: 1;
+        }
+
+        .tc-axis {
+            stroke: rgba(148, 163, 184, .16);
+            stroke-width: 1;
+        }
+
+        .tc-poly-required {
+            fill: rgba(124, 111, 255, .14);
+            stroke: #a855f7;
+            stroke-width: 2.5;
+            filter: drop-shadow(0 0 10px rgba(168, 85, 247, .3));
+        }
+
+        .tc-poly-you {
+            fill: rgba(0, 212, 255, .18);
+            stroke: #00d4ff;
+            stroke-width: 2.5;
+            filter: drop-shadow(0 0 10px rgba(0, 212, 255, .35));
+        }
+
+        .tc-dot {
+            fill: #020817;
+            stroke: #00d4ff;
+            stroke-width: 2.5;
+            filter: drop-shadow(0 0 7px rgba(0, 212, 255, .7));
+        }
+
+        .tc-lbl {
+            fill: rgba(226, 232, 240, .82);
+            font-family: Inter, sans-serif;
+            font-size: 9.5px;
+            font-weight: 700;
+        }
+
+        /* ── Skill Progress Bars ─────────────────────────────────────────── */
+        .sp-bars {
+            display: flex;
+            flex-direction: column;
+            gap: .75rem;
+            padding: .5rem 0;
+        }
+
+        .sp-loading {
+            color: var(--text-muted);
+            font-size: .78rem;
+            padding: 1rem 0;
+            text-align: center;
+        }
+
+        .sp-row {
+            display: grid;
+            grid-template-columns: 110px 1fr 42px;
+            align-items: center;
+            gap: .6rem;
+        }
+
+        .sp-label {
+            font-size: .75rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sp-track {
+            position: relative;
+            height: 7px;
+            background: rgba(148, 163, 184, .1);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        /* Required level ghost bar */
+        .sp-track-req {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+            border-radius: 99px;
+            background: rgba(168, 85, 247, .22);
+            border-right: 2px solid rgba(168, 85, 247, .6);
+        }
+
+        /* Your current level bar */
+        .sp-track-you {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #00d4ff, #7c6fff);
+            transition: width 1.2s cubic-bezier(.22, 1, .36, 1);
+            box-shadow: 0 0 8px rgba(0, 212, 255, .4);
+        }
+
+        .sp-track-you.sp-gap { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+
+        .sp-pct {
+            font-size: .72rem;
+            font-weight: 800;
+            color: #00d4ff;
+            text-align: right;
+        }
+
+        .sp-pct.sp-gap { color: #f59e0b; }
+
+        /* Roadmap progress footer */
+        .sp-roadmap-row {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            margin-top: .5rem;
+            padding-top: .65rem;
+            border-top: 1px solid rgba(148, 163, 184, .1);
+        }
+
+        .sp-roadmap-label {
+            font-size: .7rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .sp-roadmap-track {
+            flex: 1;
+            height: 5px;
+            background: rgba(148, 163, 184, .1);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .sp-roadmap-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #34d399, #00d4ff);
+            transition: width 1.2s cubic-bezier(.22, 1, .36, 1);
+        }
+
+        .sp-roadmap-pct {
+            font-size: .72rem;
+            font-weight: 800;
+            color: #34d399;
+            min-width: 32px;
+            text-align: right;
+        }
+
+        .tc-footer {
+            display: flex;
+            align-items: center;
+            border-top: 1px solid rgba(148, 163, 184, .1);
+            padding-top: .85rem;
+            margin-top: .2rem;
+        }
+
+        /* ── Career Flexibility / Transferability ──────────────────────────────── */
+        .ctf-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            font-size: .7rem;
+            font-weight: 700;
+            color: #34d399;
+            background: rgba(52, 211, 153, .1);
+            border: 1px solid rgba(52, 211, 153, .22);
+            padding: .2rem .55rem;
+            border-radius: 99px;
+        }
+
+        .ctf-list {
+            display: flex;
+            flex-direction: column;
+            gap: .82rem;
+            margin: .2rem 0;
+        }
+
+        .ctf-row {
+            display: flex;
+            flex-direction: column;
+            gap: .36rem;
+        }
+
+        .ctf-row-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: .75rem;
+        }
+
+        .ctf-name {
+            min-width: 0;
+            font-size: .86rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 220px;
+        }
+
+        .ctf-pct  {
+            font-size: .88rem;
+            font-weight: 900;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .ctf-track {
+            position: relative;
+            height: 10px;
+            background: rgba(30, 41, 59, .72);
+            border-radius: 99px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, .35);
+        }
+
+        .ctf-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 1.4s cubic-bezier(.22, 1, .36, 1);
+            box-shadow: 0 0 18px color-mix(in srgb, currentColor 35%, transparent);
+        }
+
+        .ctf-skills {
+            display: flex;
+            align-items: center;
+            gap: .46rem;
+            flex-wrap: wrap;
+            font-size: .7rem;
+            color: var(--text-muted);
+        }
+
+        .ctf-match-pill,
+        .ctf-label-sm {
+            display: inline-flex;
+            align-items: center;
+            min-height: 18px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            border: 1px solid color-mix(in srgb, var(--ctf-color, #00d4ff) 42%, transparent);
+            color: var(--ctf-color, #00d4ff);
+            background: color-mix(in srgb, var(--ctf-color, #00d4ff) 12%, transparent);
+            font-size: .62rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+            line-height: 1;
+        }
+
+        .ctf-empty  { font-size: .77rem; color: var(--text-muted); padding: .4rem 0; }
+
+        .ctf-panel-body {
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ctf-preview-note {
+            margin: 0 0 .65rem;
+            padding: .45rem .55rem;
+            border-radius: 8px;
+            font-size: .7rem;
+            line-height: 1.45;
+            color: var(--text-secondary);
+            background: rgba(0, 212, 255, .06);
+            border: 1px solid rgba(0, 212, 255, .14);
+        }
+
+        .ctf-preview-tag {
+            font-size: .65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: #94a3b8;
+        }
+
+        .ctf-empty-rich {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: .35rem;
+            min-height: 168px;
+            padding: 1rem .75rem;
+            text-align: center;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, .02);
+            border: 1px dashed rgba(148, 163, 184, .18);
+        }
+
+        .ctf-empty-rich svg {
+            width: 28px;
+            height: 28px;
+            color: #34d399;
+            opacity: .75;
+            margin-bottom: .25rem;
+        }
+
+        .ctf-empty-rich p {
+            margin: 0;
+            font-size: .76rem;
+            line-height: 1.45;
+            color: var(--text-muted);
+        }
+
+        .ctf-empty-rich p strong {
+            display: block;
+            margin-bottom: .2rem;
+            color: var(--text-secondary);
+            font-size: .82rem;
+        }
+
+        .dash-v2-career .ctf-list {
+            flex: 1 1 auto;
+            justify-content: space-between;
+            margin-bottom: 0;
+        }
+
+        .dash-v2-career .traj-footer {
+            margin-top: .65rem;
+            flex-shrink: 0;
+        }
+
+        .dash-v2-roadmap .roadmap-mini-list {
+            overflow: visible;
+            max-height: none;
+            padding-right: 0;
+            scrollbar-width: none;
+        }
+
+        .dash-v2-roadmap .roadmap-mini-list::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+
+        .dash-v2-job-pulse .jmp-card {
+            flex: 0 1 auto;
+        }
+
+        /* Main full card */
+        .ctf-card { padding: var(--space-lg); }
+
+        .ctf-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 1.1rem;
+            gap: .8rem;
+        }
+
+        .ctf-header-left {
+            display: flex;
+            align-items: flex-start;
+            gap: .75rem;
+        }
+
+        .ctf-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(0,212,255,.18), rgba(124,111,255,.18));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00d4ff;
+            flex-shrink: 0;
+        }
+
+        .ctf-icon svg { width: 18px; height: 18px; }
+        .ctf-subtitle { font-size: .72rem; color: var(--text-muted); margin-bottom: .28rem; }
+
+        .ctf-proven-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            font-size: .71rem;
+            font-weight: 700;
+            color: #34d399;
+            background: rgba(52, 211, 153, .1);
+            border: 1px solid rgba(52, 211, 153, .2);
+            padding: .18rem .5rem;
+            border-radius: 99px;
+        }
+
+        .ctf-proven-badge svg { width: 12px; height: 12px; }
+
+        .ctf-grid {
+            display: flex;
+            flex-direction: column;
+            gap: .85rem;
+        }
+
+        .ctf-card-item {
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid rgba(148, 163, 184, .09);
+            border-radius: 12px;
+            padding: .85rem 1rem;
+            transition: border-color .2s, background .2s, transform .2s;
+        }
+
+        .ctf-card-item:hover {
+            background: rgba(255, 255, 255, .06);
+            border-color: rgba(148, 163, 184, .2);
+            transform: translateY(-1px);
+        }
+
+        .ctf-item-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: .5rem;
+        }
+
+        .ctf-item-name { font-size: .83rem; font-weight: 700; color: var(--text-primary); }
+
+        .ctf-item-label {
+            font-size: .64rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            padding: .14rem .48rem;
+            border-radius: 99px;
+            border: 1px solid;
+        }
+
+        .ctf-item-bar-row {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            margin-bottom: .5rem;
+        }
+
+        .ctf-item-track {
+            flex: 1;
+            height: 6px;
+            background: rgba(148, 163, 184, .1);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .ctf-item-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 1.4s cubic-bezier(.22, 1, .36, 1);
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .ctf-item-pct { font-size: .78rem; font-weight: 800; min-width: 36px; text-align: right; }
+
+        .ctf-item-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: .4rem;
+        }
+
+        .ctf-item-match { font-size: .68rem; color: var(--text-muted); }
+
+        .ctf-item-tags { display: flex; gap: .3rem; flex-wrap: wrap; }
+
+        .ctf-skill-tag {
+            font-size: .63rem;
+            font-weight: 600;
+            background: rgba(124, 111, 255, .12);
+            color: #a78bfa;
+            border: 1px solid rgba(124, 111, 255, .22);
+            padding: .1rem .42rem;
+            border-radius: 6px;
+        }
+
+        .ctf-skill-more {
+            background: rgba(148, 163, 184, .1);
+            color: var(--text-muted);
+            border-color: rgba(148, 163, 184, .2);
+        }
+
+        .ctf-empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .ctf-empty-state svg { width: 32px; height: 32px; margin-bottom: .75rem; opacity: .35; }
+        .ctf-empty-state p   { font-size: .82rem; margin-bottom: .6rem; }
+
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: .65rem;
+            width: 100%;
+        }
+
+        .bar-row {
+            display: grid;
+            grid-template-columns: 120px 1fr 36px;
+            align-items: center;
+            gap: .55rem;
+        }
+
+        .career-choice {
+            width: 100%;
+            padding: 7px 8px;
+            border: 1px solid transparent;
+            border-radius: 9px;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            cursor: pointer;
+            text-align: left;
+            transition: background .2s ease, border-color .2s ease, transform .2s ease;
+        }
+
+        .career-choice:hover,
+        .career-choice.active {
+            background: rgba(0, 212, 255, .06);
+            border-color: rgba(0, 212, 255, .18);
+        }
+
+        .career-choice:active {
+            transform: translateY(1px);
+        }
+
+        .bar-label {
+            font-size: .75rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bar-track {
+            background: rgba(255, 255, 255, .06);
+            border-radius: 6px;
+            height: 7px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1s cubic-bezier(.22, 1, .36, 1);
+        }
+
+        .bar-pct {
+            font-size: .73rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        .chart-empty {
+            font-size: .83rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 1rem;
+            line-height: 1.6;
+        }
+
+        body.theme-light .bar-track {
+            background: rgba(0, 0, 0, .07);
+        }
+
+        body.theme-light .donut-svg circle:first-child {
+            stroke: rgba(0, 0, 0, .08);
+        }
+
+        @media (max-width: 560px) {
+            .chart-card {
+                padding: .9rem;
+            }
+
+            .cognitive-card {
+                padding: 1rem;
+            }
+
+            .cognitive-panel-head {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .cognitive-body {
+                grid-template-columns: 1fr;
+                gap: .8rem;
+            }
+
+            .cognitive-visual {
+                min-height: 224px;
+            }
+
+            .cognitive-row {
+                grid-template-columns: 1fr 44px 38px;
+            }
+
+            .cognitive-bar {
+                grid-column: 1 / -1;
+                grid-row: 2;
+            }
+
+            .donut-wrap {
+                justify-content: center;
+                gap: 1rem;
+            }
+
+            .donut-legend {
+                width: 100%;
+            }
+
+            .bar-row {
+                grid-template-columns: 1fr 36px;
+                gap: .4rem;
+            }
+
+            .bar-label {
+                grid-column: 1 / -1;
+            }
+        }
+        /* Dashboard spacing polish */
+        .app-main:has(.dashboard-v2) .app-content {
+            padding: 16px 24px 18px;
+        }
+
+        .dashboard-v2 {
+            gap: 12px;
+        }
+
+        .dash-v2-topbar {
+            margin-bottom: 2px;
+        }
+
+        .dash-v2-greeting h1 {
+            font-size: 1.15rem;
+        }
+
+        .dash-v2-greeting p {
+            margin-top: 4px;
+            font-size: .84rem;
+        }
+
+        .dash-v2-hero-grid {
+            grid-template-columns: minmax(0, 1fr) 280px;
+            gap: 12px;
+        }
+
+        .dash-v2-mission {
+            min-height: 108px;
+            padding: 18px 20px;
+            gap: 16px;
+        }
+
+        .dash-v2-mission-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
+        }
+
+        .dash-v2-mission-icon svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .dash-v2-mission-copy h2 {
+            margin: 5px 0 5px;
+            font-size: 1.28rem;
+            -webkit-line-clamp: 1;
+        }
+
+        .dash-v2-mission-actions .btn {
+            min-height: 42px;
+            padding: 0 18px;
+        }
+
+        .dash-v2-mini-donut {
+            width: 60px;
+            height: 60px;
+        }
+
+        .dash-v2-mini-donut span {
+            margin-top: 15px;
+        }
+
+        .dash-v2-momentum {
+            padding: 14px;
+        }
+
+        .dash-v2-momentum .dash-v2-panel-head {
+            margin-bottom: 10px;
+        }
+
+        .dash-v2-momentum-stats {
+            margin-bottom: 12px;
+        }
+
+        .dash-v2-week-bars {
+            height: 64px;
+            gap: 8px;
+        }
+
+        .dash-v2-metrics {
+            gap: 10px;
+        }
+
+        .dash-v2-metric {
+            min-height: 70px;
+            padding: 12px 14px;
+        }
+
+        .dash-v2-metric strong {
+            font-size: 1.32rem;
+        }
+
+        .dash-v2-metric small {
+            font-size: .74rem;
+        }
+
+        .dash-v2-main-grid {
+            grid-template-columns: minmax(360px, 1.04fr) minmax(340px, .96fr) 324px;
+            gap: 12px;
+        }
+
+        .dash-v2-panel {
+            padding: 14px;
+        }
+
+        .dash-v2-panel-head {
+            margin-bottom: 12px;
+        }
+
+        .dash-v2-roadmap {
+            min-height: 0;
+        }
+
+        .dash-v2-roadmap .rml-item {
+            padding: 8px 10px;
+        }
+
+        .dash-v2-progress-line {
+            margin-top: 10px;
+        }
+
+        .dash-v2-milestone {
+            grid-column: 3;
+            grid-row: 1;
+            min-height: 170px;
+        }
+
+        .dash-v2-recent {
+            grid-column: 3;
+            grid-row: 2;
+            min-height: 198px;
+        }
+
+        .dash-v2-donut-wrap {
+            gap: 12px;
+        }
+
+        .dash-v2-donut-wrap .donut-svg {
+            width: 84px;
+            height: 84px;
+        }
+
+        .donut-legend {
+            gap: .42rem;
+        }
+
+        .dash-v2-activity-list {
+            gap: 9px;
+        }
+
+        .dash-v2-cognitive {
+            grid-column: 1 / span 2;
+            grid-row: 3;
+        }
+
+        .dash-v2-cognitive .cognitive-card {
+            min-height: 250px;
+        }
+
+        .cognitive-card {
+            padding: 1rem 1.1rem;
+        }
+
+        .cognitive-panel-head {
+            padding-bottom: .85rem;
+            margin-bottom: .1rem;
+        }
+
+        .cognitive-body {
+            gap: 1rem;
+        }
+
+        .cognitive-visual {
+            min-height: 190px;
+        }
+
+        .cognitive-radar {
+            width: min(236px, 100%);
+        }
+
+        .cognitive-list {
+            gap: .58rem;
+        }
+
+        @media (max-width: 1460px) {
+            .dash-v2-main-grid {
+                grid-template-columns: minmax(330px, 1fr) minmax(330px, 1fr);
+            }
+
+            .dash-v2-roadmap,
+            .dash-v2-career,
+            .dash-v2-milestone,
+            .dash-v2-recent,
+            .dash-v2-cognitive {
+                grid-column: auto;
+                grid-row: auto;
+            }
+
+            .dash-v2-roadmap,
+            .dash-v2-career {
+                min-height: 0;
+            }
+
+            .dash-v2-cognitive {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .dash-v2-hero-grid,
+            .dash-v2-main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dash-v2-cognitive {
+                grid-column: auto;
+            }
+        }
+
+        /* Smoother dashboard composition */
+        .dash-v2-hero-grid {
+            grid-template-columns: minmax(0, 1fr) 270px;
+            align-items: stretch;
+        }
+
+        .dash-v2-mission {
+            grid-template-columns: 44px minmax(0, 1fr) auto;
+            min-height: 82px;
+            padding: 14px 16px;
+            gap: 12px;
+        }
+
+        .dash-v2-mission-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+        }
+
+        .dash-v2-mission-icon svg {
+            width: 23px;
+            height: 23px;
+        }
+
+        .dash-v2-mission-copy span {
+            font-size: .66rem;
+        }
+
+        .dash-v2-mission-copy h2 {
+            margin: 3px 0 4px;
+            font-size: 1.08rem;
+            -webkit-line-clamp: 1;
+        }
+
+        .dash-v2-mission .mission-meta {
+            margin-top: 0;
+            gap: 6px;
+        }
+
+        .dash-v2-mission .mission-tag {
+            padding: 2px 8px;
+            font-size: .72rem;
+        }
+
+        .dash-v2-mission-actions {
+            align-items: center;
+        }
+
+        .dash-v2-mission-actions .btn {
+            min-height: 38px;
+            padding: 0 14px;
+            white-space: nowrap;
+        }
+
+        .dash-v2-mini-donut {
+            display: none;
+        }
+
+        .dash-v2-momentum {
+            min-height: 82px;
+        }
+
+        .dash-v2-week-bars {
+            height: 54px;
+        }
+
+        .dash-v2-main-grid {
+            grid-template-columns: minmax(340px, 1.04fr) minmax(330px, .96fr) minmax(292px, .72fr);
+            grid-template-areas:
+                "roadmap career pulse"
+                "milestone cognitive cognitive"
+                "recent cognitive cognitive"
+                "tip tip tip";
+            align-items: start;
+        }
+
+        .dash-v2-roadmap {
+            grid-area: roadmap;
+            min-height: 0;
+        }
+
+        .dash-v2-career {
+            grid-area: career;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dash-v2-job-pulse {
+            grid-area: pulse;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            align-self: start;
+        }
+
+        .dash-v2-milestone {
+            grid-area: milestone;
+            min-height: 0;
+        }
+
+        .dash-v2-recent {
+            grid-area: recent;
+            min-height: 0;
+        }
+
+        .dash-v2-cognitive {
+            grid-area: cognitive;
+        }
+
+        .dash-v2-roadmap,
+        .dash-v2-career,
+        .dash-v2-job-pulse,
+        .dash-v2-milestone,
+        .dash-v2-recent,
+        .dash-v2-cognitive {
+            grid-column: auto;
+            grid-row: auto;
+        }
+
+        .dash-v2-roadmap .roadmap-mini-list {
+            gap: 4px;
+        }
+
+        .dash-v2-roadmap .rml-item {
+            padding: 7px 9px;
+        }
+
+        .ctf-row {
+            padding-block: 2px;
+        }
+
+        .dash-v2-cognitive .cognitive-card {
+            min-height: 0;
+        }
+
+        .dash-v2-job-pulse .jmp-card {
+            padding: 0;
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+            gap: .75rem;
+        }
+
+        .dash-v2-job-pulse .jmp-card::before {
+            display: none;
+        }
+
+        .dash-v2-job-pulse .jmp-big-num {
+            font-size: 1.72rem;
+        }
+
+        .dash-v2-job-pulse .jmp-quick-stats {
+            gap: .45rem;
+            padding: .5rem .6rem;
+            border-radius: 8px;
+        }
+
+        .dash-v2-job-pulse .jmp-skills-tags,
+        .dash-v2-job-pulse .jmp-companies-list {
+            gap: .28rem;
+        }
+
+        .dash-v2-job-pulse .jmp-company {
+            padding: .24rem .48rem;
+        }
+
+        .dash-v2-job-pulse .jmp-empty {
+            min-height: 142px;
+            padding: 1rem .75rem;
+        }
+
+        .jmp-empty--compact svg {
+            width: 24px;
+            height: 24px;
+            color: var(--accent-cyan);
+        }
+
+        .jmp-demand-badge--muted {
+            color: var(--text-muted);
+            border-color: rgba(148, 163, 184, .22);
+        }
+
+        .jmp-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .45rem .65rem;
+            margin-top: .65rem;
+            padding-top: .55rem;
+            border-top: 1px solid rgba(148, 163, 184, .12);
+            font-size: .68rem;
+            color: var(--text-muted);
+        }
+
+        .jmp-meta-source {
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .jmp-meta-stale {
+            color: #f59e0b;
+            font-weight: 700;
+        }
+
+        .jmp-refresh-btn {
+            margin-left: auto;
+            padding: .22rem .55rem;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 212, 255, .28);
+            background: rgba(0, 212, 255, .08);
+            color: var(--accent-cyan);
+            font-size: .67rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .jmp-refresh-btn:hover {
+            background: rgba(0, 212, 255, .14);
+        }
+
+        .dash-v2-milestone .donut-wrap {
+            gap: 12px;
+            padding-top: 4px;
+        }
+
+        .dash-v2-milestone .donut-svg {
+            width: 74px;
+            height: 74px;
+        }
+
+        .dash-v2-recent .dash-v2-activity-list {
+            gap: 8px;
+        }
+
+        .cognitive-card {
+            padding: .85rem 1rem .95rem;
+        }
+
+        .cognitive-panel-head {
+            padding-bottom: .72rem;
+        }
+
+        .cognitive-body {
+            grid-template-columns: 214px minmax(340px, 460px);
+            justify-content: start;
+            align-items: center;
+            gap: 16px;
+            max-width: 740px;
+            margin: 0;
+        }
+
+        .cognitive-visual {
+            min-height: 182px;
+        }
+
+        .cognitive-radar {
+            width: 198px;
+        }
+
+        .cognitive-score {
+            width: 76px;
+            height: 76px;
+        }
+
+        .cognitive-score strong {
+            font-size: 1.12rem;
+        }
+
+        .cognitive-score span {
+            font-size: .58rem;
+        }
+
+        .cognitive-details {
+            align-self: center;
+        }
+
+        .cognitive-list {
+            gap: .5rem;
+        }
+
+        .cognitive-row {
+            grid-template-columns: minmax(138px, 1fr) 44px minmax(150px, 1.15fr) 34px;
+            gap: .55rem;
+        }
+
+        .cognitive-insight {
+            margin-top: .8rem;
+        }
+
+        .dash-v2-tip-strip {
+            grid-area: tip;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border: 1px solid rgba(0, 212, 255, .16);
+            border-radius: 12px;
+            background:
+                linear-gradient(135deg, rgba(0, 212, 255, .08), rgba(124, 111, 255, .08)),
+                rgba(15, 23, 42, .72);
+            color: var(--text-secondary);
+        }
+
+        .dash-v2-tip-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            color: #facc15;
+            background: rgba(250, 204, 21, .1);
+            border: 1px solid rgba(250, 204, 21, .18);
+            flex-shrink: 0;
+        }
+
+        .dash-v2-tip-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .dash-v2-tip-strip div {
+            flex: 1;
+            min-width: 0;
+            line-height: 1.45;
+        }
+
+        .dash-v2-tip-strip strong {
+            color: var(--text-primary);
+        }
+
+        .dash-v2-tip-strip a {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: 900;
+            font-size: .82rem;
+            white-space: nowrap;
+        }
+
+        .dash-v2-tip-strip a svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        @media (max-width: 1460px) {
+            .dash-v2-main-grid {
+                grid-template-columns: minmax(330px, 1fr) minmax(320px, 1fr);
+                grid-template-areas:
+                    "roadmap career"
+                    "pulse milestone"
+                    "cognitive recent"
+                    "tip tip";
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .dash-v2-hero-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dash-v2-main-grid {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "roadmap"
+                    "career"
+                    "pulse"
+                    "milestone"
+                    "recent"
+                    "cognitive"
+                    "tip";
+            }
+
+            .cognitive-body {
+                grid-template-columns: minmax(190px, 230px) minmax(300px, 1fr);
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .dash-v2-mission {
+                grid-template-columns: 1fr;
+            }
+
+            .dash-v2-mission-icon {
+                display: none;
+            }
+
+            .cognitive-body {
+                grid-template-columns: 1fr;
+            }
+
+            .dash-v2-tip-strip {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        /* Final dashboard balance pass — 6-column grid; career + pulse split 50/50 beside roadmap */
+        .dash-v2-content-grid .dash-v2-roadmap,
+        .dash-v2-content-grid .dash-v2-career,
+        .dash-v2-content-grid .dash-v2-job-pulse,
+        .dash-v2-content-grid .dash-v2-milestone,
+        .dash-v2-content-grid .dash-v2-recent,
+        .dash-v2-content-grid .dash-v2-cognitive {
+            grid-area: auto;
+            min-height: 0;
+            align-self: start;
+            height: auto;
+        }
+
+        .dash-v2-content-grid .dash-v2-roadmap { grid-column: 1 / span 2; grid-row: 2; }
+        .dash-v2-content-grid .dash-v2-career { grid-column: 3 / span 2; grid-row: 2; }
+        .dash-v2-content-grid .dash-v2-job-pulse { grid-column: 5 / span 2; grid-row: 2; }
+        .dash-v2-content-grid .dash-v2-milestone { grid-column: 1 / span 2; grid-row: 3; }
+        .dash-v2-content-grid .dash-v2-cognitive { grid-column: 3 / span 4; grid-row: 3 / span 2; }
+        .dash-v2-content-grid .dash-v2-recent { grid-column: 1 / span 2; grid-row: 4; }
+        .dash-v2-content-grid .dash-v2-tip-strip { grid-column: 1 / -1; grid-row: 5; }
+
+        .dash-v2-content-grid .dash-v2-cognitive {
+            align-self: stretch;
+            min-height: 280px;
+        }
+
+        .dash-v2-milestone.chart-card,
+        .dash-v2-recent,
+        .dash-v2-cognitive {
+            padding: 12px 14px;
+        }
+
+        .dash-v2-milestone .dash-v2-panel-head,
+        .dash-v2-recent .dash-v2-panel-head,
+        .dash-v2-cognitive .cognitive-panel-head {
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+        }
+
+        .dash-v2-milestone .donut-wrap {
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: 16px;
+            padding: 0;
+            margin-top: 2px;
+        }
+
+        .dash-v2-milestone .donut-svg {
+            width: 88px;
+            height: 88px;
+        }
+
+        .dash-v2-milestone .donut-legend {
+            gap: .34rem;
+        }
+
+        .dash-v2-milestone .dl-item {
+            font-size: .78rem;
+        }
+
+        .dash-v2-recent .dash-v2-activity-list {
+            gap: 7px;
+        }
+
+        .dash-v2-recent .dash-v2-activity-list>div {
+            grid-template-columns: 28px minmax(0, 1fr) auto;
+            gap: 8px;
+        }
+
+        .dash-v2-recent .activity-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+        }
+
+        .dash-v2-cognitive .cognitive-card {
+            min-height: 100%;
+            padding: .9rem 1rem 1rem;
+            background:
+                linear-gradient(135deg, rgba(3, 28, 45, .92), rgba(13, 17, 48, .94)),
+                var(--bg-secondary);
+            box-shadow: none;
+        }
+
+        .dash-v2-cognitive .cognitive-title-block div span {
+            max-width: none;
+        }
+
+        .dash-v2-cognitive .cognitive-train-link {
+            font-size: .72rem;
+        }
+
+        .dash-v2-cognitive .cognitive-body {
+            grid-template-columns: minmax(210px, 38%) minmax(0, 1fr);
+            gap: 1.25rem;
+            max-width: none;
+            align-items: center;
+        }
+
+        .dash-v2-cognitive .cognitive-visual {
+            min-height: 200px;
+            width: 100%;
+        }
+
+        .dash-v2-cognitive .cognitive-radar {
+            width: min(100%, 230px);
+            height: auto;
+        }
+
+        .dash-v2-cognitive .radar-label {
+            font-size: 11px;
+            font-weight: 800;
+            fill: rgba(241, 245, 249, .92);
+        }
+
+        .dash-v2-cognitive .cognitive-score {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: auto;
+            height: auto;
+            padding: 6px 14px;
+            border-radius: 99px;
+        }
+
+        .dash-v2-cognitive .cognitive-score strong {
+            font-size: .95rem;
+        }
+
+        .dash-v2-cognitive .cognitive-score span {
+            font-size: .7rem;
+        }
+
+        .dash-v2-cognitive .cognitive-details {
+            min-width: 0;
+            width: 100%;
+        }
+
+        .dash-v2-cognitive .cognitive-head {
+            display: block;
+            margin-bottom: .65rem;
+        }
+
+        .dash-v2-cognitive .cognitive-list {
+            gap: .58rem;
+        }
+
+        .dash-v2-cognitive .cognitive-row {
+            grid-template-columns: minmax(6.8rem, 1fr) auto minmax(4.5rem, 1.35fr) 2.25rem;
+            gap: .45rem .7rem;
+            align-items: center;
+        }
+
+        .dash-v2-cognitive .cognitive-row strong {
+            font-size: .77rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            line-height: 1.25;
+        }
+
+        .dash-v2-cognitive .cognitive-row small {
+            text-align: center;
+            font-size: .68rem;
+            color: #a78bfa;
+            font-weight: 800;
+            padding: 0 .1rem;
+        }
+
+        .dash-v2-cognitive .cognitive-row .cognitive-bar {
+            min-width: 0;
+        }
+
+        .dash-v2-cognitive .cognitive-row em {
+            font-size: .72rem;
+            text-align: right;
+        }
+
+        .dash-v2-cognitive .cognitive-insight {
+            margin-top: .6rem;
+            padding: .48rem .55rem;
+            font-size: .7rem;
+            line-height: 1.3;
+        }
+
+        @media (max-width: 1460px) {
+            .dash-v2-main-grid {
+                grid-template-columns: minmax(330px, 1fr) minmax(320px, 1fr);
+                grid-template-areas:
+                    "roadmap career"
+                    "pulse pulse"
+                    "milestone recent"
+                    "cognitive cognitive"
+                    "tip tip";
+            }
+
+            .dash-v2-cognitive .cognitive-body {
+                grid-template-columns: 200px minmax(0, 1fr);
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .dash-v2-main-grid {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "roadmap"
+                    "career"
+                    "pulse"
+                    "milestone"
+                    "recent"
+                    "cognitive"
+                    "tip";
+            }
+        }
+
+        @media (max-width: 760px) {
+            .dash-v2-cognitive .cognitive-body {
+                grid-template-columns: 1fr;
+            }
+
+            .dash-v2-cognitive .cognitive-visual {
+                display: none;
+            }
+        }
+
+        @media (max-width: 1460px) {
+            .dash-v2-content-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .dash-v2-content-grid > .dash-v2-metric:nth-child(n) {
+                grid-column: auto;
+                grid-row: auto;
+            }
+
+            .dash-v2-content-grid > .dash-v2-metric:nth-child(odd) { grid-column: 1; }
+            .dash-v2-content-grid > .dash-v2-metric:nth-child(even) { grid-column: 2; }
+
+            .dash-v2-content-grid .dash-v2-roadmap,
+            .dash-v2-content-grid .dash-v2-cognitive,
+            .dash-v2-content-grid .dash-v2-tip-strip {
+                grid-column: 1 / -1;
+                grid-row: auto;
+            }
+
+            .dash-v2-content-grid .dash-v2-career { grid-column: 1; }
+            .dash-v2-content-grid .dash-v2-job-pulse { grid-column: 2; }
+            .dash-v2-content-grid .dash-v2-milestone,
+            .dash-v2-content-grid .dash-v2-recent {
+                grid-column: auto;
+                grid-row: auto;
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .dash-v2-content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dash-v2-content-grid > .dash-v2-metric:nth-child(n),
+            .dash-v2-content-grid .dash-v2-roadmap,
+            .dash-v2-content-grid .dash-v2-career,
+            .dash-v2-content-grid .dash-v2-job-pulse,
+            .dash-v2-content-grid .dash-v2-milestone,
+            .dash-v2-content-grid .dash-v2-recent,
+            .dash-v2-content-grid .dash-v2-cognitive,
+            .dash-v2-content-grid .dash-v2-tip-strip {
+                grid-column: 1;
+                grid-row: auto;
+            }
+        }
+
+        /* Today's mission: radial glow wave treatment */
+        .dash-v2-mission {
+            isolation: isolate;
+            border-color: rgba(96, 165, 250, .28);
+            border-radius: 14px;
+            background:
+                radial-gradient(circle at 8% 50%, rgba(0, 212, 255, .34) 0, rgba(37, 99, 235, .22) 13%, rgba(37, 99, 235, .08) 25%, transparent 38%),
+                radial-gradient(circle at 94% 46%, rgba(124, 58, 237, .34) 0, rgba(91, 33, 182, .18) 28%, transparent 58%),
+                linear-gradient(105deg, rgba(7, 25, 62, .96) 0%, rgba(5, 12, 31, .98) 46%, rgba(30, 9, 74, .95) 100%);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, .06),
+                inset 0 0 0 1px rgba(0, 212, 255, .035),
+                0 18px 50px rgba(2, 8, 23, .34);
+        }
+
+        .dash-v2-mission::before,
+        .dash-v2-mission::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .dash-v2-mission::before {
+            background:
+                radial-gradient(ellipse 42% 48% at 9% 50%, rgba(0, 212, 255, .18), transparent 62%),
+                radial-gradient(ellipse 54% 46% at 84% 112%, rgba(124, 58, 237, .30), transparent 62%),
+                linear-gradient(90deg, rgba(0, 212, 255, .10), transparent 35%, rgba(124, 111, 255, .13));
+            mix-blend-mode: screen;
+            opacity: .9;
+        }
+
+        .dash-v2-mission::after {
+            background:
+                linear-gradient(115deg, transparent 0%, rgba(255, 255, 255, .045) 42%, transparent 62%),
+                radial-gradient(circle at 9% 50%, transparent 0 48px, rgba(0, 212, 255, .16) 49px 50px, transparent 52px 70px, rgba(0, 212, 255, .08) 71px 72px, transparent 74px 96px, rgba(0, 212, 255, .045) 97px 98px, transparent 100px);
+            opacity: .65;
+        }
+
+        .dash-v2-mission > * {
+            z-index: 1;
+        }
+
+        .dash-v2-mission-icon {
+            position: relative;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle, rgba(0, 212, 255, .26), rgba(37, 99, 235, .18) 62%, rgba(15, 23, 42, .46));
+            border-color: rgba(0, 212, 255, .30);
+            box-shadow:
+                0 0 0 10px rgba(0, 212, 255, .055),
+                0 0 44px rgba(0, 153, 255, .38),
+                inset 0 0 24px rgba(0, 212, 255, .12);
+        }
+
+        .dash-v2-mission-icon::before,
+        .dash-v2-mission-icon::after {
+            content: "";
+            position: absolute;
+            inset: -22px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 212, 255, .14);
+            pointer-events: none;
+        }
+
+        .dash-v2-mission-icon::before {
+            animation: mission-ring 4.8s ease-in-out infinite;
+        }
+
+        .dash-v2-mission-icon::after {
+            inset: -38px;
+            border-color: rgba(0, 132, 255, .08);
+            animation: mission-ring 5.8s ease-in-out infinite reverse;
+        }
+
+        .dash-v2-mission-icon svg {
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 0 12px rgba(0, 212, 255, .55));
+        }
+
+        .dash-v2-mission-copy span {
+            color: #bfb3ff;
+            text-shadow: 0 0 16px rgba(124, 111, 255, .22);
+        }
+
+        .dash-v2-mission .mission-tag {
+            border: 1px solid rgba(167, 139, 250, .22);
+            background: rgba(41, 38, 101, .42);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05);
+        }
+
+        .dash-v2-mission-actions .btn-primary {
+            box-shadow: 0 14px 30px rgba(59, 130, 246, .26), 0 0 24px rgba(124, 58, 237, .18);
+        }
+
+        .dash-v2-mission-actions .btn-secondary {
+            border-color: rgba(255, 255, 255, .14);
+            background: rgba(15, 23, 42, .42);
+            backdrop-filter: blur(10px);
+        }
+
+        .dash-v2-mini-donut {
+            filter: drop-shadow(0 0 18px rgba(124, 58, 237, .22));
+        }
+
+        @keyframes mission-ring {
+            0%, 100% { transform: scale(.96); opacity: .35; }
+            50% { transform: scale(1.06); opacity: .72; }
+        }
+
+        @media (max-width: 760px) {
+            .dash-v2-mission {
+                background:
+                    radial-gradient(circle at 18% 18%, rgba(0, 212, 255, .26), transparent 44%),
+                    radial-gradient(circle at 92% 92%, rgba(124, 58, 237, .30), transparent 56%),
+                    linear-gradient(135deg, rgba(7, 25, 62, .96), rgba(18, 8, 53, .96));
+            }
+
+            .dash-v2-mission-icon::before,
+            .dash-v2-mission-icon::after {
+                display: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .dash-v2-mission::after,
+            .dash-v2-mission-icon::before,
+            .dash-v2-mission-icon::after {
+                animation: none;
+            }
+        }
+
+        /* Mission card concept proportions: big glow orb, spacious copy, CTA cluster */
+        .dash-v2-mission {
+            --mission-orb-x: 89px;
+            grid-template-columns: 132px minmax(240px, 1fr) auto !important;
+            min-height: 156px !important;
+            padding: 24px 30px !important;
+            gap: 22px !important;
+            align-items: center !important;
+            background:
+                radial-gradient(circle at var(--mission-orb-x) 50%, rgba(0, 184, 255, .34) 0, rgba(16, 91, 185, .22) 16%, rgba(13, 52, 112, .08) 34%, transparent 52%),
+                radial-gradient(ellipse 430px 210px at 92% 68%, rgba(109, 40, 217, .24) 0%, rgba(60, 20, 133, .16) 36%, transparent 72%),
+                linear-gradient(102deg, #061a34 0%, #050b19 44%, #080719 72%, #12072c 100%);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, .06),
+                inset 0 0 0 1px rgba(0, 212, 255, .045),
+                inset 0 -34px 80px rgba(0, 0, 0, .24),
+                0 18px 50px rgba(2, 8, 23, .42);
+        }
+
+        .dash-v2-mission::before {
+            background:
+                radial-gradient(ellipse 240px 184px at var(--mission-orb-x) 50%, rgba(0, 212, 255, .20), transparent 68%),
+                radial-gradient(ellipse 620px 190px at 88% 116%, rgba(124, 58, 237, .34), transparent 62%),
+                radial-gradient(ellipse 520px 150px at 62% 30%, rgba(14, 165, 233, .055), transparent 72%),
+                linear-gradient(90deg, rgba(0, 212, 255, .07), transparent 39%, rgba(124, 111, 255, .07));
+            opacity: .88;
+        }
+
+        .dash-v2-mission::after {
+            background:
+                radial-gradient(circle at var(--mission-orb-x) 50%, transparent 0 48px, rgba(0, 212, 255, .22) 49px 50px, transparent 52px 72px, rgba(0, 212, 255, .11) 73px 74px, transparent 76px 96px, rgba(0, 212, 255, .06) 97px 98px, transparent 100px),
+                radial-gradient(ellipse 520px 120px at 86% 101%, rgba(147, 51, 234, .18), transparent 68%),
+                linear-gradient(118deg, transparent 0%, rgba(255, 255, 255, .025) 44%, transparent 64%);
+            opacity: .78;
+        }
+
+        .dash-v2-mission-icon {
+            width: 94px !important;
+            height: 94px !important;
+            margin-left: 12px;
+            border-radius: 50% !important;
+            color: #22e7ff;
+            background:
+                radial-gradient(circle at 50% 50%, rgba(34, 231, 255, .32) 0 31%, rgba(0, 151, 255, .22) 32% 58%, rgba(12, 35, 78, .62) 59% 100%);
+            border-color: rgba(0, 212, 255, .34);
+            box-shadow:
+                0 0 0 12px rgba(0, 212, 255, .045),
+                0 0 0 25px rgba(0, 132, 255, .026),
+                0 0 42px rgba(0, 153, 255, .32),
+                inset 0 0 0 1px rgba(255, 255, 255, .04),
+                inset 0 0 24px rgba(0, 212, 255, .16);
+        }
+
+        .dash-v2-mission-icon::before {
+            inset: -26px;
+        }
+
+        .dash-v2-mission-icon::after {
+            inset: -50px;
+        }
+
+        .dash-v2-mission-icon svg {
+            width: 44px !important;
+            height: 44px !important;
+        }
+
+        .dash-v2-mission-copy span {
+            font-size: .72rem !important;
+            letter-spacing: .06em;
+        }
+
+        .dash-v2-mission-copy h2 {
+            margin: 9px 0 11px !important;
+            font-size: clamp(1.16rem, 1.45vw, 1.46rem) !important;
+            line-height: 1.08 !important;
+            -webkit-line-clamp: 2 !important;
+        }
+
+        .dash-v2-mission .mission-meta {
+            gap: 10px !important;
+            flex-wrap: wrap;
+        }
+
+        .dash-v2-mission .mission-tag {
+            min-height: 28px;
+            padding: 4px 12px !important;
+            border-radius: 999px;
+            font-size: .76rem !important;
+            font-weight: 800;
+            color: #cfc7ff;
+            background: rgba(38, 35, 98, .58);
+        }
+
+        .dash-v2-mission-actions {
+            display: flex !important;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 14px !important;
+        }
+
+        .dash-v2-mission-actions .btn {
+            min-height: 46px !important;
+            padding: 0 22px !important;
+            border-radius: 10px;
+            font-size: .86rem;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .dash-v2-mini-donut {
+            display: none !important;
+        }
+
+        @media (max-width: 1380px) {
+            .dash-v2-mission {
+                --mission-orb-x: 68px;
+                grid-template-columns: 104px minmax(220px, 1fr) auto !important;
+                min-height: 142px !important;
+                padding: 22px 24px !important;
+                gap: 22px !important;
+            }
+
+            .dash-v2-mission-icon {
+                width: 80px !important;
+                height: 80px !important;
+                margin-left: 4px;
+            }
+
+            .dash-v2-mission-icon svg {
+                width: 38px !important;
+                height: 38px !important;
+            }
+        }
+
+        @media (max-width: 980px) {
+            .dash-v2-mission {
+                --mission-orb-x: 64px;
+                grid-template-columns: 88px minmax(0, 1fr) !important;
+                min-height: 148px !important;
+            }
+
+            .dash-v2-mission-actions {
+                grid-column: 2;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .dash-v2-mission {
+                --mission-orb-x: 56px;
+                grid-template-columns: 1fr !important;
+                padding: 20px !important;
+            }
+
+            .dash-v2-mission-icon {
+                width: 72px !important;
+                height: 72px !important;
+            }
+
+            .dash-v2-mission-icon svg {
+                width: 36px !important;
+                height: 36px !important;
+            }
+
+            .dash-v2-mission-actions {
+                grid-column: auto;
+            }
+        }
+    </style>
+
+    <script>
+        /* Animate donut arc */
+        (function () {
+            const arc = document.getElementById('donut-arc');
+            if (!arc) return;
+            const pct = {{ pct }};
+        const offset = 314 - (pct / 100) * 314;
+        setTimeout(() => {
+            arc.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(.22,1,.36,1)';
+            arc.style.strokeDashoffset = offset;
+        }, 300);
+}) ();
+
+        /* Animate bar fills */
+        document.addEventListener('DOMContentLoaded', () => {
+            const serverAptitudeSkills = {{ (aptitude_state.skills if aptitude_state else { }) | tojson }};
+        const defaultAptitude = {
+            logical: { label: 'Logical Reasoning', level: 1, pct: 0, color: '#00d4ff' },
+            communication: { label: 'Communication', level: 1, pct: 0, color: '#f43f5e' },
+            analytical: { label: 'Analytical Thinking', level: 1, pct: 0, color: '#f59e0b' },
+            problem: { label: 'Problem Solving', level: 1, pct: 0, color: '#7c6fff' },
+            system: { label: 'System Design', level: 1, pct: 0, color: '#34d399' },
+        };
+
+        const serverAptitudeEvaluation = {{ (aptitude_state.evaluation if aptitude_state else {}) | tojson }};
+
+        function readAptitudeSkills() {
+            const hasServer = serverAptitudeSkills && Object.keys(serverAptitudeSkills).length > 0;
+            if (hasServer) {
+                return Object.fromEntries(Object.entries(defaultAptitude).map(([key, fallback]) => [
+                    key,
+                    { ...fallback, ...((serverAptitudeSkills || {})[key] || {}) }
+                ]));
+            }
+            try {
+                const saved = JSON.parse(localStorage.getItem('skillsync_aptitude_arena_{{ current_user.id }}')) || {};
+                const savedSkills = saved.skills || {};
+                return Object.fromEntries(Object.entries(defaultAptitude).map(([key, fallback]) => [
+                    key,
+                    { ...fallback, ...(savedSkills[key] || {}) }
+                ]));
+            } catch {
+                return { ...defaultAptitude };
+            }
+        }
+
+        function radarPoint(index, pct) {
+            const centerX = 130;
+            const centerY = 112;
+            const radius = 82 * (Math.max(0, Math.min(100, pct)) / 100);
+            const angle = (-90 + index * 72) * Math.PI / 180;
+            return {
+                x: centerX + Math.cos(angle) * radius,
+                y: centerY + Math.sin(angle) * radius
+            };
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
+        const careerTrajectoryData = {{ (career_trajectories or[]) | tojson }};
+
+        function careerRadarPoint(index, pct) {
+            const centerX = 130;
+            const centerY = 100;
+            const radius = 80 * (Math.max(0, Math.min(100, Number(pct) || 0)) / 100);
+            const angle = (-90 + index * 72) * Math.PI / 180;
+            return {
+                x: centerX + Math.cos(angle) * radius,
+                y: centerY + Math.sin(angle) * radius
+            };
+        }
+
+        function shortAxisLabel(label) {
+            const tidy = String(label || '').replace('Data Visualization', 'Viz');
+            return tidy.length > 15 ? `${tidy.slice(0, 13)}...` : tidy;
+        }
+
+        function renderCareerTrajectory(index = 0) {
+            if (!careerTrajectoryData.length) return;
+            const selected = careerTrajectoryData[index] || careerTrajectoryData[0];
+            const axes = (selected.axes || []).slice(0, 5);
+            const title = document.getElementById('career-trajectory-title');
+            const badge = document.getElementById('career-trajectory-badge');
+            const gap = document.getElementById('career-trajectory-gap');
+            const timeWrap = document.getElementById('career-trajectory-time-wrap');
+            const time = document.getElementById('career-trajectory-time');
+            const focusWrap = document.getElementById('career-trajectory-focus-wrap');
+            const tags = document.getElementById('career-trajectory-tags');
+            const required = document.getElementById('career-required-polygon');
+            const you = document.getElementById('career-you-polygon');
+            const dots = document.getElementById('career-radar-points');
+
+            if (title) title.textContent = selected.title || 'Career Trajectory';
+            if (badge) badge.textContent = selected.is_active ? 'Active Path' : `${Number(selected.score || 0)}% Match`;
+            if (gap) {
+                gap.textContent = `${Number(selected.skill_gap || 0)}%`;
+                gap.classList.toggle('text-amber', Number(selected.skill_gap || 0) > 50);
+            }
+            if (timeWrap && time) {
+                const weeks = selected.estimated_weeks;
+                timeWrap.style.display = weeks ? '' : 'none';
+                time.textContent = `${weeks || 0}w`;
+            }
+            if (focusWrap && tags) {
+                const focus = selected.focus || [];
+                focusWrap.style.display = focus.length ? '' : 'none';
+                tags.innerHTML = focus.map(skill => `<span class="skill-tag">${escapeHtml(skill)}</span>`).join('');
+            }
+
+            const requiredPoints = axes.map((axis, axisIndex) => careerRadarPoint(axisIndex, axis.required));
+            const userPoints = axes.map((axis, axisIndex) => careerRadarPoint(axisIndex, axis.user));
+            if (required) required.setAttribute('points', requiredPoints.map(point => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(' '));
+            if (you) you.setAttribute('points', userPoints.map(point => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(' '));
+            if (dots) {
+                dots.innerHTML = userPoints.map(point => `<circle class="career-radar-dot" cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="4"></circle>`).join('');
+            }
+            axes.forEach((axis, axisIndex) => {
+                const label = document.getElementById(`career-axis-label-${axisIndex}`);
+                if (label) label.textContent = shortAxisLabel(axis.label);
+            });
+            document.querySelectorAll('.career-choice').forEach((row, rowIndex) => {
+                row.classList.toggle('active', rowIndex === index);
+            });
+        }
+
+        function tcRadarPoint(index, pct) {
+            const cx = 130, cy = 108, r = 82;
+            const radius = r * (Math.max(0, Math.min(100, pct)) / 100);
+            const angle = (-90 + index * 72) * Math.PI / 180;
+            return { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius };
+        }
+
+        function renderTrajectoryCard(selected) {
+            if (!selected) return;
+            const axes = (selected.axes || []).slice(0, 5);
+
+            const title = document.getElementById('tc-title');
+            const badge = document.getElementById('tc-badge');
+            const gap = document.getElementById('tc-gap');
+            const timeWrap = document.getElementById('tc-time-wrap');
+            const timeEl = document.getElementById('tc-time');
+            const focusWrap = document.getElementById('tc-focus-wrap');
+            const tagsEl = document.getElementById('tc-tags');
+            const req = document.getElementById('tc-required');
+            const you = document.getElementById('tc-you');
+            const dots = document.getElementById('tc-dots');
+
+            if (title) title.textContent = selected.title || '';
+            if (badge) {
+                badge.textContent = selected.is_active ? 'Active Path' : `${Number(selected.score || 0)}% Match`;
+                badge.classList.toggle('tc-badge--active', !!selected.is_active);
+            }
+            if (gap) {
+                gap.textContent = `${Number(selected.skill_gap || 0)}%`;
+                gap.classList.toggle('tc-stat--amber', Number(selected.skill_gap || 0) > 50);
+            }
+            if (timeWrap && timeEl) {
+                const w = selected.estimated_weeks;
+                timeWrap.style.display = w ? '' : 'none';
+                timeEl.textContent = `${w || 0}w`;
+            }
+            if (focusWrap && tagsEl) {
+                const focus = selected.focus || [];
+                focusWrap.style.display = focus.length ? '' : 'none';
+                tagsEl.innerHTML = focus.map(s => `<span class="tc-tag">${escapeHtml(s)}</span>`).join('');
+            }
+
+            if (axes.length && req && you && dots) {
+                const reqPts = axes.map((a, i) => tcRadarPoint(i, a.required));
+                const youPts = axes.map((a, i) => tcRadarPoint(i, a.user));
+                req.setAttribute('points', reqPts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' '));
+                you.setAttribute('points', youPts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' '));
+                dots.innerHTML = youPts.map(p => `<circle class="tc-dot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4"></circle>`).join('');
+                axes.forEach((a, i) => {
+                    const lbl = document.getElementById(`tc-lbl-${i}`);
+                    if (lbl) lbl.textContent = shortAxisLabel(a.label);
+                });
+            }
+        }
+
+        if (careerTrajectoryData.length) {
+            const activeIndex = Math.max(0, careerTrajectoryData.findIndex(item => item.is_active));
+            renderCareerTrajectory(activeIndex);
+            renderTrajectoryCard(careerTrajectoryData[activeIndex] || careerTrajectoryData[0]);
+            document.querySelectorAll('.career-choice').forEach((row, rowIndex) => {
+                row.addEventListener('click', () => {
+                    renderCareerTrajectory(rowIndex);
+                    renderTrajectoryCard(careerTrajectoryData[rowIndex]);
+                });
+            });
+        } else {
+            renderTrajectoryCard(null);
+        }
+
+        const skillList = document.getElementById('dashboard-skill-list');
+        const radar = document.getElementById('cognitive-radar-polygon');
+        const pointsLayer = document.getElementById('cognitive-radar-points');
+        const avgLabel = document.getElementById('cognitive-avg');
+        const focusLabel = document.getElementById('cognitive-focus');
+        const boostLabel = document.getElementById('cognitive-boost');
+
+        if (skillList && radar && pointsLayer && avgLabel) {
+            const skills = Object.entries(readAptitudeSkills());
+            const points = skills.map(([, skill], index) => radarPoint(index, skill.pct));
+            const avg = Math.round(skills.reduce((sum, [, skill]) => sum + Number(skill.pct || 0), 0) / skills.length);
+            const weakest = skills.reduce((low, current) => {
+                return Number(current[1].pct || 0) < Number(low[1].pct || 0) ? current : low;
+            }, skills[0]);
+            const aiFocus = serverAptitudeEvaluation?.focus_skill;
+            const aiBoost = serverAptitudeEvaluation?.focus_boost_pct;
+            const boost = aiBoost
+                ? Number(aiBoost)
+                : Math.max(4, Math.min(12, Math.round((100 - Number(weakest[1].pct || 0)) / 8)));
+
+            radar.setAttribute('points', points.map(point => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(' '));
+            pointsLayer.innerHTML = points.map(point => `<circle class="radar-dot" cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="4"></circle>`).join('');
+            avgLabel.textContent = `${avg}%`;
+            skillList.innerHTML = skills.map(([, skill]) => `
+            <div class="cognitive-row">
+                <strong>${escapeHtml(skill.label)}</strong>
+                <small>Lv.${Number(skill.level || 1)}</small>
+                <div class="cognitive-bar"><span style="--w:${skill.pct}%;--bar-color:${skill.color};"></span></div>
+                <em>${Number(skill.pct || 0)}%</em>
+            </div>
+        `).join('');
+            if (focusLabel && boostLabel) {
+                focusLabel.textContent = aiFocus || weakest[1].label;
+                boostLabel.textContent = `+${boost}%`;
+            }
+
+            const v2SkillList = document.getElementById('dashboard-v2-skill-list');
+            const v2Radar = document.getElementById('dashboard-v2-radar-polygon');
+            const v2PointsLayer = document.getElementById('dashboard-v2-radar-points');
+            const v2AvgLabel = document.getElementById('dashboard-v2-cognitive-avg');
+            const v2FocusLabel = document.getElementById('dashboard-v2-cognitive-focus');
+            const v2BoostLabel = document.getElementById('dashboard-v2-cognitive-boost');
+
+            if (v2SkillList && v2Radar && v2PointsLayer && v2AvgLabel) {
+                v2Radar.setAttribute('points', points.map(point => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(' '));
+                v2PointsLayer.innerHTML = points.map(point => `<circle class="radar-dot" cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="4"></circle>`).join('');
+                v2AvgLabel.textContent = `${avg}%`;
+                v2SkillList.innerHTML = skills.map(([, skill]) => `
+                <div class="cognitive-row">
+                    <strong>${escapeHtml(skill.label)}</strong>
+                    <small>Lv.${Number(skill.level || 1)}</small>
+                    <div class="cognitive-bar"><span style="--w:${skill.pct}%;--bar-color:${skill.color};"></span></div>
+                    <em>${Number(skill.pct || 0)}%</em>
+                </div>
+            `).join('');
+                if (v2FocusLabel && v2BoostLabel) {
+                    v2FocusLabel.textContent = aiFocus || weakest[1].label;
+                    v2BoostLabel.textContent = `+${boost}%`;
+                }
+            }
+        }
+
+        setTimeout(() => {
+            document.querySelectorAll('.bar-fill').forEach(bar => {
+                bar.style.width = (bar.dataset.pct || 0) + '%';
+            });
+        }, 200);
+
+        /* ── Live Skill Progress Bars ─────────────────────────────────────── */
+        function renderSkillProgress(data) {
+            ['', '-top'].forEach(suffix => {
+                const container = document.getElementById('sp-bars-container' + suffix);
+                const roadmapFill = document.getElementById('sp-roadmap-fill' + suffix);
+                const roadmapPct  = document.getElementById('sp-roadmap-pct' + suffix);
+                if (!container) return;
+
+                if (!data || !data.skills || data.skills.length === 0) {
+                    container.innerHTML = '<div class="sp-loading">Run a career analysis to see skill progress.</div>';
+                    return;
+                }
+
+                container.innerHTML = data.skills.map(skill => {
+                    const isGap = skill.is_gap;
+                    const youW  = Math.min(100, skill.current);
+                    const reqW  = Math.min(100, skill.required);
+                    return `
+                    <div class="sp-row">
+                        <span class="sp-label" title="${escapeHtml(skill.label)}">${escapeHtml(skill.label)}</span>
+                        <div class="sp-track">
+                            <div class="sp-track-req" style="width:${reqW}%"></div>
+                            <div class="sp-track-you${isGap ? ' sp-gap' : ''}" style="width:0%" data-target="${youW}%"></div>
+                        </div>
+                        <span class="sp-pct${isGap ? ' sp-gap' : ''}">${skill.current}%</span>
+                    </div>`;
+                }).join('');
+
+                /* Animate bars after paint */
+                requestAnimationFrame(() => {
+                    container.querySelectorAll('.sp-track-you[data-target]').forEach(bar => {
+                        bar.style.width = bar.dataset.target;
+                    });
+                });
+
+                /* Roadmap progress footer */
+                if (roadmapFill && roadmapPct) {
+                    roadmapFill.style.width = (data.completion_pct || 0) + '%';
+                    roadmapPct.textContent  = (data.completion_pct || 0) + '%';
+                }
+            });
+        }
+
+        async function fetchSkillProgress() {
+            try {
+                const res  = await fetch('/dashboard/api/skill-progress');
+                if (!res.ok) return;
+                const data = await res.json();
+                renderSkillProgress(data);
+            } catch (e) { /* silent fail — no network disruption */ }
+        }
+
+        /* Fetch immediately on load, then every 30 s */
+        fetchSkillProgress();
+        setInterval(fetchSkillProgress, 30000);
+
+        /* ── Career Flexibility bars ────────────────────────────────────────── */
+        function animateCtfBars(root) {
+            (root || document).querySelectorAll('.ctf-fill[data-target], .ctf-item-fill[data-target]').forEach(bar => {
+                bar.style.width = bar.dataset.target + '%';
+            });
+        }
+
+        function renderCtfData(data) {
+            if (!data || !data.careers) return;
+            const careers = data.careers;
+
+            /* ── compact top card ───────── */
+            const topList = document.getElementById('ctf-list-top');
+            const emptyTop = document.getElementById('ctf-empty-top');
+            const previewNote = document.querySelector('.ctf-preview-note');
+            if (topList && careers.length > 0) {
+                if (emptyTop) emptyTop.style.display = 'none';
+                topList.hidden = false;
+                topList.style.display = 'flex';
+                if (previewNote) previewNote.style.display = 'none';
+                const colors = { High: '#34d399', Medium: '#00d4ff', Possible: '#f59e0b' };
+                topList.innerHTML = careers.map(c => {
+                    const col = c.transferability >= 70 ? colors.High
+                              : c.transferability >= 50 ? colors.Medium
+                              : colors.Possible;
+                    const lbl = c.transferability >= 70 ? 'High'
+                              : c.transferability >= 50 ? 'Medium' : 'Possible';
+                    return `<div class="ctf-row">
+                        <div class="ctf-row-head">
+                            <span class="ctf-name">${escapeHtml(c.title.length > 22 ? c.title.slice(0,21)+'\u2026' : c.title)}</span>
+                            <span class="ctf-pct" style="color:${col}">${c.transferability}%</span>
+                        </div>
+                        <div class="ctf-track">
+                            <div class="ctf-fill" data-target="${c.transferability}"
+                                style="width:0%;background:linear-gradient(90deg,${col}88,${col})"></div>
+                        </div>
+                        <div class="ctf-skills"><span>${c.shared}/${c.required} shared skills</span>
+                            <span class="ctf-match-pill" style="--ctf-color:${col}">${lbl} match</span></div>
+                    </div>`;
+                }).join('');
+            }
+
+            /* ── full main card ─────────── */
+            const mainList = document.getElementById('ctf-main-list');
+            if (mainList && careers.length > 0) {
+                const colors = { High: '#34d399', Medium: '#00d4ff', Possible: '#f59e0b' };
+                mainList.innerHTML = careers.map(c => {
+                    const col = c.transferability >= 70 ? colors.High
+                              : c.transferability >= 50 ? colors.Medium
+                              : colors.Possible;
+                    const lbl = c.transferability >= 70 ? 'High'
+                              : c.transferability >= 50 ? 'Medium' : 'Possible';
+                    const tags = c.shared_skills.slice(0, 3)
+                        .map(s => `<span class="ctf-skill-tag">${escapeHtml(s.replace(/_/g,' ').replace(/\b\w/g, ch => ch.toUpperCase()))}</span>`)
+                        .join('');
+                    const extra = c.shared_skills.length > 3
+                        ? `<span class="ctf-skill-tag ctf-skill-more">+${c.shared_skills.length - 3}</span>` : '';
+                    return `<div class="ctf-card-item">
+                        <div class="ctf-item-head">
+                            <span class="ctf-item-name">${escapeHtml(c.title)}</span>
+                            <span class="ctf-item-label" style="color:${col};border-color:${col}40">${lbl}</span>
+                        </div>
+                        <div class="ctf-item-bar-row">
+                            <div class="ctf-item-track">
+                                <div class="ctf-item-fill" data-target="${c.transferability}"
+                                    style="width:0%;background:linear-gradient(90deg,${col}77,${col})"></div>
+                            </div>
+                            <span class="ctf-item-pct" style="color:${col}">${c.transferability}%</span>
+                        </div>
+                        <div class="ctf-item-footer">
+                            <span class="ctf-item-match">${c.shared} of ${c.required} required skills proven</span>
+                            <div class="ctf-item-tags">${tags}${extra}</div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            /* update proven badge */
+            const badge = document.getElementById('ctf-proven-main');
+            if (badge && data.proven_count !== undefined) {
+                const n = careers.length;
+                badge.innerHTML = `<i data-lucide="check-circle-2"></i> ${n} pivot path${n !== 1 ? 's' : ''} found`;
+                if (window.lucide) lucide.createIcons();
+            }
+
+            /* animate all bars */
+            requestAnimationFrame(() => animateCtfBars());
+        }
+
+        async function fetchTransferability() {
+            try {
+                const res  = await fetch('/dashboard/api/transferability');
+                if (!res.ok) return;
+                const data = await res.json();
+                renderCtfData(data);
+            } catch (e) { /* silent fail */ }
+        }
+
+        /* Animate server-rendered bars immediately (no fetch needed on first load) */
+        requestAnimationFrame(() => animateCtfBars());
+
+        /* Then poll every 60 s for live updates after milestone completions */
+        setInterval(fetchTransferability, 60000);
+
+        /* ── Job Market Pulse ────────────────────────────────────────────────── */
+        function renderJmpData(d) {
+            const card = document.getElementById('jmp-card');
+            if (!card || !d || d.error) return;
+
+            const col = d.demand_color || '#34d399';
+            const fmt = n => n ? n.toLocaleString() : '—';
+
+            const skillTags = (d.top_skills || [])
+                .map(s => `<span class="jmp-skill-tag">${escapeHtml(s.label)}</span>`)
+                .join('');
+
+            const companies = (d.companies || []).map(co => {
+                const letter = (co.name || '?')[0].toUpperCase();
+                const logo   = co.logo
+                    ? `<img src="${co.logo}" alt="${escapeHtml(co.name)}" class="jmp-co-logo"
+                          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                       <span class="jmp-co-fallback" style="display:none">${letter}</span>`
+                    : `<span class="jmp-co-fallback">${letter}</span>`;
+                return `<div class="jmp-company">${logo}
+                    <span class="jmp-co-name">${escapeHtml((co.name||'').slice(0,18))}</span>
+                </div>`;
+            }).join('');
+
+            const salaryRow = d.avg_salary_usd
+                ? `<div class="jmp-qs-item"><i data-lucide="dollar-sign"></i>
+                   <span><strong>$${Math.round(d.avg_salary_usd).toLocaleString()}</strong> avg</span></div>`
+                : '';
+
+            card.innerHTML = `
+                <div class="jmp-header">
+                    <div class="jmp-header-left">
+                        <div class="jmp-icon"><i data-lucide="trending-up"></i></div>
+                        <div>
+                            <div class="jmp-career-name">${escapeHtml(d.career_title)}</div>
+                            <div class="jmp-timeframe">Last 30 days - ${escapeHtml(d.source || 'Live')} listings</div>
+                        </div>
+                    </div>
+                    <span class="jmp-live-dot ${d.is_live || d.total_jobs ? 'jmp-live-dot--on' : ''}" title="${d.is_live ? 'Live market feed' : 'Market data loaded'}"></span>
+                </div>
+                <div class="jmp-big-stat">
+                    <span class="jmp-big-num">${fmt(d.total_jobs)}</span>
+                    <span class="jmp-big-label">open roles</span>
+                </div>
+                <div class="jmp-quick-stats">
+                    <div class="jmp-qs-item"><i data-lucide="wifi"></i>
+                        <span><strong>${d.remote_pct}%</strong> Remote</span></div>
+                    <div class="jmp-qs-item"><i data-lucide="users"></i>
+                        <span><strong>${escapeHtml(d.seniority)}</strong></span></div>
+                    ${salaryRow}
+                </div>
+                ${skillTags ? `<div class="jmp-skills-section">
+                    <div class="jmp-skills-label">Top Skills in Listings</div>
+                    <div class="jmp-skills-tags">${skillTags}</div>
+                </div>` : ''}
+                ${companies ? `<div class="jmp-companies">
+                    <div class="jmp-companies-label">Actively Hiring</div>
+                    <div class="jmp-companies-list">${companies}</div>
+                </div>` : ''}
+            `;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function formatJmpAge(d) {
+            const mins = d.cached_age_minutes;
+            if (mins === undefined || mins === null) return '';
+            if (mins < 1) return 'Updated just now';
+            if (mins < 60) return `Updated ${mins}m ago`;
+            return `Updated ${Math.floor(mins / 60)}h ago`;
+        }
+
+        function renderJmpMeta(d) {
+            const meta = document.getElementById('jmp-meta');
+            if (!meta || !d) return;
+            meta.hidden = false;
+            const age = formatJmpAge(d);
+            meta.innerHTML = `
+                <span class="jmp-meta-source">${escapeHtml(d.source || 'Live')}</span>
+                ${age ? `<span class="jmp-meta-age">${age}</span>` : ''}
+                ${d.is_stale ? '<span class="jmp-meta-stale">Syncing</span>' : ''}
+                <button type="button" class="jmp-refresh-btn" id="jmp-refresh-btn">Refresh</button>`;
+            document.getElementById('jmp-refresh-btn')?.addEventListener('click', () => fetchJobPulse(true));
+        }
+
+        async function fetchJobPulse(forceRefresh = false) {
+            const card = document.getElementById('jmp-card');
+            if (!card) return;
+            const qs = new URLSearchParams();
+            if (card.dataset.career) qs.set('career', card.dataset.career);
+            if (forceRefresh) qs.set('refresh', '1');
+            const url = '/dashboard/api/job-pulse' + (qs.toString() ? '?' + qs.toString() : '');
+            try {
+                const res = await fetch(url);
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || data.error) {
+                    if (!card.querySelector('.jmp-big-num')) {
+                        card.innerHTML = `<div class="jmp-empty jmp-empty--compact"><i data-lucide="radar"></i><p>${escapeHtml(data.error || 'Market data unavailable.')}</p></div>`;
+                        if (window.lucide) lucide.createIcons();
+                    }
+                    return;
+                }
+                renderJmpData(data);
+                renderJmpMeta(data);
+                const dot = card.querySelector('.jmp-live-dot');
+                if (dot) dot.classList.toggle('jmp-live-dot--on', !!(data.is_live || data.total_jobs));
+            } catch (e) { /* silent */ }
+        }
+
+        document.getElementById('jmp-refresh-btn')?.addEventListener('click', () => fetchJobPulse(true));
+        fetchJobPulse(false);
+        setInterval(() => fetchJobPulse(false), 3 * 60 * 1000);
+        setInterval(() => fetchJobPulse(true), 45 * 60 * 1000);
+        
+        // Dynamic Greeting
+        const hour = new Date().getHours();
+        let greeting = "Good evening";
+        if (hour >= 5 && hour < 12) greeting = "Good morning";
+        else if (hour >= 12 && hour < 17) greeting = "Good afternoon";
+        const greetingEl = document.getElementById('dynamic-greeting');
+        if (greetingEl) {
+            greetingEl.textContent = `${greeting}, {{ current_user.username }}!`;
+        }
+        // Notification handling
+        (function(){
+            const notifBtn = document.getElementById('notif-btn');
+            const notifDropdown = document.getElementById('notif-dropdown');
+            const notifCountEl = document.getElementById('notif-count');
+            const notifList = document.getElementById('notif-list');
+            const notifCareer = document.getElementById('notif-career');
+            const notifSignal = document.getElementById('notif-signal');
+            const notifSeenKey = 'skillsync_job_notifs_seen_{{ current_user.id }}';
+            let notifInitialized = false;
+            let notifPopupTimer = null;
+            let notifDropdownOpened = false;
+
+            function iconFor(type, fallback) {
+                if (fallback) return fallback;
+                return {
+                    focus: 'target',
+                    progress: 'gauge',
+                    skill: 'brain-circuit',
+                    job: 'briefcase-business'
+                }[type] || 'bell';
+            }
+
+            function readSeenJobIds() {
+                try {
+                    const saved = JSON.parse(localStorage.getItem(notifSeenKey));
+                    return Array.isArray(saved) ? saved : [];
+                } catch {
+                    return [];
+                }
+            }
+
+            function rememberSeenJobIds(ids) {
+                localStorage.setItem(notifSeenKey, JSON.stringify(ids.slice(0, 30)));
+            }
+
+            function showJobNotificationPopup(count) {
+                const existing = document.querySelector('.job-notif-toast');
+                if (existing) existing.remove();
+                if (notifPopupTimer) clearTimeout(notifPopupTimer);
+
+                const toast = document.createElement('div');
+                toast.className = 'job-notif-toast';
+                toast.innerHTML = `
+                    <span class="job-notif-toast-icon"><i data-lucide="briefcase-business"></i></span>
+                    <span class="job-notif-toast-copy">
+                        <strong>${count > 1 ? `${count} new job suggestions` : 'New job suggestion'} for you</strong>
+                        <small>Check the notification bell.</small>
+                    </span>
+                    <button type="button">Open</button>
+                `;
+                toast.querySelector('button').addEventListener('click', () => {
+                    notifDropdown.classList.remove('hidden');
+                    fetchNotifications({ manual: true });
+                    toast.remove();
+                });
+                document.body.appendChild(toast);
+                if (window.lucide) lucide.createIcons();
+                notifPopupTimer = setTimeout(() => toast.remove(), 7200);
+            }
+
+            function renderEmpty(message = 'No fresh job suggestions yet. SkillSync will keep checking for roles matched to your selected path.') {
+                notifList.innerHTML = `<div class="notif-empty">
+                    <i data-lucide="bell-off"></i>
+                    <strong>No job alerts yet</strong>
+                    <p>${escapeHtml(message)}</p>
+                </div>`;
+                if (window.lucide) lucide.createIcons();
+            }
+
+            function renderNotification(n) {
+                const tags = (n.tags || []).slice(0, 3).map(t => `<span>${escapeHtml(t)}</span>`).join('');
+                const meta = [
+                    n.priority,
+                    n.posted_label,
+                    n.salary,
+                    n.location
+                ].filter(Boolean).slice(0, 3).map(v => `<span>${escapeHtml(v)}</span>`).join('');
+                const score = n.match_score ? `<b class="notif-score">${escapeHtml(n.match_score)}%</b>` : '';
+                const href = n.url || '#';
+                return `<a href="${escapeHtml(href)}" ${n.type === 'job' ? 'target="_blank" rel="noopener"' : ''} class="notif-item notif-item--${escapeHtml(n.type || 'info')}">
+                    <span class="notif-icon"><i data-lucide="${iconFor(n.type, n.icon)}"></i></span>
+                    <span class="notif-copy">
+                        <span class="notif-title-row">
+                            <strong>${escapeHtml(n.title || 'Notification')}</strong>
+                            ${score}
+                        </span>
+                        <small>${escapeHtml(n.company || '')}</small>
+                        <em>${escapeHtml(n.reason || n.context || '')}</em>
+                        <span class="notif-meta">${meta}</span>
+                        <span class="notif-tags">${tags}</span>
+                    </span>
+                    <span class="notif-action">${escapeHtml(n.action_label || 'Open')} <i data-lucide="arrow-up-right"></i></span>
+                </a>`;
+            }
+
+            async function fetchNotifications(options = {}){
+                const manual = Boolean(options.manual);
+                try{
+                    const res = await fetch('/dashboard/api/notifications');
+                    const data = await res.json();
+                    if(!res.ok) return;
+                    const notifs = data.notifications || [];
+                    notifCountEl.textContent = notifs.length;
+                    notifCountEl.classList.toggle('hidden', notifs.length === 0);
+                    
+                    if (notifBtn) {
+                        if (notifs.length > 0 && !notifDropdownOpened && notifDropdown.classList.contains('hidden')) {
+                            notifBtn.classList.add('has-alerts');
+                        } else if (notifs.length === 0) {
+                            notifBtn.classList.remove('has-alerts');
+                        }
+                    }
+
+                    if (notifCareer) notifCareer.textContent = data.career_title ? `${data.career_title} job feed` : 'Job alerts';
+                    if (notifSignal) notifSignal.textContent = data.total_found ? `${data.total_found} jobs scanned` : 'Watching jobs';
+                    if (!notifs.length) {
+                        renderEmpty();
+                        rememberSeenJobIds([]);
+                        notifInitialized = true;
+                        if (notifBtn) notifBtn.classList.remove('has-alerts');
+                        return;
+                    }
+                    notifList.innerHTML = notifs.map(renderNotification).join('');
+                    const ids = notifs.map(n => String(n.id || `${n.title}-${n.company}`)).filter(Boolean);
+                    const seen = readSeenJobIds();
+                    const hasStoredBaseline = seen.length > 0;
+                    const unseen = ids.filter(id => !seen.includes(id));
+                    const shouldPopup = unseen.length > 0 && !manual && (notifInitialized || hasStoredBaseline);
+                    if (shouldPopup) {
+                        showJobNotificationPopup(unseen.length);
+                        notifDropdownOpened = false;
+                        if (notifBtn && notifDropdown.classList.contains('hidden')) {
+                            notifBtn.classList.add('has-alerts');
+                        }
+                    }
+                    rememberSeenJobIds(ids);
+                    notifInitialized = true;
+                    if (window.lucide) lucide.createIcons();
+                }catch(e){
+                    console.error('Notification fetch error',e);
+                    renderEmpty('Could not refresh the feed right now. Your roadmap alerts will try again soon.');
+                }
+            }
+            if(notifBtn){
+                notifBtn.addEventListener('click', e=>{
+                    e.stopPropagation(); 
+                    notifDropdown.classList.toggle('hidden'); 
+                    if(!notifDropdown.classList.contains('hidden')) {
+                        notifDropdownOpened = true;
+                        if (notifBtn) notifBtn.classList.remove('has-alerts');
+                        fetchNotifications({ manual: true });
+                    }
+                });
+            }
+            document.addEventListener('click', e=>{ if(notifDropdown && !notifDropdown.contains(e.target) && !notifBtn.contains(e.target)){ notifDropdown.classList.add('hidden'); } });
+            setInterval(() => fetchNotifications({ manual: false }),5*60*1000);
+            // initial load
+            fetchNotifications({ manual: false });
+        })();
 });
-</script>
-{% endblock %}
+    </script>
+    {% endblock %}

@@ -1,0 +1,2386 @@
+{% extends "base.html" %}
+{% block title %}IQ & Aptitude Arena - SkillSync{% endblock %}
+{% block breadcrumbs %}<span>IQ & Aptitude Arena</span>{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+  --arena-bg: #06111f;
+  --arena-panel: rgba(8, 18, 34, 0.78);
+  --arena-panel-strong: rgba(10, 19, 36, 0.94);
+  --arena-line: rgba(104, 141, 184, 0.22);
+  --arena-text: #f6fbff;
+  --arena-muted: #91a4bd;
+  --arena-blue: #1f8bff;
+  --arena-cyan: #00e5ff;
+  --arena-violet: #8f42ff;
+  --arena-green: #19d392;
+  --arena-orange: #ff9f1a;
+  --arena-red: #ff4d6d;
+}
+
+body.theme-light {
+  --arena-bg: #f8fafc;
+  --arena-panel: rgba(255, 255, 255, 0.78);
+  --arena-panel-strong: rgba(255, 255, 255, 0.94);
+  --arena-line: rgba(100, 116, 139, 0.22);
+  --arena-text: #0f172a;
+  --arena-muted: #64748b;
+  --arena-blue: #2563eb;
+  --arena-cyan: #0891b2;
+  --arena-violet: #7c3aed;
+  --arena-green: #10b981;
+  --arena-orange: #f59e0b;
+  --arena-red: #ef4444;
+}
+
+.arena-wrap {
+  position: relative;
+  min-height: calc(100vh - 96px);
+  padding: 20px;
+  color: var(--arena-text);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(74, 65, 255, 0.18), transparent 28%),
+    radial-gradient(circle at 76% 10%, rgba(0, 229, 255, 0.13), transparent 30%),
+    linear-gradient(145deg, rgba(3, 9, 19, 0.98), var(--arena-bg));
+  overflow: hidden;
+}
+
+.arena-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,.9), rgba(0,0,0,.25));
+  pointer-events: none;
+}
+
+.arena-shell {
+  position: relative;
+  z-index: 1;
+  max-width: 1520px;
+  margin: 0 auto;
+}
+
+.arena-topbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.arena-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brain-core {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border: 1px solid rgba(0,229,255,.38);
+  border-radius: 16px;
+  color: var(--arena-cyan);
+  background: linear-gradient(145deg, rgba(31,139,255,.18), rgba(143,66,255,.18));
+  box-shadow: 0 0 28px rgba(0,229,255,.22), inset 0 0 20px rgba(255,255,255,.06);
+}
+
+.brain-core svg { width: 27px; height: 27px; }
+
+.arena-title h1 {
+  margin: 0;
+  font-size: 1.65rem;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.arena-title p {
+  margin: 6px 0 0;
+  color: var(--arena-muted);
+  font-size: .9rem;
+}
+
+.career-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 9px;
+  padding: 5px 10px;
+  border: 1px solid rgba(0,229,255,.25);
+  border-radius: 999px;
+  color: #aeeeff;
+  background: rgba(0,229,255,.08);
+  font-size: .76rem;
+  font-weight: 800;
+}
+
+.arena-top-stats {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.top-stat {
+  min-width: 112px;
+  padding: 11px 14px;
+  border: 1px solid var(--arena-line);
+  border-radius: 14px;
+  background: rgba(255,255,255,.035);
+  text-align: center;
+}
+
+.top-stat strong {
+  display: block;
+  font-size: 1.18rem;
+}
+
+.top-stat span {
+  color: var(--arena-muted);
+  font-size: .7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.mode-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.mode-card {
+  position: relative;
+  min-height: 150px;
+  padding: 18px;
+  border: 1px solid var(--arena-line);
+  border-radius: 16px;
+  color: var(--arena-text);
+  background: linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.018));
+  cursor: pointer;
+  overflow: hidden;
+  text-align: left;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.mode-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.08), transparent);
+  transform: translateX(-120%);
+  transition: transform .65s ease;
+}
+
+.mode-card:hover::before { transform: translateX(120%); }
+.mode-card:hover { transform: translateY(-3px); }
+
+.mode-card.active {
+  border-color: var(--mode-color);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.05), 0 0 36px var(--mode-glow);
+}
+
+.mode-card.active::after {
+  content: "";
+  position: absolute;
+  right: -36px;
+  top: -36px;
+  width: 112px;
+  height: 112px;
+  background: radial-gradient(circle, var(--mode-color), transparent 62%);
+  opacity: .34;
+}
+
+.mode-card[data-mode="quickfire"] { --mode-color: var(--arena-blue); --mode-glow: rgba(31,139,255,.28); }
+.mode-card[data-mode="puzzle"] { --mode-color: var(--arena-green); --mode-glow: rgba(25,211,146,.22); }
+.mode-card[data-mode="interview"] { --mode-color: var(--arena-violet); --mode-glow: rgba(143,66,255,.25); }
+
+.mode-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 12px;
+  border-radius: 13px;
+  color: var(--mode-color);
+  background: color-mix(in srgb, var(--mode-color) 14%, transparent);
+}
+
+.mode-icon svg { width: 24px; height: 24px; }
+
+.mode-card h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: 0;
+}
+
+.mode-card p {
+  margin: 6px 0 12px;
+  color: var(--arena-muted);
+  font-size: .82rem;
+}
+
+.mode-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mode-tags span,
+.arena-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 999px;
+  color: #b8c7dc;
+  background: rgba(255,255,255,.05);
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+.arena-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 16px;
+}
+
+.arena-card {
+  border: 1px solid var(--arena-line);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(9, 23, 43, .86), rgba(6, 14, 28, .72));
+  box-shadow: 0 20px 70px rgba(0,0,0,.25);
+}
+
+.challenge-card {
+  min-height: 430px;
+  padding: 20px;
+}
+
+.arena-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.arena-card-title h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.mode-panel { display: none; }
+.mode-panel.active { display: block; }
+
+.qf-controls,
+.arena-actions,
+.q-type-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.interview-control-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.interview-control-strip .q-type-row {
+  margin-bottom: 0;
+}
+
+.interview-control-strip .btn-arena {
+  min-width: 154px;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.qf-select {
+  min-width: 160px;
+  padding: 10px 12px;
+  border: 1px solid var(--arena-line);
+  border-radius: 10px;
+  color: var(--arena-text);
+  background: rgba(4, 12, 24, .72);
+  font-family: inherit;
+  font-size: .84rem;
+}
+
+.btn-arena {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 10px 15px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: #fff;
+  background: rgba(255,255,255,.06);
+  font-family: inherit;
+  font-size: .85rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform .15s ease, filter .15s ease, opacity .15s ease;
+}
+
+.btn-arena:hover { transform: translateY(-1px); filter: brightness(1.08); }
+.btn-arena:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.btn-blue { background: linear-gradient(135deg, #1f76ff, #8f42ff); }
+.btn-green { background: linear-gradient(135deg, #10b981, #00e5ff); }
+.btn-violet { background: linear-gradient(135deg, #8f42ff, #f45bff); }
+.btn-ghost { border-color: var(--arena-line); color: #c8d6ea; background: rgba(255,255,255,.045); }
+
+.quick-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 292px;
+  gap: 16px;
+}
+
+.timer-bar-wrap {
+  height: 6px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+}
+
+.timer-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--arena-green), var(--arena-blue));
+  transition: width 1s linear;
+}
+
+.q-counter {
+  margin-bottom: 8px;
+  color: var(--arena-muted);
+  font-size: .78rem;
+  font-weight: 900;
+}
+
+.q-text {
+  margin-bottom: 16px;
+  color: var(--arena-text);
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+.options-grid {
+  display: grid;
+  gap: 9px;
+}
+
+.opt-btn {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--arena-line);
+  border-radius: 10px;
+  color: var(--arena-text);
+  background: rgba(255,255,255,.035);
+  text-align: left;
+  cursor: pointer;
+}
+
+.opt-btn:hover:not(:disabled) { border-color: rgba(31,139,255,.75); background: rgba(31,139,255,.08); }
+.opt-btn.correct { border-color: var(--arena-green); background: rgba(25,211,146,.1); color: #8fffe0; }
+.opt-btn.wrong { border-color: var(--arena-red); background: rgba(255,77,109,.1); color: #ffc1cc; }
+.opt-key {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.07);
+  font-size: .78rem;
+  font-weight: 900;
+}
+
+.explanation-box {
+  display: none;
+  margin-top: 13px;
+  padding: 12px;
+  border: 1px solid rgba(25,211,146,.22);
+  border-radius: 10px;
+  color: #c8d6ea;
+  background: rgba(25,211,146,.07);
+  font-size: .84rem;
+  line-height: 1.6;
+}
+
+.live-metrics {
+  padding: 16px;
+  border: 1px solid var(--arena-line);
+  border-radius: 14px;
+  background: rgba(2, 8, 18, .46);
+}
+
+.mini-ring {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  margin: 0 auto 14px;
+}
+
+.mini-ring svg { transform: rotate(-90deg); }
+.mini-ring-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+.metric-line {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.metric-line label {
+  color: var(--arena-muted);
+  font-size: .71rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.metric-line strong {
+  font-size: .78rem;
+}
+
+.bar {
+  grid-column: 1 / -1;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  width: var(--w, 50%);
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--bar-color, var(--arena-blue)), var(--arena-cyan));
+  box-shadow: 0 0 18px color-mix(in srgb, var(--bar-color, var(--arena-blue)) 55%, transparent);
+}
+
+.score-screen {
+  display: none;
+  text-align: center;
+  padding: 24px;
+}
+
+.score-ring-wrap {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  margin: 0 auto 14px;
+}
+
+.score-ring-wrap svg { transform: rotate(-90deg); }
+.score-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-num { font-size: 2rem; font-weight: 900; }
+.score-denom { color: var(--arena-muted); font-size: .78rem; }
+.score-grade { margin-bottom: 6px; font-size: 1.2rem; font-weight: 900; }
+.score-msg { max-width: 380px; margin: 0 auto 18px; color: var(--arena-muted); }
+
+.puzzle-body,
+.interview-q-box,
+textarea.answer-input {
+  width: 100%;
+  border: 1px solid var(--arena-line);
+  border-radius: 12px;
+  color: var(--arena-text);
+  background: rgba(2, 8, 18, .5);
+  box-sizing: border-box;
+}
+
+.puzzle-title {
+  margin-bottom: 10px;
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.puzzle-body {
+  min-height: 145px;
+  padding: 15px;
+  color: #c8d6ea;
+  line-height: 1.75;
+}
+
+.hint-list,
+.project-list {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  margin: 12px 0 0;
+  list-style: none;
+}
+
+.hint-item {
+  display: none;
+  padding: 10px;
+  border: 1px solid rgba(25,211,146,.22);
+  border-radius: 10px;
+  color: #c8d6ea;
+  background: rgba(25,211,146,.065);
+  font-size: .84rem;
+}
+
+.hint-item.visible { display: block; }
+
+.solution-box {
+  display: none;
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid rgba(25,211,146,.25);
+  border-radius: 12px;
+  background: rgba(25,211,146,.07);
+}
+
+.qtype-chip {
+  padding: 7px 11px;
+  border: 1px solid var(--arena-line);
+  border-radius: 999px;
+  color: var(--arena-muted);
+  background: rgba(255,255,255,.04);
+  font-size: .75rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.qtype-chip.active {
+  color: #fff;
+  border-color: var(--arena-violet);
+  background: rgba(143,66,255,.18);
+}
+
+.interview-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.interview-q-box {
+  min-height: 118px;
+  padding: 14px;
+  line-height: 1.65;
+}
+
+textarea.answer-input {
+  min-height: 188px;
+  padding: 14px;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.55;
+}
+
+.look-chips,
+.fb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.look-chip,
+.fb-chip-good,
+.fb-chip-bad {
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 900;
+}
+
+.look-chip { color: #d9ccff; background: rgba(143,66,255,.15); border: 1px solid rgba(143,66,255,.25); }
+.fb-chip-good { color: #a9ffe6; background: rgba(25,211,146,.12); border: 1px solid rgba(25,211,146,.25); }
+.fb-chip-bad { color: #ffd0d8; background: rgba(255,77,109,.12); border: 1px solid rgba(255,77,109,.25); }
+
+.fb-section-title,
+.micro-title {
+  margin: 14px 0 7px;
+  color: var(--arena-muted);
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.fb-overall {
+  padding: 12px;
+  border: 1px solid var(--arena-line);
+  border-radius: 10px;
+  color: #c8d6ea;
+  background: rgba(255,255,255,.04);
+  font-size: .84rem;
+  line-height: 1.6;
+}
+
+.arena-wrap.interview-room-active .mode-cards,
+.arena-wrap.interview-room-active .arena-topbar,
+.arena-wrap.interview-room-active .side-stack,
+.arena-wrap.interview-room-active .bottom-grid,
+.arena-wrap.interview-room-active .tip-strip {
+  display: none;
+}
+
+.arena-wrap.interview-room-active .arena-grid {
+  grid-template-columns: 1fr;
+}
+
+.arena-wrap.interview-room-active .challenge-card {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mock-room {
+  display: grid;
+  gap: 16px;
+}
+
+.mock-room-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 20px;
+  border: 1px solid var(--arena-line);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(9, 23, 43, .86), rgba(6, 14, 28, .72));
+}
+
+.mock-room-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.mock-room-header p {
+  margin: 5px 0 0;
+  color: #c6d4e7;
+  font-size: .86rem;
+}
+
+.mock-room-header p span {
+  color: var(--arena-muted);
+  margin-left: 8px;
+}
+
+.mock-room-actions,
+.mock-timer,
+.mock-panel-title,
+.answer-mode-row,
+.answer-actions,
+.answer-footer {
+  display: flex;
+  align-items: center;
+}
+
+.mock-room-actions {
+  gap: 10px;
+}
+
+.mock-timer {
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid rgba(143,66,255,.28);
+  border-radius: 12px;
+  color: #fff;
+  background: rgba(143,66,255,.1);
+}
+
+.mock-timer svg {
+  width: 16px;
+  height: 16px;
+  color: var(--arena-violet);
+}
+
+.mock-room-grid {
+  display: grid;
+  grid-template-columns: 180px minmax(210px, .9fr) minmax(280px, 1.1fr) 190px;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.mock-interviewer-panel,
+.mock-dialog-panel,
+.mock-answer-panel,
+.mock-eval-panel,
+.mock-feedback-panel {
+  border: 1px solid var(--arena-line);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(9, 23, 43, .88), rgba(6, 14, 28, .74));
+  box-shadow: 0 20px 70px rgba(0,0,0,.22);
+}
+
+.mock-interviewer-panel,
+.mock-dialog-panel,
+.mock-answer-panel,
+.mock-eval-panel {
+  padding: 16px;
+  min-width: 0;
+}
+
+.mock-panel-title {
+  gap: 8px;
+  margin-bottom: 14px;
+  color: #f4f8ff;
+  font-size: .88rem;
+  font-weight: 900;
+}
+
+.mock-panel-title svg {
+  width: 16px;
+  height: 16px;
+  color: var(--arena-violet);
+}
+
+.interviewer-avatar {
+  width: 92px;
+  height: 92px;
+  margin: 12px auto 12px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255,255,255,.2), transparent 34%),
+    linear-gradient(145deg, rgba(0,229,255,.32), rgba(143,66,255,.45));
+  border: 9px solid rgba(143,66,255,.16);
+  box-shadow: 0 0 34px rgba(143,66,255,.22);
+}
+
+.interviewer-avatar span {
+  width: 62px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(5, 12, 24, .82);
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.mock-interviewer-panel h3,
+.mock-interviewer-panel p {
+  text-align: center;
+}
+
+.mock-interviewer-panel h3 {
+  margin: 0;
+  font-size: 1.08rem;
+}
+
+.mock-interviewer-panel p {
+  margin: 5px 0 16px;
+  color: var(--arena-muted);
+  font-size: .78rem;
+}
+
+.interviewer-meta {
+  display: grid;
+  gap: 9px;
+  padding: 11px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  background: rgba(255,255,255,.035);
+}
+
+.interviewer-meta span {
+  display: grid;
+  grid-template-columns: 15px 45px minmax(0, 1fr);
+  gap: 7px;
+  align-items: center;
+  color: var(--arena-muted);
+  font-size: .66rem;
+}
+
+.interviewer-meta svg {
+  width: 13px;
+  height: 13px;
+}
+
+.interviewer-meta strong {
+  color: #fff;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.interview-flow-list {
+  display: grid;
+  gap: 7px;
+  margin-top: 13px;
+}
+
+.interview-flow-list span {
+  padding: 7px 8px;
+  border-radius: 10px;
+  color: var(--arena-muted);
+  background: rgba(255,255,255,.035);
+  font-size: .76rem;
+  font-weight: 800;
+}
+
+.interview-flow-list .done {
+  color: var(--arena-green);
+}
+
+.interview-flow-list .active {
+  color: #fff;
+  background: rgba(143,66,255,.18);
+  border: 1px solid rgba(143,66,255,.28);
+}
+
+.mock-dialog-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.mock-dialog-panel .interview-control-strip {
+  align-items: stretch;
+  flex-direction: column;
+}
+
+.mock-dialog-panel .interview-control-strip .btn-arena {
+  width: 100%;
+}
+
+.mock-question-bubble {
+  min-height: 118px;
+  margin-top: 12px;
+  padding: 16px;
+  border-radius: 16px 16px 16px 4px;
+  background: linear-gradient(145deg, rgba(255,255,255,.07), rgba(255,255,255,.025));
+}
+
+.question-pill {
+  width: fit-content;
+  margin-top: 4px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  color: #d9ccff;
+  background: rgba(143,66,255,.16);
+  border: 1px solid rgba(143,66,255,.25);
+  font-size: .72rem;
+  font-weight: 900;
+}
+
+.mock-thinking {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 13px;
+  border: 1px solid rgba(143,66,255,.18);
+  border-radius: 14px;
+  color: #d8c9ff;
+  background: rgba(143,66,255,.08);
+  font-size: .84rem;
+}
+
+.mock-thinking i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--arena-violet);
+  animation: pulseDot 1.2s ease-in-out infinite;
+}
+
+.mock-thinking i:nth-child(3) { animation-delay: .15s; }
+.mock-thinking i:nth-child(4) { animation-delay: .3s; }
+
+@keyframes pulseDot {
+  0%, 80%, 100% { transform: translateY(0); opacity: .45; }
+  40% { transform: translateY(-3px); opacity: 1; }
+}
+
+.answer-mode-row {
+  gap: 8px;
+  margin-bottom: 11px;
+  flex-wrap: wrap;
+}
+
+.answer-mode-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 9px;
+  color: var(--arena-muted);
+  background: rgba(255,255,255,.035);
+  font-size: .75rem;
+  font-weight: 900;
+}
+
+.answer-mode-row .active {
+  color: #fff;
+  background: rgba(143,66,255,.2);
+}
+
+.answer-mode-row svg {
+  width: 13px;
+  height: 13px;
+}
+
+.mock-answer-panel textarea.answer-input {
+  min-height: 300px;
+  resize: none;
+}
+
+.answer-footer {
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 0 12px;
+  color: var(--arena-muted);
+  font-size: .74rem;
+}
+
+.answer-footer .btn-arena {
+  min-height: 32px;
+  padding: 6px 10px;
+  font-size: .72rem;
+}
+
+.answer-actions {
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+
+.iv-metric {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.iv-metric span {
+  color: #dce8f7;
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.iv-metric strong {
+  color: var(--arena-muted);
+  font-size: .76rem;
+}
+
+.iv-score-ring {
+  position: relative;
+  width: 116px;
+  height: 116px;
+  margin: 22px auto 8px;
+}
+
+.iv-score-ring svg {
+  transform: rotate(-90deg);
+}
+
+.iv-score-ring > div {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.iv-score-ring strong {
+  color: #fff;
+  font-size: 1.45rem;
+}
+
+.iv-score-ring span,
+.iv-score-note {
+  color: var(--arena-muted);
+  font-size: .76rem;
+}
+
+.iv-score-note {
+  text-align: center;
+  margin: 0;
+}
+
+.mock-feedback-panel {
+  display: grid;
+  grid-template-columns: 130px repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+  padding: 16px;
+}
+
+.side-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.side-panel {
+  padding: 16px;
+}
+
+.status-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.status-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  color: #d9e6f8;
+  font-size: .83rem;
+}
+
+.status-row span:first-child {
+  color: var(--arena-muted);
+}
+
+.ai-eval {
+  display: grid;
+  grid-template-columns: 116px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+}
+
+.grade-ring {
+  position: relative;
+  width: 112px;
+  height: 112px;
+}
+
+.grade-ring svg { transform: rotate(-90deg); }
+.grade-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 1.7rem;
+  font-weight: 900;
+  color: var(--arena-green);
+}
+
+.bottom-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.performance-card,
+.activity-card {
+  padding: 16px;
+}
+
+.performance-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.perf-stat {
+  padding: 10px;
+  border-right: 1px solid var(--arena-line);
+}
+
+.perf-stat:last-child { border-right: 0; }
+.perf-stat strong { display: block; font-size: 1.35rem; }
+.perf-stat span { color: var(--arena-muted); font-size: .7rem; }
+
+.skill-list {
+  display: grid;
+  gap: 11px;
+}
+
+.skill-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.skill-row strong {
+  font-size: .82rem;
+}
+
+.skill-row small {
+  color: var(--arena-muted);
+  font-weight: 900;
+}
+
+.activity-list {
+  display: grid;
+  gap: 10px;
+}
+
+.activity-item {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  color: #d8e5f8;
+  font-size: .8rem;
+}
+
+.activity-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  color: var(--arena-cyan);
+  background: rgba(0,229,255,.1);
+}
+
+.tip-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 13px 16px;
+  border: 1px solid var(--arena-line);
+  border-radius: 14px;
+  color: #c8d6ea;
+  background: rgba(255,255,255,.035);
+}
+
+.arena-loading {
+  display: none;
+  padding: 34px;
+  color: var(--arena-muted);
+  text-align: center;
+}
+
+.spin {
+  display: inline-flex;
+  animation: spin .9s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 1180px) {
+  .arena-grid,
+  .quick-shell,
+  .bottom-grid,
+  .mock-room-grid,
+  .mock-feedback-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 820px) {
+  .arena-wrap { padding: 14px; }
+  .arena-topbar,
+  .mode-cards,
+  .interview-layout,
+  .ai-eval,
+  .performance-grid {
+    grid-template-columns: 1fr;
+  }
+  .arena-top-stats { flex-wrap: wrap; }
+  .interview-control-strip {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .interview-control-strip .btn-arena {
+    width: 100%;
+  }
+  .mock-room-header,
+  .mock-room-actions,
+  .answer-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .mock-room-actions .btn-arena,
+  .answer-actions .btn-arena {
+    width: 100%;
+  }
+  .mode-card { min-height: 132px; }
+}
+  /* ── Light Theme Overrides ── */
+  body.theme-light .arena-wrap {
+    background: radial-gradient(circle at 18% 0%, rgba(37,99,235,0.06), transparent 28%), radial-gradient(circle at 76% 10%, rgba(8,145,178,0.06), transparent 30%), linear-gradient(145deg, #ffffff, var(--arena-bg));
+  }
+  body.theme-light .arena-wrap::before {
+    background: linear-gradient(rgba(0,0,0,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.035) 1px, transparent 1px);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
+  }
+  body.theme-light .brain-core {
+    background: linear-gradient(145deg, rgba(37,99,235,.1), rgba(124,58,237,.1));
+    box-shadow: 0 0 28px rgba(8,145,178,.15), inset 0 0 20px rgba(0,0,0,.02);
+    border-color: rgba(8,145,178,.25);
+  }
+  body.theme-light .career-chip { border-color: rgba(8,145,178,.3); color: #0891b2; background: rgba(8,145,178,.1); }
+  body.theme-light .top-stat { background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+  body.theme-light .mode-card { background: linear-gradient(145deg, #ffffff, #f8fafc); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+  body.theme-light .mode-card::before { background: linear-gradient(120deg, transparent, rgba(0,0,0,.03), transparent); }
+  body.theme-light .mode-card.active { box-shadow: 0 0 0 1px rgba(0,0,0,.05), 0 0 36px var(--mode-glow); background: #ffffff; }
+  body.theme-light .mode-card[data-mode="quickfire"] { --mode-glow: rgba(37,99,235,.15); }
+  body.theme-light .mode-card[data-mode="puzzle"] { --mode-glow: rgba(16,185,129,.15); }
+  body.theme-light .mode-card[data-mode="interview"] { --mode-glow: rgba(124,58,237,.15); }
+  body.theme-light .mode-tags span, body.theme-light .arena-pill { border-color: rgba(0,0,0,.09); color: #475569; background: rgba(0,0,0,.03); }
+  body.theme-light .arena-card { background: #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,.04); }
+  body.theme-light .qf-select { background: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,.02); }
+  body.theme-light .btn-arena { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.1); }
+  body.theme-light .btn-ghost { color: #334155; background: #ffffff; border-color: var(--arena-line); text-shadow: none; }
+  body.theme-light .timer-bar-wrap { background: rgba(0,0,0,.06); }
+  body.theme-light .opt-btn { background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,.02); }
+  body.theme-light .opt-btn:hover:not(:disabled) { background: rgba(37,99,235,.04); border-color: rgba(37,99,235,.4); }
+  body.theme-light .opt-btn.correct { background: rgba(16,185,129,.1); color: #047857; }
+  body.theme-light .opt-btn.wrong { background: rgba(239,68,68,.1); color: #b91c1c; }
+  body.theme-light .opt-key { background: rgba(0,0,0,.04); color: #475569; }
+  body.theme-light .explanation-box { color: #047857; background: rgba(16,185,129,.05); border-color: rgba(16,185,129,.3); }
+  body.theme-light .live-metrics { background: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,.02); }
+  body.theme-light .bar { background: rgba(0,0,0,.06); }
+  body.theme-light .puzzle-body, body.theme-light .interview-q-box, body.theme-light textarea.answer-input { background: #ffffff; box-shadow: inset 0 2px 4px rgba(0,0,0,.02); }
+  body.theme-light .puzzle-body { color: #334155; }
+  body.theme-light .hint-item { color: #047857; background: rgba(16,185,129,.05); border-color: rgba(16,185,129,.3); }
+  body.theme-light .solution-box { background: rgba(16,185,129,.05); border-color: rgba(16,185,129,.3); color: #047857; }
+  body.theme-light .qtype-chip { background: #ffffff; color: #64748b; }
+  body.theme-light .qtype-chip.active { color: #fff; background: var(--arena-violet); border-color: var(--arena-violet); }
+  body.theme-light .look-chip { color: #5b21b6; background: rgba(124,58,237,.1); border-color: rgba(124,58,237,.2); }
+  body.theme-light .fb-chip-good { color: #047857; background: rgba(16,185,129,.1); border-color: rgba(16,185,129,.2); }
+  body.theme-light .fb-chip-bad { color: #b91c1c; background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.2); }
+  body.theme-light .fb-overall { color: #334155; background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,.02); }
+  body.theme-light .mock-room-header { background: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,.03); }
+  body.theme-light .mock-room-header p { color: #64748b; }
+  body.theme-light .mock-timer { color: #5b21b6; background: rgba(124,58,237,.08); border-color: rgba(124,58,237,.3); }
+  body.theme-light .mock-interviewer-panel, body.theme-light .mock-dialog-panel, body.theme-light .mock-answer-panel, body.theme-light .mock-eval-panel, body.theme-light .mock-feedback-panel { background: #ffffff; box-shadow: 0 6px 24px rgba(0,0,0,.04); }
+  body.theme-light .mock-panel-title { color: #0f172a; }
+  body.theme-light .interviewer-avatar { background: radial-gradient(circle at 50% 42%, rgba(0,0,0,.02), transparent 34%), linear-gradient(145deg, rgba(8,145,178,.1), rgba(124,58,237,.1)); border-color: rgba(124,58,237,.1); box-shadow: 0 0 34px rgba(124,58,237,.1); }
+  body.theme-light .interviewer-avatar span { background: #ffffff; color: #0f172a; border: 1px solid rgba(0,0,0,.05); box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+  body.theme-light .interviewer-meta { border-color: rgba(0,0,0,.05); background: #f8fafc; }
+  body.theme-light .dialog-bubble.system-msg { background: rgba(8,145,178,.08); border-color: rgba(8,145,178,.2); color: #0f172a; }
+  body.theme-light .dialog-bubble.user-msg { background: rgba(37,99,235,.08); border-color: rgba(37,99,235,.2); color: #0f172a; }
+  body.theme-light .score-msg { color: #475569; }
+
+  /* XP Floater Animation */
+  .xp-floater {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    color: var(--arena-green);
+    font-weight: 800;
+    font-size: 1.25rem;
+    text-shadow: 0 0 12px rgba(25, 211, 146, 0.4);
+    animation: floatUp 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  }
+  @keyframes floatUp {
+    0% { transform: scale(0.5) translateY(0); opacity: 0; }
+    15% { transform: scale(1.2) translateY(-20px); opacity: 1; }
+    80% { transform: scale(1) translateY(-60px); opacity: 1; }
+    100% { transform: scale(0.8) translateY(-80px); opacity: 0; }
+  }
+
+  /* Puzzle Answer Area */
+  .puzzle-textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--arena-line);
+    border-radius: 8px;
+    padding: 1rem;
+    color: var(--arena-text);
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 100px;
+    margin-bottom: 1rem;
+    transition: all 0.2s;
+  }
+  .puzzle-textarea:focus {
+    outline: none;
+    border-color: var(--arena-cyan);
+    box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
+  }
+  body.theme-light .puzzle-textarea {
+    background: #ffffff;
+    color: #0f172a;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="arena-wrap">
+  <div class="arena-shell">
+    <header class="arena-topbar">
+      <div>
+        <div class="arena-title-row">
+          <div class="brain-core"><i data-lucide="brain-circuit"></i></div>
+          <div class="arena-title">
+            <h1>IQ & Aptitude Arena</h1>
+            <p>Level up your thinking. Train the cognitive signals behind your career readiness.</p>
+            <span class="career-chip"><i data-lucide="target"></i>Tuned for: {{ career_title }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="arena-top-stats">
+        <div class="top-stat"><strong id="streak-stat">2</strong><span>Day streak</span></div>
+        <div class="top-stat"><strong id="xp-stat">1,240</strong><span>XP earned</span></div>
+        <div class="top-stat"><strong id="rank-stat">B+</strong><span>Arena rank</span></div>
+      </div>
+    </header>
+
+    <section class="mode-cards" aria-label="Training modes">
+      <button class="mode-card active" data-mode="quickfire" onclick="switchMode('quickfire')">
+        <span class="mode-icon"><i data-lucide="zap"></i></span>
+        <h2>Quick Fire</h2>
+        <p>10 MCQs with 20 seconds each. Speed and accuracy training.</p>
+        <span class="mode-tags"><span>Speed</span><span>Accuracy</span><span>+120 XP</span></span>
+      </button>
+      <button class="mode-card" data-mode="puzzle" onclick="switchMode('puzzle')">
+        <span class="mode-icon"><i data-lucide="puzzle"></i></span>
+        <h2>Deep Think</h2>
+        <p>Logic puzzles with hints. Slow reasoning, clean deduction.</p>
+        <span class="mode-tags"><span>Reasoning</span><span>Logic</span><span>+180 XP</span></span>
+      </button>
+      <a class="mode-card" data-mode="interview" href="{{ url_for('interview.session') }}" style="text-decoration:none;color:inherit;">
+        <span class="mode-icon"><i data-lucide="mic"></i></span>
+        <h2>Mock Interview</h2>
+        <p>Full interview room — AI interviewer, live scoring, timed session.</p>
+        <span class="mode-tags"><span>Communication</span><span>Tech</span><span>+220 XP</span></span>
+      </a>
+    </section>
+
+    <main class="arena-grid">
+      <section class="arena-card challenge-card">
+        <div class="mode-panel active" id="panel-quickfire">
+          <div class="arena-card-title">
+            <h2><i data-lucide="radio-tower"></i>Quick Fire Challenge</h2>
+            <span class="arena-pill" id="qf-meta-pill">Medium · 20 sec each</span>
+          </div>
+
+          <div id="qf-setup">
+            <div class="qf-controls">
+              <select class="qf-select" id="qf-category">
+                <option value="logical">Logical Reasoning</option>
+                <option value="numerical">Numerical Ability</option>
+                <option value="verbal">Verbal Reasoning</option>
+                <option value="technical">Technical Accuracy</option>
+              </select>
+              <select class="qf-select" id="qf-difficulty" onchange="syncDifficultyLabel()">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+              <button class="btn-arena btn-blue" id="qf-start-btn" onclick="startQuickFire()">
+                <i data-lucide="play"></i>Start Challenge
+              </button>
+            </div>
+          </div>
+
+          <div class="arena-loading" id="qf-loading"><span class="spin"><i data-lucide="loader-2"></i></span><br>Generating your questions...</div>
+
+          <div class="quick-shell" id="qf-game" style="display:none;">
+            <div>
+              <div class="timer-bar-wrap"><div class="timer-bar-fill" id="timer-bar" style="width:100%"></div></div>
+              <div class="q-counter" id="q-counter">Question 1 of 10</div>
+              <div class="q-text" id="q-text"></div>
+              <div class="options-grid" id="options-grid"></div>
+              <div class="explanation-box" id="explanation-box"></div>
+              <div class="arena-actions" style="justify-content:flex-end;margin-top:14px;">
+                <button class="btn-arena btn-ghost" id="qf-next-btn" onclick="nextQuestion()" style="display:none;">
+                  Next <i data-lucide="arrow-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <aside class="live-metrics">
+              <div class="mini-ring">
+                <svg width="92" height="92" viewBox="0 0 92 92">
+                  <circle cx="46" cy="46" r="37" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="8"/>
+                  <circle id="live-progress-ring" cx="46" cy="46" r="37" fill="none" stroke="url(#liveGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="232" stroke-dashoffset="232"/>
+                  <defs><linearGradient id="liveGrad"><stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#8f42ff"/></linearGradient></defs>
+                </svg>
+                <div class="mini-ring-center" id="live-time">20s</div>
+              </div>
+              <div class="metric-line"><label>Progress</label><strong id="live-progress">0 / 10</strong><div class="bar"><span id="live-progress-bar" style="--w:0%;--bar-color:var(--arena-blue);"></span></div></div>
+              <div class="metric-line"><label>Accuracy</label><strong id="live-accuracy">0%</strong><div class="bar"><span id="live-accuracy-bar" style="--w:0%;--bar-color:var(--arena-green);"></span></div></div>
+              <div class="metric-line"><label>Pressure</label><strong id="live-pressure">Calm</strong><div class="bar"><span id="live-pressure-bar" style="--w:34%;--bar-color:var(--arena-orange);"></span></div></div>
+            </aside>
+          </div>
+
+          <div class="score-screen" id="qf-score">
+            <div class="score-ring-wrap">
+              <svg width="132" height="132" viewBox="0 0 132 132">
+                <circle cx="66" cy="66" r="54" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="13"/>
+                <circle cx="66" cy="66" r="54" fill="none" stroke="url(#scoreGrad)" stroke-width="13" stroke-linecap="round" stroke-dasharray="339" id="score-ring" stroke-dashoffset="339"/>
+                <defs><linearGradient id="scoreGrad"><stop offset="0%" stop-color="#19d392"/><stop offset="100%" stop-color="#1f8bff"/></linearGradient></defs>
+              </svg>
+              <div class="score-center"><span class="score-num" id="score-num">0</span><span class="score-denom" id="score-denom">/10</span></div>
+            </div>
+            <div class="score-grade" id="score-grade"></div>
+            <div class="score-msg" id="score-msg"></div>
+            <button class="btn-arena btn-blue" onclick="resetQuickFire()"><i data-lucide="refresh-cw"></i>Try again</button>
+          </div>
+        </div>
+
+        <div class="mode-panel" id="panel-puzzle">
+          <div class="arena-card-title">
+            <h2><i data-lucide="puzzle"></i>Deep Think Puzzle</h2>
+            <span class="arena-pill">Logic · Hints enabled</span>
+          </div>
+
+          <div id="puzzle-home">
+            <p style="color:var(--arena-muted);line-height:1.65;max-width:720px;">Generate a reasoning puzzle tuned to your career path. Use hints only when you need a nudge.</p>
+            <button class="btn-arena btn-green" id="puzzle-gen-btn" onclick="generatePuzzle()"><i data-lucide="sparkles"></i>Start Puzzle</button>
+          </div>
+
+          <div class="arena-loading" id="puzzle-loading"><span class="spin"><i data-lucide="loader-2"></i></span><br>Crafting your puzzle...</div>
+
+          <div id="puzzle-content" style="display:none;">
+            <div class="puzzle-title" id="puzzle-title"></div>
+            <div class="puzzle-body" id="puzzle-body"></div>
+            
+            <textarea id="puzzle-answer" class="puzzle-textarea" placeholder="Type your thought process and final answer here..."></textarea>
+            
+            <div class="arena-actions" id="puzzle-actions">
+              <button class="btn-arena btn-ghost" id="hint-btn" onclick="showNextHint()"><i data-lucide="lightbulb"></i>Hint 1</button>
+              <button class="btn-arena btn-ghost" id="puzzle-giveup-btn" onclick="giveUpPuzzle(this)"><i data-lucide="eye"></i>Give Up / View Answer</button>
+              <button class="btn-arena btn-blue" id="puzzle-submit-btn" onclick="submitPuzzleAnswer(this)"><i data-lucide="send"></i>Submit Answer</button>
+              <button class="btn-arena btn-green" onclick="generatePuzzle()"><i data-lucide="refresh-cw"></i>New puzzle</button>
+            </div>
+            
+            <ul class="hint-list" id="hint-list"></ul>
+            
+            <div class="solution-box" id="solution-box">
+              <div class="micro-title">AI Feedback</div>
+              <p id="puzzle-ai-feedback" style="margin-bottom:12px;font-weight:500;"></p>
+              <div class="micro-title">Official Solution</div>
+              <p><strong>Answer:</strong> <span id="solution-answer"></span></p>
+              <p id="solution-steps"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mode-panel" id="panel-interview">
+          <div class="arena-card" style="padding:28px 24px;text-align:center;">
+            <div class="arena-card-title" style="justify-content:center;margin-bottom:12px;">
+              <h2><i data-lucide="mic"></i> Mock Interview</h2>
+            </div>
+            <p style="color:var(--arena-muted);max-width:420px;margin:0 auto 20px;font-size:.9rem;line-height:1.5;">
+              Full interview room with Alexia — timed session, live AI scoring, and 8 questions. Timer starts when you click <strong style="color:#c4b5fd;">Start Interview</strong>.
+            </p>
+            <a href="{{ url_for('interview.session') }}" class="btn-arena btn-violet" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;">
+              <i data-lucide="play"></i> Open Interview Room
+            </a>
+          </div>
+        </div>
+
+      </section>
+
+      <aside class="side-stack">
+        <section class="arena-card side-panel">
+          <div class="arena-card-title"><h2><i data-lucide="activity"></i>Session Status</h2></div>
+          <div class="status-grid">
+            <div class="status-row"><span>Mode</span><strong id="status-mode">Quick Fire</strong></div>
+            <div class="status-row"><span>Difficulty</span><strong id="status-difficulty">Medium</strong></div>
+            <div class="status-row"><span>Streak</span><strong id="status-streak">2 days</strong></div>
+            <div class="status-row"><span>Accuracy</span><strong id="status-accuracy">80%</strong></div>
+            <div class="status-row"><span>XP earned</span><strong id="status-xp" style="color:var(--arena-green)">+360</strong></div>
+            <div class="status-row"><span>Career signal</span><strong style="color:var(--arena-cyan)">Roadmap aware</strong></div>
+          </div>
+        </section>
+
+        <section class="arena-card side-panel">
+          <div class="arena-card-title"><h2><i data-lucide="scan-line"></i>AI Evaluation</h2></div>
+          <p class="ai-eval-summary" id="ai-eval-summary" style="display:none;font-size:.72rem;line-height:1.45;color:var(--arena-muted);margin:0 0 12px;"></p>
+          <div class="ai-eval">
+            <div class="grade-ring">
+              <svg width="112" height="112" viewBox="0 0 112 112">
+                <circle cx="56" cy="56" r="45" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10"/>
+                <circle id="ai-grade-ring" cx="56" cy="56" r="45" fill="none" stroke="#19d392" stroke-width="10" stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="51"/>
+              </svg>
+              <div class="grade-center" id="ai-grade">B+</div>
+            </div>
+            <div>
+              <div class="metric-line"><label>Technical accuracy</label><strong id="metric-technical-text">82%</strong><div class="bar"><span id="metric-technical" style="--w:82%;--bar-color:var(--arena-green);"></span></div></div>
+              <div class="metric-line"><label>Clarity</label><strong id="metric-clarity-text">74%</strong><div class="bar"><span id="metric-clarity" style="--w:74%;--bar-color:var(--arena-cyan);"></span></div></div>
+              <div class="metric-line"><label>Reasoning depth</label><strong id="metric-reasoning-text">85%</strong><div class="bar"><span id="metric-reasoning" style="--w:85%;--bar-color:var(--arena-violet);"></span></div></div>
+              <div class="metric-line"><label>Confidence</label><strong id="metric-confidence-text">70%</strong><div class="bar"><span id="metric-confidence" style="--w:70%;--bar-color:var(--arena-orange);"></span></div></div>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <section class="bottom-grid">
+      <div class="arena-card performance-card">
+        <div class="arena-card-title"><h2><i data-lucide="gauge"></i>Overall Performance</h2></div>
+        <div class="performance-grid">
+          <div class="perf-stat"><strong id="perf-accuracy">80%</strong><span>Accuracy</span></div>
+          <div class="perf-stat"><strong id="perf-streak">7</strong><span>Longest streak</span></div>
+          <div class="perf-stat"><strong id="perf-questions">12</strong><span>Questions attempted</span></div>
+          <div class="perf-stat"><strong id="perf-xp">960</strong><span>Total XP</span></div>
+        </div>
+      </div>
+
+      <div class="arena-card activity-card">
+        <div class="arena-card-title"><h2><i data-lucide="history"></i>Recent Activity</h2></div>
+        <div class="activity-list" id="activity-list"></div>
+      </div>
+    </section>
+
+    <div class="tip-strip">
+      <span><strong style="color:var(--arena-cyan);">Arena tip:</strong> one Deep Think puzzle daily improves your reasoning signal for career-fit matching.</span>
+      <span class="arena-pill">SkillSync AI</span>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const STORAGE_KEY = 'skillsync_aptitude_arena_{{ current_user.id }}';
+const serverProgress = {{ aptitude_state|default({})|tojson }};
+const defaultProgress = {
+  xp: 0,
+  streak: 0,
+  attempted: 0,
+  correct: 0,
+  longestStreak: 0,
+  skills: {
+    logical: { label: 'Logical Reasoning', level: 1, pct: 0 },
+    communication: { label: 'Communication', level: 1, pct: 0 },
+    system: { label: 'System Design', level: 1, pct: 0 },
+    analytical: { label: 'Analytical Thinking', level: 1, pct: 0 },
+    problem: { label: 'Problem Solving', level: 1, pct: 0 },
+  },
+  activity: [],
+  evaluation: {
+    technical: 0,
+    clarity: 0,
+    reasoning: 0,
+    confidence: 0
+  }
+};
+
+let arenaState = loadArenaState();
+let qfQuestions = [], qfCurrent = 0, qfScore = 0, qfTimer = null, qfTimeLeft = 20;
+let puzzleHints = [], hintsShown = 0;
+let ivCurrentQ = '', ivCurrentType = 'behavioral';
+
+function loadArenaState() {
+  const baseline = {
+    ...JSON.parse(JSON.stringify(defaultProgress)),
+    ...(serverProgress || {}),
+    skills: { ...defaultProgress.skills, ...((serverProgress || {}).skills || {}) },
+    activity: ((serverProgress || {}).activity || defaultProgress.activity),
+    evaluation: { ...defaultProgress.evaluation, ...(((serverProgress || {}).evaluation) || {}) },
+  };
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    return {
+      ...baseline,
+      xp: saved.xp ?? baseline.xp,
+      streak: saved.streak ?? baseline.streak,
+      attempted: saved.attempted ?? baseline.attempted,
+      correct: saved.correct ?? baseline.correct,
+      longestStreak: saved.longestStreak ?? baseline.longestStreak,
+      activity: saved.activity || baseline.activity,
+      skills: baseline.skills,
+      evaluation: baseline.evaluation,
+      activePuzzle: saved.activePuzzle || null,
+    };
+  } catch {
+    return baseline;
+  }
+}
+
+function saveArenaState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(arenaState));
+  fetch('/aptitude/state', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(arenaState)
+  }).catch(() => {});
+}
+
+function showEl(id, display = 'block') { const el = document.getElementById(id); if (el) el.style.display = display; }
+function hideEl(id) { const el = document.getElementById(id); if (el) el.style.display = 'none'; }
+function escapeHtml(value) {
+  return String(value || '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function switchMode(mode) {
+  document.querySelectorAll('.mode-card').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.mode-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.mode-card[data-mode="${mode}"]`).classList.add('active');
+  document.getElementById(`panel-${mode}`).classList.add('active');
+  document.querySelector('.arena-wrap')?.classList.toggle('interview-room-active', mode === 'interview');
+  const labels = { quickfire: 'Quick Fire', puzzle: 'Deep Think', interview: 'Mock Interview' };
+  document.getElementById('status-mode').textContent = labels[mode];
+  lucide.createIcons();
+}
+
+function setBar(id, pct) {
+  const el = document.getElementById(id);
+  if (el) el.style.setProperty('--w', `${Math.max(0, Math.min(100, pct))}%`);
+}
+
+function animateXP(sourceEl, amount) {
+  if (!sourceEl || !amount) return;
+  const targetEl = document.getElementById('xp-stat');
+  if (!targetEl) return;
+
+  const sourceRect = sourceEl.getBoundingClientRect();
+  const targetRect = targetEl.getBoundingClientRect();
+  
+  const floater = document.createElement('div');
+  floater.className = 'xp-floater';
+  floater.textContent = `+${amount} XP`;
+  
+  floater.style.left = `${sourceRect.left + sourceRect.width / 2 - 20}px`;
+  floater.style.top = `${sourceRect.top}px`;
+  
+  // Calculate delta
+  const dx = (targetRect.left + targetRect.width / 2) - (sourceRect.left + sourceRect.width / 2);
+  const dy = (targetRect.top + targetRect.height / 2) - sourceRect.top;
+  
+  floater.style.setProperty('--dx', `${dx}px`);
+  floater.style.setProperty('--dy', `${dy}px`);
+  
+  // Create a dynamic keyframe for this specific arc
+  floater.style.animation = 'none';
+  floater.animate([
+    { transform: 'scale(0.5) translate(0, 0)', opacity: 0 },
+    { transform: 'scale(1.2) translate(0, -20px)', opacity: 1, offset: 0.15 },
+    { transform: `scale(1) translate(${dx * 0.8}px, ${dy * 0.8}px)`, opacity: 1, offset: 0.8 },
+    { transform: `scale(0.8) translate(${dx}px, ${dy}px)`, opacity: 0 }
+  ], {
+    duration: 1200,
+    easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+    fill: 'forwards'
+  });
+
+  document.body.appendChild(floater);
+  
+  setTimeout(() => {
+    floater.remove();
+  }, 1250);
+}
+
+function syncDifficultyLabel() {
+  const value = document.getElementById('qf-difficulty').value;
+  const label = value.charAt(0).toUpperCase() + value.slice(1);
+  document.getElementById('status-difficulty').textContent = label;
+  document.getElementById('qf-meta-pill').textContent = `${label} · 20 sec each`;
+}
+
+function renderArenaStats() {
+  const accuracy = arenaState.attempted ? Math.round((arenaState.correct / arenaState.attempted) * 100) : 0;
+  document.getElementById('xp-stat').textContent = arenaState.xp.toLocaleString();
+  document.getElementById('streak-stat').textContent = arenaState.streak;
+  document.getElementById('status-streak').textContent = `${arenaState.streak} days`;
+  document.getElementById('status-accuracy').textContent = `${accuracy}%`;
+  document.getElementById('perf-accuracy').textContent = `${accuracy}%`;
+  document.getElementById('perf-streak').textContent = arenaState.longestStreak;
+  document.getElementById('perf-questions').textContent = arenaState.attempted;
+  document.getElementById('perf-xp').textContent = arenaState.xp;
+  renderSkillTree();
+  renderActivity();
+  renderEvaluation();
+}
+
+function renderEvaluation() {
+  const ev = arenaState.evaluation || defaultProgress.evaluation;
+  ['technical', 'clarity', 'reasoning', 'confidence'].forEach((key) => {
+    const value = ev[key] ?? 0;
+    const bar = document.getElementById(`metric-${key}`);
+    const text = document.getElementById(`metric-${key}-text`);
+    if (bar) bar.style.setProperty('--w', `${value}%`);
+    if (text) text.textContent = `${value}%`;
+  });
+  const avg = Math.round(
+    (Number(ev.technical || 0) + Number(ev.clarity || 0) + Number(ev.reasoning || 0) + Number(ev.confidence || 0)) / 4
+  );
+  const gradeStr = ev.grade || (avg >= 90 ? 'A' : avg >= 82 ? 'B+' : avg >= 74 ? 'B' : avg >= 66 ? 'C+' : 'C');
+
+  const aiGrade = document.getElementById('ai-grade');
+  if (aiGrade) aiGrade.textContent = gradeStr;
+
+  const rankStat = document.getElementById('rank-stat');
+  if (rankStat) rankStat.textContent = gradeStr;
+
+  const gradeRing = document.getElementById('ai-grade-ring');
+  if (gradeRing) gradeRing.setAttribute('stroke-dashoffset', 283 - (avg / 100 * 283));
+
+  const summaryEl = document.getElementById('ai-eval-summary');
+  if (summaryEl) {
+    if (ev.summary) {
+      summaryEl.textContent = ev.summary;
+      summaryEl.style.display = 'block';
+    } else {
+      summaryEl.style.display = 'none';
+    }
+  }
+}
+
+async function syncAiEvaluation(type, payload) {
+  const summaryEl = document.getElementById('ai-eval-summary');
+  if (summaryEl) {
+    summaryEl.style.display = 'block';
+    summaryEl.textContent = 'AI is analyzing your performance…';
+  }
+  try {
+    const res = await fetch('/aptitude/evaluation/record', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, payload }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'AI evaluation failed');
+    applyAptitudeFromServer(data.aptitude);
+    return data;
+  } catch (err) {
+    console.warn('AI evaluation:', err.message);
+    return null;
+  }
+}
+
+function applyAptitudeFromServer(apt) {
+  if (!apt) return;
+  if (apt.skills) {
+    Object.entries(apt.skills).forEach(([key, skill]) => {
+      arenaState.skills[key] = { ...(arenaState.skills[key] || {}), ...skill };
+    });
+  }
+  if (apt.evaluation) {
+    arenaState.evaluation = { ...arenaState.evaluation, ...apt.evaluation };
+  }
+  if (typeof apt.xp === 'number') arenaState.xp = apt.xp;
+  if (typeof apt.streak === 'number') arenaState.streak = apt.streak;
+  if (typeof apt.attempted === 'number') arenaState.attempted = apt.attempted;
+  if (typeof apt.correct === 'number') arenaState.correct = apt.correct;
+}
+
+function renderSkillTree() {
+  const list = document.getElementById('skill-list');
+  if (!list) return;
+  list.innerHTML = Object.entries(arenaState.skills).map(([key, skill]) => `
+    <div class="skill-row">
+      <strong>${skill.label}</strong>
+      <small>Lv. ${skill.level} · ${skill.pct}%</small>
+      <div class="bar"><span style="--w:${skill.pct}%;--bar-color:${skillColor(key)};"></span></div>
+    </div>
+  `).join('');
+}
+
+function skillColor(key) {
+  return {
+    logical: 'var(--arena-violet)',
+    communication: 'var(--arena-red)',
+    system: 'var(--arena-blue)',
+    analytical: 'var(--arena-cyan)',
+    problem: 'var(--arena-green)',
+  }[key] || 'var(--arena-blue)';
+}
+
+function renderActivity() {
+  const list = document.getElementById('activity-list');
+  list.innerHTML = arenaState.activity.slice(0, 4).map(([icon, title, desc, time]) => `
+    <div class="activity-item">
+      <span class="activity-icon"><i data-lucide="${icon}"></i></span>
+      <span><strong>${title}</strong><br><small style="color:var(--arena-muted);">${desc}</small></span>
+      <small style="color:var(--arena-muted);">${time}</small>
+    </div>
+  `).join('');
+  lucide.createIcons();
+}
+
+function addActivity(icon, title, desc) {
+  arenaState.activity.unshift([icon, title, desc, 'now']);
+  arenaState.activity = arenaState.activity.slice(0, 8);
+}
+
+function improveSkill() {
+  /* Skills are updated by server-side AI evaluation only. */
+}
+
+async function startQuickFire() {
+  const btn = document.getElementById('qf-start-btn');
+  btn.disabled = true;
+  hideEl('qf-setup');
+  hideEl('qf-score');
+  showEl('qf-loading');
+  syncDifficultyLabel();
+
+  try {
+    const category = document.getElementById('qf-category').value;
+    const difficulty = document.getElementById('qf-difficulty').value;
+    const res = await fetch('/aptitude/quick-fire/generate', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ category, difficulty })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Failed to generate questions');
+    qfQuestions = data.questions;
+    qfCurrent = 0;
+    qfScore = 0;
+    hideEl('qf-loading');
+    showEl('qf-game', 'grid');
+    renderQuestion();
+  } catch(e) {
+    hideEl('qf-loading');
+    showEl('qf-setup');
+    btn.disabled = false;
+    alert('Error: ' + e.message);
+  }
+}
+
+function renderQuestion() {
+  const q = qfQuestions[qfCurrent];
+  if (!q) return;
+  document.getElementById('q-counter').textContent = `Question ${qfCurrent + 1} of ${qfQuestions.length}`;
+  document.getElementById('q-text').textContent = q.question;
+  hideEl('explanation-box');
+  hideEl('qf-next-btn');
+  updateLiveMetrics();
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  ['A','B','C','D'].forEach(key => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-key">${key}</span>${q.options[key] || ''}`;
+    btn.onclick = () => answerQuestion(key, q.correct, q.explanation);
+    grid.appendChild(btn);
+  });
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(qfTimer);
+  qfTimeLeft = 20;
+  updateTimerBar();
+  qfTimer = setInterval(() => {
+    qfTimeLeft--;
+    updateTimerBar();
+    if (qfTimeLeft <= 0) {
+      clearInterval(qfTimer);
+      timeUp();
+    }
+  }, 1000);
+}
+
+function updateTimerBar() {
+  const pct = (qfTimeLeft / 20) * 100;
+  document.getElementById('timer-bar').style.width = `${pct}%`;
+  document.getElementById('live-time').textContent = `${qfTimeLeft}s`;
+  document.getElementById('live-progress-ring').setAttribute('stroke-dashoffset', 232 - ((20 - qfTimeLeft) / 20 * 232));
+  const pressure = pct > 55 ? 'Calm' : pct > 25 ? 'Focused' : 'High';
+  document.getElementById('live-pressure').textContent = pressure;
+  setBar('live-pressure-bar', 100 - pct);
+}
+
+function updateLiveMetrics() {
+  const completed = qfCurrent;
+  const progressPct = qfQuestions.length ? (completed / qfQuestions.length) * 100 : 0;
+  const accuracy = completed ? Math.round((qfScore / completed) * 100) : 0;
+  document.getElementById('live-progress').textContent = `${completed} / ${qfQuestions.length || 10}`;
+  setBar('live-progress-bar', progressPct);
+  document.getElementById('live-accuracy').textContent = `${accuracy}%`;
+  setBar('live-accuracy-bar', accuracy);
+}
+
+function timeUp() {
+  const q = qfQuestions[qfCurrent];
+  document.querySelectorAll('.opt-btn').forEach(btn => {
+    btn.disabled = true;
+    const key = btn.querySelector('.opt-key').textContent;
+    if (key === q.correct) btn.classList.add('correct');
+  });
+  showExplanation(q.explanation, false);
+  showEl('qf-next-btn');
+}
+
+function answerQuestion(chosen, correct, explanation) {
+  clearInterval(qfTimer);
+  document.querySelectorAll('.opt-btn').forEach(btn => {
+    btn.disabled = true;
+    const key = btn.querySelector('.opt-key').textContent;
+    if (key === correct) btn.classList.add('correct');
+    if (key === chosen && chosen !== correct) btn.classList.add('wrong');
+  });
+  if (chosen === correct) qfScore++;
+  showExplanation(explanation, chosen === correct);
+  showEl('qf-next-btn');
+}
+
+function showExplanation(text, correct) {
+  const box = document.getElementById('explanation-box');
+  box.textContent = text || '';
+  box.style.borderColor = correct ? 'rgba(25,211,146,.28)' : 'rgba(255,77,109,.28)';
+  box.style.background = correct ? 'rgba(25,211,146,.07)' : 'rgba(255,77,109,.07)';
+  box.style.display = 'block';
+}
+
+function nextQuestion() {
+  qfCurrent++;
+  if (qfCurrent >= qfQuestions.length) showScoreScreen();
+  else renderQuestion();
+}
+
+function showScoreScreen() {
+  hideEl('qf-game');
+  showEl('qf-score');
+  const pct = qfQuestions.length ? qfScore / qfQuestions.length : 0;
+  document.getElementById('score-num').textContent = qfScore;
+  document.getElementById('score-denom').textContent = `/${qfQuestions.length}`;
+  const grade = pct >= .9 ? 'S' : pct >= .75 ? 'A' : pct >= .6 ? 'B+' : pct >= .45 ? 'B' : 'C';
+  document.getElementById('score-grade').textContent = `Grade ${grade}`;
+  document.getElementById('score-msg').textContent = pct >= .7 ? 'Strong signal. Your reasoning profile is improving.' : 'Good rep. Review missed concepts and run another round.';
+  document.getElementById('score-ring').setAttribute('stroke-dashoffset', 339 - (pct * 339));
+
+  arenaState.attempted += qfQuestions.length;
+  arenaState.correct += qfScore;
+  const earnedXP = Math.round(80 + pct * 120);
+  arenaState.xp += earnedXP;
+  animateXP(document.getElementById('qf-score'), earnedXP);
+  addActivity('zap', 'Quick Fire Challenge', `Score ${Math.round(pct * 100)}%`);
+  saveArenaState();
+  renderArenaStats();
+  syncAiEvaluation('quick_fire', {
+    correct: qfScore,
+    total: qfQuestions.length,
+    score_pct: Math.round(pct * 100),
+    category: document.getElementById('qf-category').value,
+    difficulty: document.getElementById('qf-difficulty').value,
+  }).then(() => {
+    saveArenaState();
+    renderArenaStats();
+  });
+}
+
+function resetQuickFire() {
+  hideEl('qf-score');
+  showEl('qf-setup');
+  document.getElementById('qf-start-btn').disabled = false;
+  document.getElementById('score-ring').setAttribute('stroke-dashoffset', '339');
+}
+
+async function generatePuzzle() {
+  const btn = document.getElementById('puzzle-gen-btn');
+  if (btn) btn.disabled = true;
+  hideEl('puzzle-home');
+  hideEl('puzzle-content');
+  showEl('puzzle-loading');
+  try {
+    const res = await fetch('/aptitude/puzzle/generate', { method:'POST' });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Failed');
+    const p = data.puzzle;
+    puzzleHints = p.hints || [];
+    hintsShown = 0;
+    document.getElementById('puzzle-title').textContent = p.title || 'Logic Puzzle';
+    document.getElementById('puzzle-body').textContent = p.puzzle || '';
+    document.getElementById('solution-answer').textContent = p.answer || '';
+    document.getElementById('solution-steps').textContent = p.solution || '';
+    document.getElementById('hint-list').innerHTML = puzzleHints.map((h, i) => `<li class="hint-item" id="hint-${i}"><strong>Hint ${i + 1}:</strong> ${h}</li>`).join('');
+    hideEl('solution-box');
+    document.getElementById('hint-btn').innerHTML = '<i data-lucide="lightbulb"></i>Hint 1';
+    
+    // Reset submission UI
+    const answerEl = document.getElementById('puzzle-answer');
+    if (answerEl) {
+      answerEl.value = '';
+      answerEl.disabled = false;
+    }
+    const submitBtn = document.getElementById('puzzle-submit-btn');
+    if (submitBtn) {
+      submitBtn.style.display = 'inline-flex';
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i data-lucide="send"></i>Submit Answer';
+    }
+    const giveUpBtn = document.getElementById('puzzle-giveup-btn');
+    if (giveUpBtn) {
+      giveUpBtn.style.display = 'inline-flex';
+      giveUpBtn.disabled = false;
+    }
+    
+    hideEl('puzzle-loading');
+    showEl('puzzle-content');
+    
+    addActivity('puzzle', 'Deep Think Puzzle', 'Started new puzzle');
+    arenaState.activePuzzle = { p, hintsShown: 0 };
+    saveArenaState();
+    renderArenaStats();
+    window._puzzleMeta = { title: p.title || '', hints_total: puzzleHints.length };
+  } catch(e) {
+    hideEl('puzzle-loading');
+    showEl('puzzle-home');
+    if (btn) btn.disabled = false;
+    alert('Error: ' + e.message);
+  }
+  lucide.createIcons();
+}
+
+function showNextHint() {
+  if (hintsShown >= puzzleHints.length) {
+    document.getElementById('hint-btn').textContent = 'All hints shown';
+    return;
+  }
+  document.getElementById(`hint-${hintsShown}`).classList.add('visible');
+  hintsShown++;
+  document.getElementById('hint-btn').innerHTML = hintsShown < puzzleHints.length ? `<i data-lucide="lightbulb"></i>Hint ${hintsShown + 1}` : '<i data-lucide="check"></i>All hints shown';
+  if (arenaState.activePuzzle) {
+    arenaState.activePuzzle.hintsShown = hintsShown;
+    saveArenaState();
+  }
+  lucide.createIcons();
+}
+
+function restorePuzzle(state) {
+  if (!state || !state.p) return;
+  const p = state.p;
+  puzzleHints = p.hints || [];
+  hintsShown = state.hintsShown || 0;
+  
+  document.getElementById('puzzle-title').textContent = p.title || 'Logic Puzzle';
+  document.getElementById('puzzle-body').textContent = p.puzzle || '';
+  document.getElementById('solution-answer').textContent = p.answer || '';
+  document.getElementById('solution-steps').textContent = p.solution || '';
+  document.getElementById('hint-list').innerHTML = puzzleHints.map((h, i) => `<li class="hint-item ${i < hintsShown ? 'visible' : ''}" id="hint-${i}"><strong>Hint ${i + 1}:</strong> ${h}</li>`).join('');
+  
+  hideEl('solution-box');
+  document.getElementById('hint-btn').innerHTML = hintsShown < puzzleHints.length ? `<i data-lucide="lightbulb"></i>Hint ${hintsShown + 1}` : '<i data-lucide="check"></i>All hints shown';
+  
+  // Reset submission UI
+  const answerEl = document.getElementById('puzzle-answer');
+  if (answerEl) {
+    answerEl.value = '';
+    answerEl.disabled = false;
+  }
+  const submitBtn = document.getElementById('puzzle-submit-btn');
+  if (submitBtn) {
+    submitBtn.style.display = 'inline-flex';
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i data-lucide="send"></i>Submit Answer';
+  }
+  const giveUpBtn = document.getElementById('puzzle-giveup-btn');
+  if (giveUpBtn) {
+    giveUpBtn.style.display = 'inline-flex';
+    giveUpBtn.disabled = false;
+  }
+  
+  hideEl('puzzle-home');
+  showEl('puzzle-content');
+  window._puzzleMeta = { title: p.title || '', hints_total: puzzleHints.length };
+}
+
+async function submitPuzzleAnswer(btn) {
+  const answerEl = document.getElementById('puzzle-answer');
+  const answer = answerEl.value.trim();
+  if (!answer) {
+    alert("Please type your thought process before submitting.");
+    return;
+  }
+  
+  btn.disabled = true;
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '<span class="spin"><i data-lucide="loader-2"></i></span> Evaluating...';
+  if (window.lucide) lucide.createIcons();
+  
+  try {
+    const puzzleText = document.getElementById('puzzle-body').textContent;
+    const solutionText = document.getElementById('solution-answer').textContent + " " + document.getElementById('solution-steps').textContent;
+    
+    const res = await fetch('/aptitude/puzzle/score', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        puzzle: puzzleText,
+        solution: solutionText,
+        answer: answer
+      })
+    });
+    
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Failed to evaluate answer');
+    
+    const fb = data.feedback;
+    document.getElementById('puzzle-ai-feedback').textContent = `Score: ${fb.score}% — ${fb.feedback}`;
+    showEl('solution-box');
+    
+    answerEl.disabled = true;
+    btn.style.display = 'none';
+    const giveUpBtn = document.getElementById('puzzle-giveup-btn');
+    if (giveUpBtn) giveUpBtn.style.display = 'none';
+    
+    // Calculate XP based on logic score
+    const earnedXP = Math.round(fb.score);
+    if (earnedXP > 0) {
+      arenaState.xp += earnedXP;
+      animateXP(btn, earnedXP);
+    }
+    
+    const meta = window._puzzleMeta || {};
+    syncAiEvaluation('puzzle', {
+      title: meta.title || document.getElementById('puzzle-title')?.textContent || 'Logic puzzle',
+      hints_used: hintsShown,
+      hints_total: meta.hints_total ?? puzzleHints.length,
+      user_answer: answer,
+      score: fb.score,
+      is_correct: fb.is_correct
+    }).then(() => {
+      arenaState.activePuzzle = null;
+      saveArenaState();
+      renderArenaStats();
+    });
+    
+  } catch (err) {
+    alert(err.message);
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+    if (window.lucide) lucide.createIcons();
+  }
+}
+
+function giveUpPuzzle(btn) {
+  const answerEl = document.getElementById('puzzle-answer');
+  if (answerEl) answerEl.disabled = true;
+  
+  const submitBtn = document.getElementById('puzzle-submit-btn');
+  if (submitBtn) submitBtn.style.display = 'none';
+  btn.style.display = 'none';
+  
+  document.getElementById('puzzle-ai-feedback').textContent = `Score: 0% — You skipped this puzzle. Review the solution carefully and try the next one!`;
+  showEl('solution-box');
+  
+  const meta = window._puzzleMeta || {};
+  syncAiEvaluation('puzzle', {
+    title: meta.title || document.getElementById('puzzle-title')?.textContent || 'Logic puzzle',
+    hints_used: hintsShown,
+    hints_total: meta.hints_total ?? puzzleHints.length,
+    user_answer: "Skipped",
+    score: 0,
+    is_correct: false
+  }).then(() => {
+    arenaState.activePuzzle = null;
+    saveArenaState();
+    renderArenaStats();
+  });
+}
+
+function selectQType(el, type) {
+  document.querySelectorAll('.qtype-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  const label = type.charAt(0).toUpperCase() + type.slice(1);
+  const roundLabel = document.getElementById('iv-round-label');
+  if (roundLabel) roundLabel.textContent = label;
+  if (ivCurrentType !== type) {
+    ivCurrentType = type;
+    resetInterviewQuestion();
+  }
+}
+
+function setInterviewButton(state) {
+  const btn = document.getElementById('iv-gen-btn');
+  const label = document.getElementById('iv-gen-label');
+  if (!btn || !label) return;
+  const icon = state === 'loading' ? 'loader-2' : state === 'refresh' ? 'refresh-cw' : 'shuffle';
+  const text = state === 'loading' ? 'Generating...' : state === 'refresh' ? 'Refresh question' : 'Get question';
+  btn.innerHTML = `<i data-lucide="${icon}"${state === 'loading' ? ' class="spin"' : ''}></i><span id="iv-gen-label">${text}</span>`;
+  btn.disabled = state === 'loading';
+  lucide.createIcons();
+}
+
+function resetInterviewQuestion() {
+  ivCurrentQ = '';
+  hideEl('iv-q-loading');
+  hideEl('iv-q-box');
+  hideEl('iv-lookfor');
+  hideEl('iv-feedback');
+  hideEl('iv-score-loading');
+  document.getElementById('iv-answer').value = '';
+  const count = document.getElementById('iv-char-count');
+  if (count) count.textContent = '0';
+  document.getElementById('iv-submit-btn').disabled = true;
+  const thinking = document.getElementById('iv-thinking');
+  if (thinking) thinking.querySelector('span').textContent = 'Alexia is ready';
+  resetInterviewEvaluation();
+  setInterviewButton('initial');
+}
+
+function clearInterviewAnswer() {
+  const answer = document.getElementById('iv-answer');
+  if (!answer) return;
+  answer.value = '';
+  const count = document.getElementById('iv-char-count');
+  if (count) count.textContent = '0';
+  document.getElementById('iv-submit-btn').disabled = true;
+}
+
+function setInterviewMetric(key, value) {
+  const numeric = Number(value || 0);
+  const bar = document.getElementById(`iv-metric-${key}`);
+  const text = document.getElementById(`iv-metric-${key}-text`);
+  if (bar) bar.style.setProperty('--w', `${Math.max(0, Math.min(10, numeric)) * 10}%`);
+  if (text) text.textContent = numeric > 0 ? `${numeric}/10` : '-- /10';
+}
+
+function resetInterviewEvaluation() {
+  ['clarity', 'technical', 'accuracy', 'structure', 'communication'].forEach(key => setInterviewMetric(key, 0));
+  const score = document.getElementById('iv-overall-score');
+  const ring = document.getElementById('iv-score-ring');
+  const note = document.getElementById('iv-score-note');
+  if (score) score.textContent = '--';
+  if (ring) ring.setAttribute('stroke-dashoffset', '289');
+  if (note) note.textContent = 'Answer to get a score';
+}
+
+function updateInterviewEvaluation(feedback) {
+  const metrics = feedback.metric_scores || {};
+  const score = Math.max(0, Math.min(100, Number(feedback.score || 0)));
+  setInterviewMetric('clarity', metrics.clarity);
+  setInterviewMetric('technical', metrics.technical_depth);
+  setInterviewMetric('accuracy', metrics.accuracy);
+  setInterviewMetric('structure', metrics.structure);
+  setInterviewMetric('communication', metrics.communication);
+  document.getElementById('iv-overall-score').textContent = score;
+  document.getElementById('iv-score-ring').setAttribute('stroke-dashoffset', 289 - (score / 100 * 289));
+  document.getElementById('iv-score-note').textContent = `${feedback.grade || 'B'} grade · ${feedback.confidence_signal || 'Medium'} confidence`;
+}
+
+async function generateInterviewQ() {
+  setInterviewButton('loading');
+  showEl('iv-q-loading');
+  hideEl('iv-q-box');
+  hideEl('iv-lookfor');
+  hideEl('iv-feedback');
+  hideEl('iv-score-loading');
+  resetInterviewEvaluation();
+  const thinking = document.getElementById('iv-thinking');
+  if (thinking) thinking.querySelector('span').textContent = 'Alexia is thinking';
+  document.getElementById('iv-answer').value = '';
+  const count = document.getElementById('iv-char-count');
+  if (count) count.textContent = '0';
+  document.getElementById('iv-submit-btn').disabled = true;
+  try {
+    const res = await fetch('/aptitude/interview/question', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ type: ivCurrentType })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Failed');
+    const q = data.question;
+    ivCurrentQ = q.question;
+    document.getElementById('iv-q-box').textContent = q.question;
+    document.getElementById('iv-look-chips').innerHTML = (q.what_interviewers_look_for || []).map(p => `<span class="look-chip">${escapeHtml(p)}</span>`).join('');
+    showEl('iv-q-box');
+    showEl('iv-lookfor');
+    if (thinking) thinking.querySelector('span').textContent = 'Alexia is listening';
+    document.getElementById('iv-submit-btn').disabled = true;
+    setInterviewButton('refresh');
+  } catch(e) {
+    alert('Error: ' + e.message);
+    setInterviewButton(ivCurrentQ ? 'refresh' : 'initial');
+    if (thinking) thinking.querySelector('span').textContent = 'Alexia is ready';
+  }
+  hideEl('iv-q-loading');
+  lucide.createIcons();
+}
+
+async function submitAnswer() {
+  const answer = document.getElementById('iv-answer').value.trim();
+  if (!answer || !ivCurrentQ) return;
+  const btn = document.getElementById('iv-submit-btn');
+  btn.disabled = true;
+  showEl('iv-score-loading');
+  hideEl('iv-feedback');
+  try {
+    const res = await fetch('/aptitude/interview/score', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ question: ivCurrentQ, answer })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Failed');
+    const fb = data.feedback;
+    document.getElementById('iv-score-badge').textContent = `${fb.grade || 'B'} · ${fb.score || 0}/100`;
+    document.getElementById('iv-strengths').innerHTML = (fb.strengths || []).map(s => `<span class="fb-chip-good">${escapeHtml(s)}</span>`).join('');
+    document.getElementById('iv-improvements').innerHTML = (fb.improvements || []).map(s => `<span class="fb-chip-bad">${escapeHtml(s)}</span>`).join('');
+    document.getElementById('iv-keypoints').innerHTML = (fb.ideal_answer_points || []).map(s => `<span class="look-chip">${escapeHtml(s)}</span>`).join('');
+    document.getElementById('iv-overall').textContent = fb.overall_feedback || '';
+    showEl('iv-feedback', 'grid');
+    const score = Number(fb.score || 0);
+    updateInterviewEvaluation(fb);
+    const earnedXP = Math.round(90 + score);
+    arenaState.xp += earnedXP;
+    animateXP(btn, earnedXP);
+    addActivity('mic', 'Mock Interview', `Grade ${fb.grade || 'B'}`);
+    saveArenaState();
+    renderArenaStats();
+    if (data.aptitude) {
+      applyAptitudeFromServer(data.aptitude);
+      saveArenaState();
+      renderArenaStats();
+    }
+  } catch(e) {
+    alert('Error: ' + e.message);
+  }
+  hideEl('iv-score-loading');
+  btn.disabled = false;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderArenaStats();
+  syncDifficultyLabel();
+  const answer = document.getElementById('iv-answer');
+  if (answer) {
+    answer.addEventListener('input', function() {
+      const count = document.getElementById('iv-char-count');
+      if (count) count.textContent = this.value.length;
+      document.getElementById('iv-submit-btn').disabled = !ivCurrentQ || this.value.trim().length < 10;
+    });
+  }
+  resetInterviewEvaluation();
+  if (arenaState.activePuzzle) {
+    restorePuzzle(arenaState.activePuzzle);
+  }
+  lucide.createIcons();
+});
+</script>
+{% endblock %}

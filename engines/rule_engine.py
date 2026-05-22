@@ -3,11 +3,17 @@ Rule-Based Engine — Scores and ranks career paths based on student profile.
 Takes into account existing skills, interests, semester progress, curriculum
 coverage, and activity-based interests for a realistic match score (0–100).
 
-SCORING BREAKDOWN (revised):
-  - Skill match (direct + curriculum)  → up to 40 pts
-  - Interest alignment                  → up to 35 pts
-  - Activity/aptitude alignment         → up to 15 pts
-  - Curriculum coverage bonus           → up to 10 pts
+SCORING BREAKDOWN (interest-first):
+  - Tech interest alignment   → up to 60 pts  ← PRIMARY rank driver
+  - Skill match               → up to 25 pts  ← secondary fine-tuner
+  - Activity interest bonus   → up to  8 pts  ← weak supporting signal
+  - Curriculum coverage bonus → up to  7 pts  ← supplemental
+  - Semester seniority boost  → up to  8 pts  ← experience bonus
+  Total possible: 108 → clamped to 100
+
+KEY GUARANTEE: A career OUTSIDE all of the user's chosen tech interest maps
+can score at most ~40 pts (25 skills + 8 activity + 7 curriculum) — it will
+NEVER beat a career that IS directly listed in the user's interest maps.
 """
 
 from engines.curriculum_engine import check_skill_coverage, identify_skill_gaps, get_covered_skills
@@ -26,6 +32,21 @@ def _normalize_skill_key(skill):
     """Return the canonical skill key used by profile, course, and career data."""
     key = (skill or "").strip().lower()
     return SKILL_ALIASES.get(key, key)
+
+
+# ────────────────────────────────────────────────────────────────────
+# Primary tech topic set — every string here maps 1:1 to a chip in
+# the profile form's "Tech Topics" section.
+# ────────────────────────────────────────────────────────────────────
+PRIMARY_TECH_INTERESTS = {
+    "Artificial Intelligence", "Machine Learning", "Deep Learning",
+    "Data Analysis", "Software Development", "Web Development",
+    "Mobile Development", "Game Development", "DevOps & Automation",
+    "Cloud Computing", "Networking & Infrastructure", "Cybersecurity",
+    "UX Design", "Product Management", "Blockchain", "IoT",
+    "Embedded Systems", "Robotics", "Hardware Engineering",
+    "Data Engineering", "Enterprise Systems", "Quality Assurance",
+}
 
 
 # ────────────────────────────────────────────────────────────────────
@@ -71,34 +92,35 @@ INTEREST_CAREER_MAP = {
 
     # --- Infrastructure cluster ---
     "DevOps & Automation": [
-        "devops_engineer", "cloud_architect", "ai_automation_specialist",
-        "it_support_sysadmin", "backend_developer", "sre_platform_engineer",
-        "cloud_engineer", "mlops_engineer",
+        "devops_engineer", "ai_automation_specialist", "cloud_architect",
+        "sre_platform_engineer", "cloud_engineer", "mlops_engineer",
+        "it_support_sysadmin", "backend_developer",
     ],
     "Cloud Computing": [
-        "cloud_architect", "devops_engineer", "backend_developer",
-        "data_engineer", "ai_engineer", "cloud_engineer", "sre_platform_engineer",
-        "cloud_security_engineer",
+        "cloud_architect", "devops_engineer", "cloud_engineer",
+        "sre_platform_engineer", "ai_engineer", "data_engineer",
+        "backend_developer", "cloud_security_engineer",
     ],
     "Networking & Infrastructure": [
-        "it_support_sysadmin", "devops_engineer", "cloud_architect",
-        "cybersecurity_analyst", "network_engineer", "cloud_engineer",
+        "network_engineer", "it_support_sysadmin", "devops_engineer",
+        "cloud_architect", "cybersecurity_analyst", "cloud_engineer",
         "it_support",
     ],
 
     # --- Security cluster ---
     "Cybersecurity": [
-        "cybersecurity_analyst", "it_support_sysadmin", "devops_engineer",
-        "soc_analyst", "penetration_tester", "appsec_engineer", "cloud_security_engineer",
+        "cybersecurity_analyst", "penetration_tester", "soc_analyst",
+        "appsec_engineer", "cloud_security_engineer",
+        "it_support_sysadmin", "devops_engineer",
     ],
 
     # --- Design / Product cluster ---
     "UX Design": [
-        "ux_designer", "frontend_developer", "product_manager", "product_designer",
-        "ux_researcher",
+        "ux_designer", "product_designer", "ux_researcher",
+        "frontend_developer", "product_manager",
     ],
     "Product Management": [
-        "product_manager", "business_analyst", "ux_designer", "technical_pm",
+        "product_manager", "technical_pm", "business_analyst",
         "solutions_architect", "crm_erp_analyst",
     ],
 
@@ -107,69 +129,37 @@ INTEREST_CAREER_MAP = {
         "blockchain_developer", "software_engineer", "backend_developer",
     ],
     "IoT": [
-        "software_engineer", "devops_engineer", "it_support_sysadmin", "iot_engineer",
-        "embedded_engineer", "firmware_developer",
+        "iot_engineer", "embedded_engineer", "firmware_developer",
+        "software_engineer", "devops_engineer",
     ],
     "Embedded Systems": [
-        "software_engineer", "devops_engineer", "qa_engineer", "embedded_engineer",
-        "firmware_developer", "robotics_engineer",
+        "embedded_engineer", "firmware_developer", "robotics_engineer",
+        "iot_engineer", "software_engineer",
     ],
     "Robotics": [
-        "robotics_engineer", "embedded_engineer", "firmware_developer", "software_engineer",
+        "robotics_engineer", "embedded_engineer", "firmware_developer",
+        "software_engineer",
     ],
     "Hardware Engineering": [
-        "embedded_engineer", "iot_engineer", "firmware_developer", "robotics_engineer",
+        "embedded_engineer", "iot_engineer", "firmware_developer",
+        "robotics_engineer",
     ],
     "Data Engineering": [
         "data_engineer", "mlops_engineer", "cloud_engineer", "backend_developer",
     ],
     "Enterprise Systems": [
-        "crm_erp_analyst", "solutions_architect", "solutions_engineer", "technical_pm",
-        "business_analyst", "operations_analyst",
+        "crm_erp_analyst", "solutions_architect", "solutions_engineer",
+        "technical_pm", "business_analyst", "operations_analyst",
     ],
     "Quality Assurance": [
         "qa_engineer", "software_engineer", "appsec_engineer",
-    ],
-
-    # ─── NEW: Activity-based interests ───────────────────────────────
-    "Solving Puzzles & Logic": [
-        "software_engineer", "cybersecurity_analyst", "data_scientist",
-        "ml_engineer", "data_analyst", "penetration_tester", "research_engineer",
-        "appsec_engineer", "robotics_engineer",
-    ],
-    "Building Products": [
-        "product_manager", "software_engineer", "web_developer",
-        "mobile_developer", "backend_developer", "business_analyst",
-        "technical_pm", "product_designer",
-    ],
-    "Designing Interfaces": [
-        "ux_designer", "frontend_developer", "web_developer",
-        "mobile_developer", "product_manager", "product_designer", "ux_researcher",
-    ],
-    "Analyzing Data": [
-        "data_analyst", "data_scientist", "business_analyst",
-        "data_engineer", "ml_engineer", "bi_analyst", "operations_analyst",
-    ],
-    "Securing Systems": [
-        "cybersecurity_analyst", "devops_engineer", "it_support_sysadmin",
-        "cloud_architect", "backend_developer", "soc_analyst", "penetration_tester",
-        "cloud_security_engineer", "appsec_engineer", "network_engineer",
-    ],
-    "Working with Hardware": [
-        "it_support_sysadmin", "devops_engineer", "cloud_architect",
-        "qa_engineer", "embedded_engineer", "iot_engineer", "firmware_developer",
-        "robotics_engineer", "it_support",
-    ],
-    "Leading Teams": [
-        "product_manager", "business_analyst", "cloud_architect",
-        "devops_engineer", "ai_automation_specialist", "technical_pm",
-        "solutions_architect", "solutions_engineer",
     ],
 }
 
 
 # ────────────────────────────────────────────────────────────────────
-# Activity → career slug mapping (separate so bonuses don't stack)
+# Activity → career slug mapping (what the user *enjoys doing*)
+# These are weaker signals than tech topic interests.
 # ────────────────────────────────────────────────────────────────────
 ACTIVITY_CAREER_MAP = {
     "Solving Puzzles & Logic":  ["software_engineer", "data_scientist", "cybersecurity_analyst", "ml_engineer", "data_analyst", "penetration_tester", "research_engineer"],
@@ -226,15 +216,15 @@ _LEGACY_ALIASES = {
 
 
 def _resolve_interest(interest_raw):
-    """Normalize an interest string to its canonical INTEREST_CAREER_MAP key."""
-    if interest_raw in INTEREST_CAREER_MAP:
+    """Normalize an interest string to its canonical map key."""
+    if interest_raw in INTEREST_CAREER_MAP or interest_raw in ACTIVITY_CAREER_MAP:
         return interest_raw
     lower = interest_raw.lower().strip()
-    for key in INTEREST_CAREER_MAP:
+    for key in list(INTEREST_CAREER_MAP.keys()) + list(ACTIVITY_CAREER_MAP.keys()):
         if key.lower() == lower:
             return key
     canonical = _LEGACY_ALIASES.get(lower)
-    if canonical and canonical in INTEREST_CAREER_MAP:
+    if canonical:
         return canonical
     return None
 
@@ -243,30 +233,25 @@ def _proficiency_match(student_level, required_level):
     """
     Calculate how well a student's proficiency matches the requirement.
     Returns a factor between 0.0 and 1.0.
-    
-    KEY FIX: Be more lenient — a beginner who needs intermediate still scores
-    reasonably well, because the roadmap exists to close that gap.
     """
     levels = {"beginner": 1, "intermediate": 2, "advanced": 3}
-    student_rank = levels.get(student_level, 1)  # Default 1 (beginner) not 0
+    student_rank = levels.get(student_level, 1)
     required_rank = levels.get(required_level, 1)
 
     if student_rank >= required_rank:
         return 1.0
     elif student_rank == required_rank - 1:
-        return 0.75  # One level below: was 0.6, now 0.75 (gap is bridgeable)
+        return 0.75  # One level below: gap is bridgeable by roadmap
     else:
-        return 0.50  # Two levels below: was 0.3, now 0.5 (still viable)
+        return 0.50  # Two levels below: still viable with effort
 
 
 def _get_semester_boost(profile):
     """
-    Give a small score boost for students in higher semesters who simply
-    haven't added all their skills manually — they are more prepared.
+    Give a small score boost for students in higher semesters.
     Returns bonus points (0–8).
     """
     semester = profile.semester or 1
-    # Semesters 1-2: no boost; 3-4: +2; 5-6: +5; 7-8: +8
     if semester <= 2:
         return 0
     elif semester <= 4:
@@ -279,10 +264,10 @@ def _get_semester_boost(profile):
 
 def score_career_path(profile, career_path, user_courses):
     """
-    Score a single career path for a student.
+    Score a single career path for a student using interest-first tiering.
 
-    Returns:
-        dict with score breakdown.
+    The user's PRIMARY tech interest selections dominate the ranking.
+    Skills/curriculum can only differentiate within the same interest tier.
     """
     raw_required_skills = career_path.get_required_skills()
     required_skills = {
@@ -303,7 +288,7 @@ def score_career_path(profile, career_path, user_courses):
     gap_skills_dict = identify_skill_gaps(coverage)
     covered_skills = get_covered_skills(coverage)
 
-    # ── 2. Skill matching → up to 40 pts ──────────────────────────────
+    # ── 2. Skill matching → up to 25 pts (secondary fine-tuner) ───────
     user_skills = {
         _normalize_skill_key(s.skill_name): s.proficiency
         for s in profile.skills
@@ -321,12 +306,10 @@ def score_career_path(profile, career_path, user_courses):
         required_level = info["level"] if isinstance(info, dict) else "beginner"
 
         if skill in user_skills:
-            # Student explicitly listed this skill
             factor = _proficiency_match(user_skills[skill], required_level)
             matched_weight += weight * factor
             matched_skills.append(skill)
         elif skill in covered_skills:
-            # Skill is covered by a course they've taken/are taking
             ctype = coverage[skill]["coverage_type"]
             student_level = coverage[skill].get("student_level", "beginner") or "beginner"
             base_factor = _proficiency_match(student_level, required_level)
@@ -340,58 +323,63 @@ def score_career_path(profile, career_path, user_courses):
                 matched_weight += weight * base_factor * 0.60
                 matched_skills.append(skill)
         elif coverage.get(skill, {}).get("partially_covered"):
-            # Partially covered: give 40% of the weight
             matched_weight += weight * 0.40
             gap_skills.append(skill)
         else:
             gap_skills.append(skill)
 
-    skill_match_score = (matched_weight / total_weight * 40) if total_weight > 0 else 0
+    # Capped at 25 pts so skills can't override interest alignment
+    skill_match_score = (matched_weight / total_weight * 25) if total_weight > 0 else 0
 
-    # ── 3. Interest alignment → up to 35 pts ──────────────────────────
+    # ── 3. Interest alignment → PRIMARY signal, up to 60 pts ──────────
     interests = profile.get_interests()
     interest_score = 0.0
     activity_score = 0.0
 
-    if interests:
-        for interest in interests:
-            resolved = _resolve_interest(interest)
-            if not resolved:
-                continue
+    tech_interests = []
+    activity_interests = []
 
-            # Check if this is an activity-based interest (double map)
-            is_activity = resolved in ACTIVITY_CAREER_MAP
+    for interest in (interests or []):
+        resolved = _resolve_interest(interest)
+        if not resolved:
+            continue
+        if resolved in PRIMARY_TECH_INTERESTS:
+            tech_interests.append(resolved)
+        elif resolved in ACTIVITY_CAREER_MAP:
+            activity_interests.append(resolved)
 
-            # Interest map scoring
-            mapped_careers = INTEREST_CAREER_MAP.get(resolved, [])
-            if career_path.slug in mapped_careers:
-                position = mapped_careers.index(career_path.slug)
-                position_factor = max(1.0 - (position * 0.18), 0.3)
-                interest_score += 10 * position_factor
+    # Tech interest scoring:
+    # position 0 → 22 pts, decaying by 25% per position, floor at 4 pts
+    # Multiple tech interests stack (e.g. AI + DevOps), capped at 60 total.
+    for resolved in tech_interests:
+        mapped_careers = INTEREST_CAREER_MAP.get(resolved, [])
+        if career_path.slug in mapped_careers:
+            position = mapped_careers.index(career_path.slug)
+            pts = max(22 * (0.75 ** position), 4.0)
+            interest_score += pts
 
-            # Activity map bonus (separate pool)
-            if is_activity:
-                act_careers = ACTIVITY_CAREER_MAP.get(resolved, [])
-                if career_path.slug in act_careers:
-                    pos = act_careers.index(career_path.slug)
-                    activity_score += 5 * max(1.0 - (pos * 0.2), 0.3)
+    interest_score = min(interest_score, 60)
 
-    interest_score = min(interest_score, 35)
-    activity_score = min(activity_score, 15)
+    # Activity interest scoring: weak signal, max 8 pts total.
+    for resolved in activity_interests:
+        act_careers = ACTIVITY_CAREER_MAP.get(resolved, [])
+        if career_path.slug in act_careers:
+            pos = act_careers.index(career_path.slug)
+            pts = max(3 * (0.70 ** pos), 0.5)
+            activity_score += pts
 
-    # ── 4. Curriculum coverage bonus → up to 10 pts ───────────────────
+    activity_score = min(activity_score, 8)
+
+    # ── 4. Curriculum coverage bonus → up to 7 pts ────────────────────
     covered_ratio = len(covered_skills) / len(required_skills) if required_skills else 0
-    curriculum_bonus = covered_ratio * 10
+    curriculum_bonus = covered_ratio * 7
 
     # ── 5. Semester seniority boost (0–8 pts) ─────────────────────────
     signal_score = skill_match_score + interest_score + activity_score + curriculum_bonus
     semester_boost = _get_semester_boost(profile) if signal_score > 0 else 0
 
     # ── Final score ────────────────────────────────────────────────────
-    total_score = min(
-        signal_score + semester_boost,
-        100
-    )
+    total_score = min(signal_score + semester_boost, 100)
 
     return {
         "score": round(total_score, 1),

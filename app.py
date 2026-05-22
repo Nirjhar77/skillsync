@@ -42,6 +42,8 @@ def create_app(config_class=Config):
     from routes.news import news_bp
     from routes.visual_learner import visual_learner_bp
     from routes.study_planner import study_planner_bp
+    from routes.aptitude import aptitude_bp
+    from routes.interview import interview_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(profile_bp)
@@ -56,18 +58,34 @@ def create_app(config_class=Config):
     app.register_blueprint(news_bp)
     app.register_blueprint(visual_learner_bp)
     app.register_blueprint(study_planner_bp)
+    app.register_blueprint(aptitude_bp)
+    app.register_blueprint(interview_bp)
 
     # --- Create tables ---
     with app.app_context():
         db.create_all()
+        _ensure_schema_patches(db)
 
     return app
+
+
+def _ensure_schema_patches(db):
+    """Add columns introduced after first deploy (SQLite)."""
+    from sqlalchemy import inspect, text
+
+    try:
+        insp = inspect(db.engine)
+        if "aptitude_profiles" not in insp.get_table_names():
+            return
+        cols = {c["name"] for c in insp.get_columns("aptitude_profiles")}
+        if "evidence_json" not in cols:
+            with db.engine.connect() as conn:
+                conn.execute(text("ALTER TABLE aptitude_profiles ADD COLUMN evidence_json TEXT DEFAULT '[]'"))
+                conn.commit()
+    except Exception as exc:
+        print(f"[DB] Schema patch skipped: {exc}")
 
 
 if __name__ == "__main__":
     app = create_app()
     app.run(debug=True, port=5000)
-
-# Expose the app for WSGI servers like gunicorn (import path: "app:app").
-# This ensures `gunicorn app:app` works with the factory pattern.
-app = create_app()

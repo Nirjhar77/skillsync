@@ -51,6 +51,74 @@ document.addEventListener('DOMContentLoaded', () => {
             lastScroll = currentScroll;
         });
     }
+
+    // --- Page Transition / Loader Trigger (Tech Intelligence only) ---
+    const pageLoader = document.getElementById('page-loader');
+    if (pageLoader) {
+        const loaderTitle = document.getElementById('loader-title');
+        const loaderStatus = document.getElementById('loader-status');
+        const loaderIconContainer = pageLoader.querySelector('.loader-icon-container');
+
+        function showLoader(title, status, iconName) {
+            if (loaderTitle) loaderTitle.textContent = title;
+            if (loaderStatus) loaderStatus.textContent = status;
+            if (loaderIconContainer) {
+                loaderIconContainer.innerHTML = `<i data-lucide="${iconName}" class="loader-center-icon"></i>`;
+                if (window.lucide) {
+                    window.lucide.createIcons({ root: loaderIconContainer });
+                }
+            }
+            pageLoader.style.opacity = '0';
+            pageLoader.classList.remove('hidden');
+            setTimeout(() => { pageLoader.style.opacity = '1'; }, 10);
+        }
+
+        // Only trigger loader for the Tech Intelligence / Career News nav link
+        const navLinks = document.querySelectorAll('.app-sidebar .nav-link');
+        navLinks.forEach(link => {
+            const textSpan = link.querySelector('span');
+            const text = textSpan ? textSpan.textContent.trim().toLowerCase() : '';
+            if (text === 'tech intelligence' || text === 'career news') {
+                link.addEventListener('click', () => {
+                    showLoader(
+                        'Tech Intelligence Feed',
+                        'Aggregating live insights from GNews & NewsAPI...',
+                        'radio'
+                    );
+                });
+            }
+        });
+
+        // Search bar submission inside news feed
+        const searchForm = document.getElementById('search-form');
+        if (searchForm) {
+            searchForm.addEventListener('submit', () => {
+                const queryInput = document.getElementById('search-input');
+                const query = queryInput ? queryInput.value.trim() : '';
+                if (query) {
+                    showLoader(
+                        'Tech Intelligence Feed',
+                        `Searching for "${query}"...`,
+                        'search'
+                    );
+                }
+            });
+        }
+
+        // Category filter pill clicks inside news feed
+        const catPills = document.querySelectorAll('.cat-pill');
+        catPills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                if (pill.classList.contains('active')) return;
+                const categoryText = pill.textContent.trim();
+                showLoader(
+                    'Tech Intelligence Feed',
+                    `Filtering by: ${categoryText}...`,
+                    'filter'
+                );
+            });
+        });
+    }
 });
 
 /**

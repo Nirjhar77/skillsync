@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}SkillSync — From Student to Hire-Ready in Weeks{% endblock %}
+{% block title %}SkillSync - AI Career Command Center for Students{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
@@ -39,37 +39,37 @@
             <div class="hero-copy" data-animate="fadeUp">
                 <div class="hero-badge">
                     <span class="badge-dot"></span>
-                    AI-Powered Career Intelligence
+                    AI Career Command Center
                 </div>
                 <h1 class="hero-headline">
-                    Stop Guessing.<br>
-                    Start <span class="gradient-text">Getting Hired.</span>
+                    Find Your Path.<br>
+                    Build the <span class="gradient-text">Proof.</span>
                 </h1>
                 <p class="hero-subheadline">
-                    SkillSync maps your university coursework against real industry requirements, identifies your exact skill gaps, and generates a personalized, week-by-week roadmap — so you graduate hire-ready, not scrambling.
+                    SkillSync turns your courses, skills, interests, aptitude signals, and learning habits into a focused career plan with roadmaps, projects, study sessions, visual learning, and progress tracking in one place.
                 </p>
 
                 <div class="hero-stats-row">
                     <div class="hero-stat">
-                        <span class="stat-number">22+</span>
+                        <span class="stat-number">46+</span>
                         <span class="stat-label">Career Paths</span>
                     </div>
                     <div class="hero-stat-divider"></div>
                     <div class="hero-stat">
-                        <span class="stat-number">AI</span>
-                        <span class="stat-label">Roadmap Engine</span>
+                        <span class="stat-number">3</span>
+                        <span class="stat-label">Learning Modes</span>
                     </div>
                     <div class="hero-stat-divider"></div>
                     <div class="hero-stat">
-                        <span class="stat-number">Free</span>
-                        <span class="stat-label">To Get Started</span>
+                        <span class="stat-number">AI</span>
+                        <span class="stat-label">Planner + Tutor</span>
                     </div>
                 </div>
 
                 <div class="hero-actions">
                     <a href="{{ url_for('auth.register') }}" class="lp-btn-primary">
                         <i data-lucide="zap"></i>
-                        Build My Roadmap
+                        Find My Career Match
                     </a>
                     <a href="{{ url_for('auth.guest_login') }}" class="lp-btn-ghost">
                         <i data-lucide="play-circle"></i>
@@ -85,7 +85,7 @@
                         <span class="dot red"></span>
                         <span class="dot yellow"></span>
                         <span class="dot green"></span>
-                        <span class="preview-url">app.skillsync.io/dashboard</span>
+                        <span class="preview-url">app.skillsync.io/career/results</span>
                     </div>
                     <img src="{{ url_for('static', filename='images/Dashboard.png') }}"
                          alt="SkillSync Dashboard Preview"
@@ -96,8 +96,8 @@
                         <span>87% Career Match</span>
                     </div>
                     <div class="floating-badge badge-bottom-left">
-                        <i data-lucide="check-circle"></i>
-                        <span>Roadmap Ready</span>
+                        <i data-lucide="brain-circuit"></i>
+                        <span>Aptitude Signal Ready</span>
                     </div>
                 </div>
             </div>
@@ -116,6 +116,8 @@
             <span><i data-lucide="shield"></i> Cybersecurity</span>
             <span><i data-lucide="cloud"></i> Cloud & DevOps</span>
             <span><i data-lucide="brain-circuit"></i> AI & Machine Learning</span>
+            <span><i data-lucide="gamepad-2"></i> Game Development</span>
+            <span><i data-lucide="calendar-clock"></i> Product & Planning</span>
             <span><i data-lucide="layout"></i> UX Design</span>
             <span><i data-lucide="smartphone"></i> Mobile Development</span>
         </div>
@@ -129,7 +131,7 @@
         <div class="section-header" data-animate="fadeUp">
             <span class="section-eyebrow">The Process</span>
             <h2 class="section-title">From Confused Student to Career-Ready in 4 Steps</h2>
-            <p class="section-subtitle">No career counsellor needed. SkillSync does the heavy lifting — just be honest about where you are.</p>
+            <p class="section-subtitle">SkillSync connects the whole loop: choose a path, learn with structure, practice with projects, and keep your thinking sharp.</p>
         </div>
 
         <div class="steps-grid">
@@ -149,7 +151,7 @@
                     <i data-lucide="target"></i>
                 </div>
                 <h3>Discover Your Best Career Matches</h3>
-                <p>Our rule-based scoring engine compares your skills, interests, and completed coursework against 22+ tech career paths — giving you a ranked match percentage for each.</p>
+                <p>Our rule-based scoring engine compares your skills, interests, and completed coursework against 46+ tech career paths, then explains why each path fits.</p>
             </div>
             <div class="step-connector"><i data-lucide="arrow-right"></i></div>
 
@@ -169,7 +171,7 @@
                     <i data-lucide="check-square"></i>
                 </div>
                 <h3>Learn, Track & Get Hired</h3>
-                <p>Follow curated courses and projects. Track milestones. Monitor your progress in real-time. Generate your CV. Stay sharp with your career-aware Tech Intelligence feed.</p>
+                <p>Follow curated courses, build ranked projects, schedule study sessions, visualize hard concepts, and train with IQ & Aptitude challenges as your dashboard tracks growth.</p>
             </div>
         </div>
     </div>
@@ -181,7 +183,7 @@
     <div class="lp-container">
         <div class="section-header" data-animate="fadeUp">
             <span class="section-eyebrow">Product Preview</span>
-            <h2 class="section-title">See Exactly Where You Stand — and How Far You'll Go</h2>
+            <h2 class="section-title">See Your Career System in Motion</h2>
         </div>
 
         <div class="product-tabs">
@@ -190,6 +192,15 @@
             </button>
             <button class="product-tab" data-target="tab-career">
                 <i data-lucide="compass"></i> Career Match
+            </button>
+            <button class="product-tab" data-target="tab-planner">
+                <i data-lucide="calendar-clock"></i> Study Planner
+            </button>
+            <button class="product-tab" data-target="tab-arena">
+                <i data-lucide="brain-circuit"></i> IQ Arena
+            </button>
+            <button class="product-tab" data-target="tab-visual">
+                <i data-lucide="sparkles"></i> Visual Learner
             </button>
         </div>
 
@@ -227,7 +238,7 @@
                             <i data-lucide="target"></i>
                             <div>
                                 <strong>Ranked Career Matches</strong>
-                                <span>22+ career paths scored and ranked based on your unique profile, skills, and interests.</span>
+                                <span>46+ career paths scored and ranked based on your unique profile, skills, and interests.</span>
                             </div>
                         </div>
                         <div class="mockup-caption-card">
@@ -235,6 +246,112 @@
                             <div>
                                 <strong>Skill Gap Analysis</strong>
                                 <span>Instantly see what skills you have, what your curriculum covers, and exactly what to learn next.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-panel" id="tab-planner">
+                <div class="tool-preview-grid">
+                    <div class="tool-preview-card planner-preview-card">
+                        <div class="tool-preview-header">
+                            <i data-lucide="calendar-clock"></i>
+                            <span>Study Planner</span>
+                        </div>
+                        <div class="planner-week">
+                            <div><strong>Mon</strong><span>Core skill</span><em>90m</em></div>
+                            <div><strong>Wed</strong><span>Project build</span><em>2h</em></div>
+                            <div><strong>Fri</strong><span>Review sprint</span><em>60m</em></div>
+                        </div>
+                        <div class="tool-preview-meter"><span style="width:72%"></span></div>
+                    </div>
+                    <div class="mockup-caption-cards">
+                        <div class="mockup-caption-card">
+                            <i data-lucide="timer-reset"></i>
+                            <div>
+                                <strong>Roadmap-aware scheduling</strong>
+                                <span>Turn milestones into realistic weekly sessions based on your available study hours.</span>
+                            </div>
+                        </div>
+                        <div class="mockup-caption-card">
+                            <i data-lucide="target"></i>
+                            <div>
+                                <strong>Focus without clutter</strong>
+                                <span>Know what to study today, what to build next, and where your plan is falling behind.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-panel" id="tab-arena">
+                <div class="tool-preview-grid">
+                    <div class="tool-preview-card arena-preview-card">
+                        <div class="tool-preview-header">
+                            <i data-lucide="brain-circuit"></i>
+                            <span>IQ & Aptitude Arena</span>
+                        </div>
+                        <div class="arena-preview-modes">
+                            <span>Quick Fire</span>
+                            <span>Deep Think</span>
+                            <span>Mock Interview</span>
+                        </div>
+                        <div class="arena-preview-score">
+                            <strong>B+</strong>
+                            <div>
+                                <span>Reasoning Depth</span>
+                                <div class="tool-preview-meter"><span style="width:85%"></span></div>
+                                <span>Technical Accuracy</span>
+                                <div class="tool-preview-meter"><span style="width:82%"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mockup-caption-cards">
+                        <div class="mockup-caption-card">
+                            <i data-lucide="activity"></i>
+                            <div>
+                                <strong>Cognitive feedback</strong>
+                                <span>Track accuracy, clarity, reasoning depth, confidence, and interview readiness.</span>
+                            </div>
+                        </div>
+                        <div class="mockup-caption-card">
+                            <i data-lucide="network"></i>
+                            <div>
+                                <strong>Dashboard skill graph</strong>
+                                <span>Your aptitude growth feeds the main dashboard instead of hiding inside a test page.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-panel" id="tab-visual">
+                <div class="tool-preview-grid">
+                    <div class="tool-preview-card visual-preview-card">
+                        <div class="tool-preview-header">
+                            <i data-lucide="sparkles"></i>
+                            <span>Visual Learner</span>
+                        </div>
+                        <div class="visual-map">
+                            <span>Text</span>
+                            <i data-lucide="arrow-right"></i>
+                            <span>Structure</span>
+                            <i data-lucide="arrow-right"></i>
+                            <span>Memory</span>
+                        </div>
+                        <p>Paste a paragraph and generate a visual structure for faster recall.</p>
+                    </div>
+                    <div class="mockup-caption-cards">
+                        <div class="mockup-caption-card">
+                            <i data-lucide="workflow"></i>
+                            <div>
+                                <strong>Paragraph to visual map</strong>
+                                <span>Visualize dense learning text from AI Tutor or your own notes.</span>
+                            </div>
+                        </div>
+                        <div class="mockup-caption-card">
+                            <i data-lucide="history"></i>
+                            <div>
+                                <strong>Saved visual history</strong>
+                                <span>Return to past inputs and diagrams instead of losing work after refresh.</span>
                             </div>
                         </div>
                     </div>
@@ -250,7 +367,7 @@
     <div class="lp-container">
         <div class="section-header" data-animate="fadeUp">
             <span class="section-eyebrow">Core Features</span>
-            <h2 class="section-title">Everything a Tech Student Needs — In One Place</h2>
+            <h2 class="section-title">Everything a Tech Student Needs in One Place</h2>
         </div>
 
         <div class="features-bento">
@@ -266,8 +383,8 @@
             <div class="bento-card" data-animate="fadeUp" data-delay="50">
                 <div class="bento-icon"><i data-lucide="compass"></i></div>
                 <h3>Career Match Engine</h3>
-                <p>Rule-based scoring across 22+ career paths. See your strongest fits and understand exactly why.</p>
-                <div class="bento-tag">22+ Career Paths</div>
+                <p>Rule-based scoring across 46+ career paths. See your strongest fits and understand exactly why.</p>
+                <div class="bento-tag">46+ Career Paths</div>
             </div>
 
             <!-- Feature 3 -->
@@ -301,8 +418,36 @@
                 <div class="bento-tag">Always Available</div>
             </div>
 
+            <div class="bento-card" data-animate="fadeUp" data-delay="275">
+                <div class="bento-icon"><i data-lucide="calendar-clock"></i></div>
+                <h3>Study Planner</h3>
+                <p>Convert roadmap milestones into weekly study sessions, focus blocks, and catch-up plans that fit your schedule.</p>
+                <div class="bento-tag">New</div>
+            </div>
+
+            <div class="bento-card" data-animate="fadeUp" data-delay="300">
+                <div class="bento-icon"><i data-lucide="brain-circuit"></i></div>
+                <h3>IQ & Aptitude Arena</h3>
+                <p>Train quick reasoning, logic puzzles, and mock interview answers with AI feedback on clarity and depth.</p>
+                <div class="bento-tag">Arena Mode</div>
+            </div>
+
+            <div class="bento-card" data-animate="fadeUp" data-delay="325">
+                <div class="bento-icon"><i data-lucide="sparkles"></i></div>
+                <h3>Visual Learner</h3>
+                <p>Turn short text into visual structures, then revisit your saved visual history whenever you need to review.</p>
+                <div class="bento-tag">Napkin Powered</div>
+            </div>
+
+            <div class="bento-card" data-animate="fadeUp" data-delay="350">
+                <div class="bento-icon"><i data-lucide="folder-kanban"></i></div>
+                <h3>Career Project Board</h3>
+                <p>Get beginner, intermediate, and advanced project ideas tied to your selected career and portfolio goals.</p>
+                <div class="bento-tag">AI Projects</div>
+            </div>
+
             <!-- Feature 7 — Wide -->
-            <div class="bento-card bento-wide" data-animate="fadeUp" data-delay="300">
+            <div class="bento-card bento-wide" data-animate="fadeUp" data-delay="375">
                 <div class="bento-icon"><i data-lucide="library"></i></div>
                 <h3>Curated Resource Library</h3>
                 <p>Udemy courses, YouTube tutorials, GitHub projects, and official docs — all pre-vetted and mapped to your specific skill gaps. No searching, no noise.</p>
@@ -320,7 +465,7 @@
             <div class="why-copy" data-animate="fadeUp">
                 <span class="section-eyebrow">Why SkillSync</span>
                 <h2 class="section-title">This Isn't Another Generic Career Site</h2>
-                <p class="section-subtitle">Most platforms give you the same roadmap as everyone else. SkillSync starts with <em>your</em> curriculum and works outward.</p>
+                <p class="section-subtitle">Most platforms give you a roadmap and stop there. SkillSync keeps the plan alive with practice, planning, visual learning, and aptitude feedback.</p>
 
                 <div class="differentiators">
                     <div class="diff-item">
@@ -348,7 +493,7 @@
                         <div class="diff-check"><i data-lucide="check"></i></div>
                         <div>
                             <strong>Everything in One Dashboard</strong>
-                            <p>Roadmap, resources, CV, news, chatbot, and progress — no app-switching, no tab overload.</p>
+                            <p>Roadmap, study planner, projects, visual learner, IQ arena, CV, news, chatbot, and progress in one workspace.</p>
                         </div>
                     </div>
                 </div>
@@ -366,6 +511,7 @@
                             <li>Ignores your coursework</li>
                             <li>No progress tracking</li>
                             <li>Overwhelming resource lists</li>
+                            <li>No planner or aptitude feedback</li>
                             <li>No CV integration</li>
                             <li>No career scoring</li>
                         </ul>
@@ -380,7 +526,8 @@
                             <li>Personalized to your profile</li>
                             <li>Curriculum-gap analysis</li>
                             <li>Milestone tracking</li>
-                            <li>Curated, gap-specific resources</li>
+                            <li>Study planning + aptitude practice</li>
+                            <li>Visual learning and saved history</li>
                             <li>One-click CV generation</li>
                             <li>Ranked career matches</li>
                         </ul>
@@ -451,7 +598,7 @@
             <div class="cta-actions">
                 <a href="{{ url_for('auth.register') }}" class="lp-btn-primary lp-btn-xl">
                     <i data-lucide="zap"></i>
-                    Get Started — It's Free
+                    Get Started Free
                 </a>
                 <a href="{{ url_for('auth.guest_login') }}" class="lp-btn-ghost lp-btn-xl">
                     <i data-lucide="eye"></i>
@@ -488,7 +635,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <span>© 2025 SkillSync. Built for students, by students.</span>
+            <span>© 2026 SkillSync. Built for students, by students.</span>
         </div>
     </div>
 </footer>

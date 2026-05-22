@@ -87,9 +87,10 @@ textarea.form-control { resize: vertical; min-height: 70px; }
 .planner-stats { grid-column: 1 / -1; }
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 1rem;
 }
+@media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 720px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
 .stat-tile {
     background: var(--bg-elevated);
@@ -99,10 +100,48 @@ textarea.form-control { resize: vertical; min-height: 70px; }
     display: flex;
     flex-direction: column;
     gap: .3rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
 }
-.stat-tile-icon { font-size: 1.3rem; margin-bottom: .2rem; }
-.stat-tile-val  { font-size: 1.7rem; font-weight: 800; color: var(--text-primary); line-height: 1; }
+.stat-tile:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+.stat-tile::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 14px 14px 0 0;
+    background: var(--tile-accent, linear-gradient(90deg,#00d4ff,#7c6fff));
+}
+.stat-tile-icon { font-size: 1.4rem; margin-bottom: .3rem; }
+.stat-tile-val  { font-size: 1.9rem; font-weight: 800; color: var(--text-primary); line-height: 1; }
 .stat-tile-label { font-size: .72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
+
+/* Weekly chart */
+.weekly-chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 1.2rem 1.5rem;
+    margin-top: 1rem;
+}
+.weekly-chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.weekly-chart-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; color: var(--text-muted); text-transform: uppercase; display: flex; align-items: center; gap: .5rem; }
+.weekly-goal-badge { font-size: .75rem; font-weight: 700; background: rgba(0,212,255,.1); border: 1px solid rgba(0,212,255,.2); color: #00d4ff; border-radius: 20px; padding: .2rem .7rem; }
+.bars-row { display: flex; align-items: flex-end; gap: .5rem; height: 80px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .4rem; }
+.bar-track { width: 100%; background: var(--bg-elevated); border-radius: 6px 6px 0 0; flex: 1; display: flex; align-items: flex-end; overflow: hidden; position: relative; }
+.bar-fill {
+    width: 100%;
+    border-radius: 6px 6px 0 0;
+    background: linear-gradient(180deg, #00d4ff, #7c6fff);
+    transition: height .6s cubic-bezier(.34,1.56,.64,1);
+    min-height: 3px;
+    position: relative;
+}
+.bar-fill.today { background: linear-gradient(180deg, #10b981, #3b82f6); box-shadow: 0 0 12px rgba(16,185,129,.4); }
+.bar-day { font-size: .65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+.bar-val { font-size: .65rem; font-weight: 700; color: var(--text-secondary); }
 
 /* ── Timeline ───────────────────────────────────────── */
 .timeline-empty {
@@ -254,10 +293,15 @@ textarea.form-control { resize: vertical; min-height: 70px; }
 .no-roadmap-msg p  { font-size: .88rem; line-height: 1.7; margin-bottom: 1.2rem; }
 
 /* Light mode */
-body.theme-light .planner-card { background: #fff; }
-body.theme-light .stat-tile     { background: #f8fafc; }
-body.theme-light .session-card  { background: #f8fafc; }
-body.theme-light .form-control  { background: #f1f5f9; color: #1e293b; }
+body.theme-light .planner-card { background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.02); }
+body.theme-light .stat-tile     { background: #f8fafc; border-color: rgba(0,0,0,.08); box-shadow: 0 2px 4px rgba(0,0,0,.02); }
+body.theme-light .stat-tile:hover { box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+body.theme-light .session-card  { background: #f8fafc; border-color: rgba(0,0,0,.08); box-shadow: 0 2px 4px rgba(0,0,0,.02); }
+body.theme-light .session-card:hover { border-color: rgba(37,99,235,.3); box-shadow: 0 4px 12px rgba(0,0,0,.04); }
+body.theme-light .session-card.today-card { background: rgba(37,99,235,.04); border-color: rgba(37,99,235,.2); }
+body.theme-light .form-control  { background: #f1f5f9; color: #1e293b; border-color: rgba(0,0,0,.1); }
+body.theme-light .weekly-goal-badge { background: rgba(37,99,235,.1); border-color: rgba(37,99,235,.2); color: #2563eb; }
+body.theme-light .bar-fill.today { box-shadow: 0 0 12px rgba(37,99,235,.3); }
 </style>
 {% endblock %}
 
@@ -277,26 +321,40 @@ body.theme-light .form-control  { background: #f1f5f9; color: #1e293b; }
 <div class="planner-layout">
 <div class="planner-stats">
     <div class="stats-grid">
-        <div class="stat-tile">
+        <div class="stat-tile" style="--tile-accent: linear-gradient(90deg,#00d4ff,#7c6fff);">
             <div class="stat-tile-icon">⏱️</div>
             <div class="stat-tile-val" id="stat-total-hours">{{ total_hours }}</div>
             <div class="stat-tile-label">Total Hours Logged</div>
         </div>
-        <div class="stat-tile">
+        <div class="stat-tile" style="--tile-accent: linear-gradient(90deg,#3b82f6,#06b6d4);">
             <div class="stat-tile-icon">🗓️</div>
             <div class="stat-tile-val" id="stat-this-week">{{ hours_this_week }}</div>
             <div class="stat-tile-label">Hours This Week</div>
         </div>
-        <div class="stat-tile">
+        <div class="stat-tile" style="--tile-accent: linear-gradient(90deg,#f97316,#f59e0b);">
             <div class="stat-tile-icon">📊</div>
             <div class="stat-tile-val" id="stat-avg">{{ avg_hours }}</div>
             <div class="stat-tile-label">Avg Hours / Session</div>
         </div>
-        <div class="stat-tile">
+        <div class="stat-tile" style="--tile-accent: linear-gradient(90deg,#10b981,#3b82f6);">
             <div class="stat-tile-icon">✅</div>
             <div class="stat-tile-val" id="stat-sessions">{{ total_sessions }}</div>
             <div class="stat-tile-label">Total Sessions</div>
         </div>
+        <div class="stat-tile" style="--tile-accent: linear-gradient(90deg,#8b5cf6,#ec4899);">
+            <div class="stat-tile-icon">🔥</div>
+            <div class="stat-tile-val" id="stat-streak">{{ current_streak }}</div>
+            <div class="stat-tile-label">Day Streak</div>
+        </div>
+    </div>
+
+    <!-- Weekly Activity Chart -->
+    <div class="weekly-chart-card">
+        <div class="weekly-chart-header">
+            <div class="weekly-chart-title"><i data-lucide="bar-chart-2" style="width:14px;height:14px;"></i> This Week's Activity</div>
+            <span class="weekly-goal-badge">Goal: 15h/week</span>
+        </div>
+        <div class="bars-row" id="weekly-bars"></div>
     </div>
 </div>
 
@@ -415,6 +473,29 @@ body.theme-light .form-control  { background: #f1f5f9; color: #1e293b; }
 <script>
 const TODAY = new Date().toISOString().split('T')[0];
 document.getElementById('date-input') && (document.getElementById('date-input').value = TODAY);
+
+// ── Weekly Activity Bar Chart ─────────────────────────
+(function buildWeeklyChart() {
+    const weekData = {{ week_hours_by_day | tojson }};  // {Mon: 2.5, Tue: 0, ...}
+    const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const maxH  = Math.max(...Object.values(weekData), 1);
+    const todayDay = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date().getDay()];
+    const container = document.getElementById('weekly-bars');
+    if (!container) return;
+    days.forEach(day => {
+        const h = weekData[day] || 0;
+        const pct = Math.round((h / maxH) * 100);
+        const isToday = day === todayDay;
+        container.innerHTML += `
+        <div class="bar-col">
+            <div class="bar-val">${h > 0 ? h + 'h' : ''}</div>
+            <div class="bar-track">
+                <div class="bar-fill ${isToday ? 'today' : ''}" style="height:${pct}%"></div>
+            </div>
+            <div class="bar-day" style="${isToday ? 'color:#10b981;font-weight:800;' : ''}">${day}</div>
+        </div>`;
+    });
+})();
 
 // ── Log a session ─────────────────────────────────────
 document.getElementById('log-form')?.addEventListener('submit', async (e) => {

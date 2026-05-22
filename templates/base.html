@@ -26,6 +26,36 @@
         if (localStorage.getItem('theme') === 'light') {
             document.body.classList.add('theme-light');
         }
+
+        // Set route transition direction between tabs
+        (function() {
+            try {
+                const referrer = document.referrer || '';
+                const currentPath = window.location.pathname || '';
+                let direction = 'fade';
+
+                function getTabIndex(path) {
+                    if (path.includes('/guide')) return 1;
+                    if (path.includes('/projects')) return 2;
+                    if (path.includes('/roadmap/')) return 0;
+                    return -1;
+                }
+
+                const fromIdx = getTabIndex(referrer);
+                const toIdx = getTabIndex(currentPath);
+
+                if (fromIdx !== -1 && toIdx !== -1) {
+                    if (toIdx < fromIdx) {
+                        direction = 'left';
+                    } else if (toIdx > fromIdx) {
+                        direction = 'right';
+                    }
+                }
+                document.documentElement.setAttribute('data-route-direction', direction);
+            } catch (e) {
+                console.error("Transition error:", e);
+            }
+        })();
     </script>
     {% endif %}
     <!-- App Shell for Authenticated Users -->
@@ -65,7 +95,6 @@
                 <a href="{{ url_for('study_planner.index') }}" class="nav-link {% if request.path.startswith('/study-planner') %}active{% endif %}">
                     <i data-lucide="calendar-clock" class="nav-icon"></i>
                     <span>Study Planner</span>
-                    <span class="badge badge-new" style="background: linear-gradient(135deg, #f97316, #fbbf24); color: #000;">New</span>
                 </a>
                 {% if not is_nontech %}
                 <a href="{{ url_for('career.projects_latest') }}" class="nav-link {% if request.path.startswith('/career/projects') %}active{% endif %}">
@@ -88,22 +117,22 @@
                 <a href="{{ url_for('cv.builder') }}" class="nav-link {% if request.path.startswith('/cv') %}active{% endif %}">
                     <i data-lucide="file-text" class="nav-icon"></i>
                     <span>CV Generator</span>
-                    <span class="badge badge-new">New</span>
                 </a>
-                <a href="#" class="nav-link disabled" title="Coming Soon">
+                <a href="{{ url_for('aptitude.index') }}" class="nav-link {% if request.path.startswith('/aptitude') %}active{% endif %}">
                     <i data-lucide="brain-circuit" class="nav-icon"></i>
-                    <span>IQ & Aptitude Test</span>
-                    <span class="badge badge-soon">Soon</span>
+                    <span>IQ &amp; Aptitude</span>
                 </a>
                 <a href="{{ url_for('chatbot.tutor_view') }}" class="nav-link {% if request.path.startswith('/chatbot/tutor') %}active{% endif %}">
                     <i data-lucide="bot" class="nav-icon"></i>
                     <span>AI Tutor</span>
-                    <span class="badge badge-new" style="background: linear-gradient(135deg, #a78bfa, #c084fc); color: #000;">New</span>
+                </a>
+                <a href="{{ url_for('interview.session') }}" class="nav-link {% if request.path.startswith('/interview') %}active{% endif %}">
+                    <i data-lucide="mic" class="nav-icon"></i>
+                    <span>Mock Interview</span>
                 </a>
                 <a href="{{ url_for('visual_learner.index') }}" class="nav-link {% if request.path.startswith('/visual-learner') %}active{% endif %}">
                     <i data-lucide="sparkles" class="nav-icon"></i>
                     <span>Visual Learner</span>
-                    <span class="badge badge-new" style="background: linear-gradient(135deg, #34d399, #00d4ff); color: #000;">New</span>
                 </a>
             </div>
 
@@ -247,5 +276,26 @@
             }
         });
     </script>
+
+    <!-- Page Loader Overlay -->
+    <div id="page-loader" class="page-loader hidden">
+        <div class="loader-content glass-card">
+            <div class="loader-visual">
+                <div class="loader-glow"></div>
+                <div class="loader-ring outer"></div>
+                <div class="loader-ring inner"></div>
+                <div class="loader-icon-container">
+                    <i data-lucide="loader" class="loader-center-icon"></i>
+                </div>
+            </div>
+            <div class="loader-info">
+                <h3 id="loader-title" class="loader-title">SkillSync AI</h3>
+                <p id="loader-status" class="loader-status">Preparing workspace...</p>
+                <div class="loader-progress-bar">
+                    <div class="loader-progress-fill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

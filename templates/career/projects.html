@@ -3,6 +3,12 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/roadmap.css') }}">
+<style>
+/* Hide the top app-header bar completely on this page */
+.app-header {
+    display: none !important;
+}
+</style>
 {% endblock %}
 
 {% block content %}

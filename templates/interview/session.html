@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}Mock Interview — SkillSync{% endblock %}
+
+{% block breadcrumbs %}
+<span>Mock Interview</span>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/interview.css') }}?v=2">
+{% endblock %}
+
+{% block content %}
+<div class="iv-session iv-session--lobby" id="iv-session"
+    data-career="{{ career_title | e }}"
+    data-round="{{ round_label | e }}"
+    data-total="8"
+    data-timer-total="900">
+
+  <!-- Lobby: timer does NOT run until Start Interview -->
+  <div class="iv-lobby" id="iv-lobby" role="dialog" aria-modal="true" aria-labelledby="iv-lobby-title">
+    <div class="iv-lobby-card">
+      <div class="iv-lobby-icon"><i data-lucide="mic"></i></div>
+      <h2 id="iv-lobby-title">Ready for your mock interview?</h2>
+      <p class="iv-lobby-sub">{{ career_title }} · {{ round_label }} · {{ difficulty }}</p>
+      <ul class="iv-lobby-meta">
+        <li><i data-lucide="clock"></i> 15 minute session</li>
+        <li><i data-lucide="message-square"></i> 8 AI-scored questions</li>
+        <li><i data-lucide="sparkles"></i> Live feedback from Alexia</li>
+      </ul>
+      <p class="iv-lobby-note">The timer starts only when you press <strong>Start Interview</strong>.</p>
+      <div class="iv-lobby-actions">
+        <button type="button" class="iv-btn-start" id="iv-start-btn">
+          <i data-lucide="play"></i> Start Interview
+        </button>
+        <button type="button" class="iv-btn-resume" id="iv-resume-btn" style="display:none;">
+          <i data-lucide="rotate-ccw"></i> Resume Interview
+        </button>
+      </div>
+      <p class="iv-lobby-loading" id="iv-lobby-loading" style="display:none;">Starting session…</p>
+    </div>
+  </div>
+
+    <!-- Top bar -->
+    <header class="iv-topbar">
+      <div class="iv-title-block">
+        <h1>Mock Interview</h1>
+        <p>{{ career_title }} Interview <em>•</em> {{ round_label }}</p>
+      </div>
+      <nav class="iv-stepper" aria-label="Interview progress">
+        <div class="iv-step done" data-step="1">
+          <span class="iv-step-num"><i data-lucide="check"></i></span>
+          <span>Introduction</span>
+        </div>
+        <span class="iv-step-line done"></span>
+        <div class="iv-step active" data-step="2">
+          <span class="iv-step-num">2</span>
+          <span>Technical</span>
+        </div>
+        <span class="iv-step-line"></span>
+        <div class="iv-step" data-step="3">
+          <span class="iv-step-num">3</span>
+          <span>Scenario</span>
+        </div>
+        <span class="iv-step-line"></span>
+        <div class="iv-step" data-step="4">
+          <span class="iv-step-num">4</span>
+          <span>System Design</span>
+        </div>
+        <span class="iv-step-line"></span>
+        <div class="iv-step" data-step="5">
+          <span class="iv-step-num">5</span>
+          <span>Closing</span>
+        </div>
+      </nav>
+      <div class="iv-top-actions">
+        <a href="{{ url_for('dashboard.index') }}" class="iv-btn-end" id="iv-end-btn">
+          <i data-lucide="log-out"></i> End Interview
+        </a>
+        <div class="iv-timer-wrap">
+          <div>
+            <div class="iv-timer-label">Time<br>Remaining</div>
+            <div class="iv-timer-value" id="iv-timer-display">15:00</div>
+          </div>
+          <div class="iv-timer-ring" aria-hidden="true">
+            <svg width="44" height="44" viewBox="0 0 44 44">
+              <defs>
+                <linearGradient id="iv-timer-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#6366f1"/>
+                  <stop offset="100%" stop-color="#a855f7"/>
+                </linearGradient>
+              </defs>
+              <circle class="track" cx="22" cy="22" r="18"/>
+              <circle class="progress" id="iv-timer-ring" cx="22" cy="22" r="18"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main 3-column body -->
+    <div class="iv-body">
+      <!-- Left: interviewer + flow -->
+      <aside class="iv-col">
+        <section class="iv-card iv-interviewer">
+          <div class="iv-card-head"><i data-lucide="sparkles"></i> AI Interviewer</div>
+          <div class="iv-card-body">
+            <div class="iv-avatar">
+              <div class="iv-avatar-inner" aria-hidden="true">AL</div>
+            </div>
+            <h3>Alexia</h3>
+            <p class="iv-role-sub">Senior Backend Engineer, 8+ Yrs Experience</p>
+            <div class="iv-meta-list">
+              <div class="iv-meta-row">
+                <i data-lucide="briefcase"></i>
+                <span>Role</span>
+                <strong>{{ career_title }}</strong>
+              </div>
+              <div class="iv-meta-row">
+                <i data-lucide="radio"></i>
+                <span>Round</span>
+                <strong>{{ round_label }}</strong>
+              </div>
+              <div class="iv-meta-row">
+                <i data-lucide="gauge"></i>
+                <span>Difficulty</span>
+                <strong>{{ difficulty }}
+                  <span class="iv-diff-bar" aria-hidden="true">
+                    <span class="on"></span><span class="on"></span><span class="on"></span><span></span>
+                  </span>
+                </strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="iv-card">
+          <div class="iv-card-head"><i data-lucide="list-ordered"></i> Interview Flow</div>
+          <div class="iv-card-body">
+            <div class="iv-flow-list" id="iv-flow-list">
+              <div class="iv-flow-item done" data-flow="1">1. Introduction</div>
+              <div class="iv-flow-item active" data-flow="2">2. Technical</div>
+              <div class="iv-flow-item" data-flow="3">3. Scenario</div>
+              <div class="iv-flow-item" data-flow="4">4. System Design</div>
+              <div class="iv-flow-item" data-flow="5">5. Closing</div>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <!-- Center: question + answer -->
+      <main class="iv-center">
+        <section class="iv-card">
+          <div class="iv-q-header">
+            <span class="iv-q-count">Question <strong id="iv-q-current">1</strong> / <strong id="iv-q-total">8</strong></span>
+          </div>
+          <div class="iv-bubble" id="iv-question-text">
+            Press <strong>Start Interview</strong> when you're ready. Alexia will ask questions tailored to your {{ career_title }} path.
+          </div>
+          <div class="iv-thinking" id="iv-thinking">
+            <span id="iv-thinking-label">Alexia is ready</span>
+            <span class="iv-thinking-dots" id="iv-thinking-dots" style="display:none;"><i></i><i></i><i></i></span>
+          </div>
+          <div class="iv-tip" id="iv-tip">
+            <i data-lucide="lightbulb"></i>
+            <span id="iv-tip-text">Structure your answer: definition → how it works → collision handling → tradeoffs → real-world example.</span>
+          </div>
+          <div class="iv-q-actions">
+            <button type="button" class="iv-btn-ghost" id="iv-report-btn"><i data-lucide="flag"></i> Report Issue</button>
+            <button type="button" class="iv-btn-ghost" id="iv-hint-btn"><i data-lucide="help-circle"></i> Request Hint (<span id="iv-hints-left">2</span> left)</button>
+          </div>
+        </section>
+
+        <section class="iv-card iv-answer-card">
+          <div class="iv-card-head">Your Answer</div>
+          <div class="iv-card-body">
+            <div class="iv-answer-tabs" role="tablist">
+              <button type="button" class="iv-answer-tab active" data-tab="text" role="tab" aria-selected="true">
+                <i data-lucide="align-left"></i> Text
+              </button>
+              <button type="button" class="iv-answer-tab soon" data-tab="voice" role="tab" title="Coming soon">
+                <i data-lucide="mic"></i> Voice
+              </button>
+              <button type="button" class="iv-answer-tab soon" data-tab="code" role="tab" title="Coming soon">
+                <i data-lucide="code-2"></i> Code
+              </button>
+              <button type="button" class="iv-answer-tab soon" data-tab="bullets" role="tab" title="Coming soon">
+                <i data-lucide="list"></i> Bullet Points
+              </button>
+            </div>
+
+            <div class="iv-answer-pane active" id="pane-text" role="tabpanel">
+              <textarea class="iv-textarea" id="iv-answer" maxlength="4000" placeholder="Type your answer here..."></textarea>
+            </div>
+            <div class="iv-answer-pane" id="pane-voice" role="tabpanel">
+              <div class="iv-coming-soon">Voice answers — coming soon. Use Text mode for now.</div>
+            </div>
+            <div class="iv-answer-pane" id="pane-code" role="tabpanel">
+              <div class="iv-coming-soon">Code editor — coming soon. Use Text mode for now.</div>
+            </div>
+            <div class="iv-answer-pane" id="pane-bullets" role="tabpanel">
+              <div class="iv-coming-soon">Bullet mode — coming soon. Use Text mode for now.</div>
+            </div>
+
+            <div class="iv-loading" id="iv-loading">
+              <i data-lucide="loader-2" class="spin"></i>
+              Evaluating your answer…
+            </div>
+
+            <div class="iv-answer-footer">
+              <span><strong id="iv-char-count">0</strong> / 4000</span>
+              <div class="iv-answer-tools">
+                <button type="button" class="iv-icon-btn" id="iv-undo-btn" title="Undo" disabled><i data-lucide="undo-2"></i></button>
+                <button type="button" class="iv-icon-btn" id="iv-redo-btn" title="Redo" disabled><i data-lucide="redo-2"></i></button>
+                <button type="button" class="iv-btn-ghost" id="iv-clear-btn">Clear</button>
+              </div>
+            </div>
+
+            <div class="iv-submit-row">
+              <button type="button" class="iv-btn-submit" id="iv-submit-btn" disabled>
+                <i data-lucide="send"></i> Submit Answer
+              </button>
+            </div>
+            <p class="iv-answer-note">Your answer will be evaluated by AI based on clarity, depth, accuracy and structure.</p>
+
+            <div class="iv-feedback" id="iv-feedback">
+              <div class="iv-feedback-grade" id="iv-feedback-grade"></div>
+              <p id="iv-feedback-text"></p>
+            </div>
+            <div class="iv-next-row" id="iv-next-row">
+              <button type="button" class="iv-btn-next" id="iv-next-btn">Next Question →</button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Right: live evaluation -->
+      <aside class="iv-col">
+        <section class="iv-card">
+          <div class="iv-card-head"><i data-lucide="activity"></i> Live Evaluation</div>
+          <div class="iv-card-body">
+            <div class="iv-eval-metrics">
+              <div class="iv-metric" data-metric="clarity">
+                <div class="iv-metric-label"><i data-lucide="eye"></i> Clarity</div>
+                <span class="iv-metric-score" id="score-clarity">— / 10</span>
+                <div class="iv-metric-track"><div class="iv-metric-fill" id="bar-clarity" style="--metric-color:#22d3ee"></div></div>
+              </div>
+              <div class="iv-metric" data-metric="technical">
+                <div class="iv-metric-label"><i data-lucide="cpu"></i> Technical Depth</div>
+                <span class="iv-metric-score" id="score-technical">— / 10</span>
+                <div class="iv-metric-track"><div class="iv-metric-fill" id="bar-technical" style="--metric-color:#3b82f6"></div></div>
+              </div>
+              <div class="iv-metric" data-metric="accuracy">
+                <div class="iv-metric-label"><i data-lucide="target"></i> Accuracy</div>
+                <span class="iv-metric-score" id="score-accuracy">— / 10</span>
+                <div class="iv-metric-track"><div class="iv-metric-fill" id="bar-accuracy" style="--metric-color:#22c55e"></div></div>
+              </div>
+              <div class="iv-metric" data-metric="structure">
+                <div class="iv-metric-label"><i data-lucide="layers"></i> Structure</div>
+                <span class="iv-metric-score" id="score-structure">— / 10</span>
+                <div class="iv-metric-track"><div class="iv-metric-fill" id="bar-structure" style="--metric-color:#f97316"></div></div>
+              </div>
+              <div class="iv-metric" data-metric="communication">
+                <div class="iv-metric-label"><i data-lucide="message-circle"></i> Communication</div>
+                <span class="iv-metric-score" id="score-communication">— / 10</span>
+                <div class="iv-metric-track"><div class="iv-metric-fill" id="bar-communication" style="--metric-color:#a855f7"></div></div>
+              </div>
+            </div>
+
+            <div class="iv-overall-ring">
+              <svg width="140" height="140" viewBox="0 0 140 140">
+                <circle cx="70" cy="70" r="58" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10"/>
+                <circle id="iv-score-ring" cx="70" cy="70" r="58" fill="none" stroke="url(#iv-score-grad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="364" stroke-dashoffset="364"/>
+                <defs>
+                  <linearGradient id="iv-score-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#6366f1"/>
+                    <stop offset="100%" stop-color="#a855f7"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="ring-label">
+                <span class="sub">Overall Score</span>
+                <strong id="iv-overall-score">—</strong>
+                <span>/ 100</span>
+              </div>
+            </div>
+            <p class="iv-score-note" id="iv-score-note">Answer to get score</p>
+          </div>
+        </section>
+      </aside>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>window.__IV_RESUME__ = {{ active_session | tojson }};</script>
+<script src="{{ url_for('static', filename='js/interview.js') }}?v=2"></script>
+{% endblock %}

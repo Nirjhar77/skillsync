@@ -28,7 +28,11 @@ def login():
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
 
-        user = User.query.filter_by(username=username).first()
+        # Lookup user by username or email case-insensitively
+        user = User.query.filter(
+            (db.func.lower(User.username) == db.func.lower(username)) |
+            (db.func.lower(User.email) == db.func.lower(username))
+        ).first()
         if user and user.check_password(password):
             login_user(user)
             flash("Welcome back! 🎯", "success")

@@ -1,174 +1,174 @@
 {% extends "base.html" %}
-{% block title %}Career Matches — SkillSync{% endblock %}
+{% block title %}Career Matches - SkillSync{% endblock %}
+{% block breadcrumbs %}<span>Career Navigator</span>{% endblock %}
 
 {% block content %}
-<div class="page-container">
-    <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
-        <div>
-            <h1 class="page-title">
-                <i data-lucide="compass" class="title-icon"></i>
-                Your Career Matches
-            </h1>
-            <p class="page-subtitle">Based on your skills, interests, and curriculum — here are your top career paths ranked by compatibility</p>
+<div class="career-match-page">
+    <header class="career-match-header">
+        <div class="career-match-title">
+            <span class="career-match-icon"><i data-lucide="compass"></i></span>
+            <div>
+                <h1>Your Career Matches</h1>
+                <p>Based on your skills, interests, and curriculum</p>
+            </div>
         </div>
         {% if results|length >= 2 %}
-        <a href="{{ url_for('career.compare') }}" style="
-            display:inline-flex;align-items:center;gap:8px;
-            background:linear-gradient(135deg,#7c6fff22,#00d4ff22);
-            border:1px solid #7c6fff55;
-            color:#a78bfa;font-weight:700;font-size:0.85rem;
-            padding:10px 20px;border-radius:12px;text-decoration:none;
-            transition:all 0.2s;white-space:nowrap;">
-            <i data-lucide="git-compare" style="width:16px;height:16px;"></i>
-            ⚖️ Compare Paths
+        <a href="{{ url_for('career.compare') }}" class="compare-paths-btn">
+            <i data-lucide="git-compare-arrows"></i>
+            Compare Paths
         </a>
         {% endif %}
-    </div>
+    </header>
 
-    <style>
-    /* ── Category Section Headers ── */
-    .category-section { margin-bottom: 40px; }
-    .category-header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 16px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid var(--border);
-    }
-    .category-icon {
-        width: 36px; height: 36px; border-radius: 10px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.1rem; flex-shrink: 0;
-    }
-    .category-icon.best    { background: linear-gradient(135deg,#7c6fff22,#00d4ff22); border:1px solid #7c6fff55; }
-    .category-icon.adj     { background: linear-gradient(135deg,#00d4ff22,#00ff9922); border:1px solid #00d4ff55; }
-    .category-icon.stretch { background: linear-gradient(135deg,#f59e0b22,#ff6b6b22); border:1px solid #f59e0b55; }
-    .category-icon.wild    { background: linear-gradient(135deg,#ec489922,#f43f5e22); border:1px solid #ec489955; }
-    .category-title {
-        font-size: 1rem; font-weight: 800;
-        color: var(--text-primary);
-    }
-    .category-subtitle {
-        font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;
-    }
-    .category-badge {
-        margin-left: auto; font-size: 0.7rem; font-weight: 700;
-        padding: 3px 10px; border-radius: 20px; text-transform: uppercase;
-        letter-spacing: 0.06em;
-    }
-    .badge-best    { background:#7c6fff22; color:#a78bfa; }
-    .badge-adj     { background:#00d4ff22; color:#00d4ff; }
-    .badge-stretch { background:#f59e0b22; color:#f59e0b; }
-    .badge-wild    { background:#ec489922; color:#f43f5e; }
-
-    /* Strip badge off individual card so it doesn't overlap category label */
-    .card-badge { display: none; }
-    </style>
-
-    <!-- ── BEST FIT ── -->
-    {% if best_fit %}
-    <div class="category-section">
-        <div class="category-header">
-            <div class="category-icon best">🏆</div>
-            <div>
-                <div class="category-title">Best Fit</div>
-                <div class="category-subtitle">Strong match — your skills and interests align well with these paths</div>
-            </div>
-            <span class="category-badge badge-best">{{ best_fit|length }} path{{ 's' if best_fit|length != 1 }}</span>
+    {% if results %}
+    {% set primary = results[0] %}
+    <section class="match-stage">
+        <div class="match-section-label">
+            <span><i data-lucide="trophy"></i>Best Fit</span>
+            <strong>1 / {{ results|length }}</strong>
         </div>
-        <div class="career-grid">
-            {% for result in best_fit %}
-            <div class="career-card glass-card top-match" style="--delay: {{ loop.index * 0.1 }}s">
-                {% include "career/_career_card_body.html" %}
+
+        <article class="best-match-card">
+            <div class="best-match-main">
+                <div class="match-category">{{ primary.career.category }}</div>
+                <div class="match-title-row">
+                    <h2>{{ primary.career.title }}</h2>
+                    <span class="favorite-dot"><i data-lucide="star"></i></span>
+                </div>
+                <p class="match-description">{{ primary.career.description }}</p>
+
+                <div class="match-meta-row">
+                    <span><i data-lucide="dollar-sign"></i>{{ primary.career.avg_salary_range }}</span>
+                    <span><i data-lucide="trending-up"></i>Growth: {{ primary.career.growth_outlook }}</span>
+                </div>
+
+                <div class="fit-groups">
+                    {% if primary.matched_skills %}
+                    <div class="fit-group">
+                        <h3><i data-lucide="check-circle-2"></i>Matched Skills</h3>
+                        <div class="fit-tags">
+                            {% for skill in primary.matched_skills[:6] %}
+                            <span class="fit-tag">{{ skill | replace('_', ' ') | title }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if primary.curriculum_covered %}
+                    <div class="fit-group">
+                        <h3><i data-lucide="book-open"></i>Covered by Courses</h3>
+                        <div class="fit-tags">
+                            {% for skill, info in primary.curriculum_covered.items() %}
+                            <span class="fit-tag" title="Via: {{ info.source }}">{{ skill | replace('_', ' ') | title }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if primary.gap_skills %}
+                    <div class="fit-group">
+                        <h3><i data-lucide="circle-alert"></i>Skills to Learn</h3>
+                        <div class="fit-tags">
+                            {% for skill in primary.gap_skills[:4] %}
+                            <span class="fit-tag fit-tag-warning">{{ skill | replace('_', ' ') | title }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
+
+            <aside class="match-side">
+                <div class="match-ring">
+                    <svg viewBox="0 0 120 120" aria-label="{{ primary.score | int }} percent match">
+                        <defs>
+                            <linearGradient id="matchRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00d4ff"/>
+                                <stop offset="100%" stop-color="#7c6fff"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="match-ring-bg" cx="60" cy="60" r="50"></circle>
+                        <circle class="match-ring-fill" cx="60" cy="60" r="50" style="stroke-dashoffset: {{ 314 - (314 * primary.score / 100) }}"></circle>
+                    </svg>
+                    <div class="match-ring-label">
+                        <strong>{{ primary.score | int }}%</strong>
+                        <span>Match</span>
+                    </div>
+                </div>
+
+                <div class="match-insights">
+                    <div><span>Demand</span><strong>{{ 'High' if primary.score >= 65 else 'Medium' }}</strong></div>
+                    <div><span>Growth Rate</span><strong>{{ primary.career.growth_outlook }}</strong></div>
+                    <div><span>Avg. Time to Get Job</span><strong>{{ '4 - 6 Months' if primary.score >= 65 else '6 - 9 Months' }}</strong></div>
+                    <div><span>Your Readiness</span><strong class="readiness">{{ 'Strong' if primary.score >= 65 else 'Building' }}</strong></div>
+                </div>
+
+                <div class="match-actions">
+                    <form method="POST" action="{{ url_for('career.select', career_id=primary.career.id) }}">
+                        <button type="submit" class="btn btn-primary match-action-primary">
+                            <i data-lucide="map" class="btn-icon"></i>
+                            View Roadmap
+                            <i data-lucide="arrow-right" class="btn-icon"></i>
+                        </button>
+                    </form>
+                    <a href="{{ url_for('career.overview', career_id=primary.career.id) }}" class="btn btn-outline match-action-primary" onclick="showInsightsLoading('{{ primary.career.title|replace('\'', '\\\'') }}')">
+                        <i data-lucide="book-open" class="btn-icon"></i>
+                        Insights
+                    </a>
+                </div>
+            </aside>
+        </article>
+
+        {% if results|length > 1 %}
+        <div class="match-section-label other-label">
+            <span><i data-lucide="hexagon"></i>Other Matches</span>
+        </div>
+        <div class="other-match-grid">
+            {% for result in results[1:5] %}
+            <article class="other-match-card">
+                <div class="other-match-copy">
+                    <div class="match-category">{{ result.career.category }}</div>
+                    <h3>{{ result.career.title }}</h3>
+                    <p>{{ result.career.description }}</p>
+                    <div class="other-meta">
+                        <span><i data-lucide="circle"></i>Demand: {{ 'High' if result.score >= 55 else 'Medium' }}</span>
+                        <span><i data-lucide="trending-up"></i>Growth: {{ result.career.growth_outlook }}</span>
+                    </div>
+                    <div class="mini-actions">
+                        <a href="{{ url_for('career.overview', career_id=result.career.id) }}" class="mini-link" onclick="showInsightsLoading('{{ result.career.title|replace('\'', '\\\'') }}')">Insights</a>
+                        <form method="POST" action="{{ url_for('career.select', career_id=result.career.id) }}">
+                            <button class="mini-arrow" type="submit" aria-label="Generate roadmap for {{ result.career.title }}">
+                                <i data-lucide="arrow-right"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="mini-match-ring">
+                    <svg viewBox="0 0 100 100" aria-label="{{ result.score | int }} percent match">
+                        <circle class="mini-bg" cx="50" cy="50" r="38"></circle>
+                        <circle class="mini-fill" cx="50" cy="50" r="38" style="stroke-dashoffset: {{ 239 - (239 * result.score / 100) }}"></circle>
+                    </svg>
+                    <strong>{{ result.score | int }}%</strong>
+                    <span>Match</span>
+                </div>
+            </article>
             {% endfor %}
         </div>
-    </div>
-    {% endif %}
-
-    <!-- ── ADJACENT FIT ── -->
-    {% if adjacent_fit %}
-    <div class="category-section">
-        <div class="category-header">
-            <div class="category-icon adj">🎯</div>
-            <div>
-                <div class="category-title">Adjacent Fit</div>
-                <div class="category-subtitle">Close match — a small skill gap separates you from these roles</div>
-            </div>
-            <span class="category-badge badge-adj">{{ adjacent_fit|length }} path{{ 's' if adjacent_fit|length != 1 }}</span>
-        </div>
-        <div class="career-grid">
-            {% for result in adjacent_fit %}
-            <div class="career-card glass-card" style="--delay: {{ loop.index * 0.1 }}s">
-                {% include "career/_career_card_body.html" %}
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- ── STRETCH PATH ── -->
-    {% if stretch_path %}
-    <div class="category-section">
-        <div class="category-header">
-            <div class="category-icon stretch">🚀</div>
-            <div>
-                <div class="category-title">Stretch Path</div>
-                <div class="category-subtitle">Ambitious — requires significant new skills, but very achievable with effort</div>
-            </div>
-            <span class="category-badge badge-stretch">{{ stretch_path|length }} path{{ 's' if stretch_path|length != 1 }}</span>
-        </div>
-        <div class="career-grid">
-            {% for result in stretch_path %}
-            <div class="career-card glass-card" style="--delay: {{ loop.index * 0.1 }}s; border-color: rgba(245,158,11,0.15);">
-                {% include "career/_career_card_body.html" %}
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- ── WILDCARD ── -->
-    {% if wildcard %}
-    <div class="category-section">
-        <div class="category-header">
-            <div class="category-icon wild">🎲</div>
-            <div>
-                <div class="category-title">Wildcard</div>
-                <div class="category-subtitle">Unexpected — low overlap but could be your hidden calling</div>
-            </div>
-            <span class="category-badge badge-wild">{{ wildcard|length }} path{{ 's' if wildcard|length != 1 }}</span>
-        </div>
-        <div class="career-grid">
-            {% for result in wildcard %}
-            <div class="career-card glass-card" style="--delay: {{ loop.index * 0.1 }}s; border-color: rgba(236,72,153,0.15);">
-                {% include "career/_career_card_body.html" %}
-            </div>
-            {% endfor %}
-        </div>
-    </div>
+        {% endif %}
+    </section>
     {% endif %}
 
     {% if not results %}
-
-    <!-- Empty state: no rule-engine matches above threshold -->
-    <div class="glass-card" style="text-align: center; padding: 3rem 2rem; margin-bottom: 2rem;">
-        <div style="width: 64px; height: 64px; background: rgba(124, 58, 237, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
-            <i data-lucide="search-x" style="width: 28px; height: 28px; color: #c084fc;"></i>
-        </div>
-        <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">No strong rule-based matches found</h3>
-        <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 1.5rem; line-height: 1.6;">
-            Your profile didn't score above the threshold for any preset career path — this usually means you have fewer skills/courses logged, or your interests are very niche.
-            <br><br>
-            Try adding more skills to your profile, or use <strong style="color: #c084fc;">AI-Powered Suggestions</strong> below — the AI reads your courses and interests directly and can find personalized matches regardless of score.
-        </p>
-        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+    <div class="empty-match-card">
+        <div class="empty-icon"><i data-lucide="search-x"></i></div>
+        <h3>No strong rule-based matches found</h3>
+        <p>Your profile may need more skills, courses, or interests before preset paths can rank confidently.</p>
+        <div class="empty-actions">
             <a href="{{ url_for('profile.setup') }}" class="btn btn-secondary">
                 <i data-lucide="user-cog" class="btn-icon"></i>
                 Update Profile
             </a>
-            <button id="btn-ai-suggest-empty" class="btn btn-primary" onclick="document.getElementById('btn-ai-suggest').click(); this.closest('.glass-card').style.display='none';">
+            <button id="btn-ai-suggest-empty" class="btn btn-primary" onclick="document.getElementById('btn-ai-suggest').click(); this.closest('.empty-match-card').style.display='none';">
                 <i data-lucide="sparkles" class="btn-icon"></i>
                 Try AI Suggestions
             </button>
@@ -176,259 +176,989 @@
     </div>
     {% endif %}
 
-    <!-- AI Suggestion Fallback Banner -->
-    <div class="ai-fallback-banner" style="margin-top: 3rem; background: rgba(124, 58, 237, 0.05); border: 1px dashed rgba(124, 58, 237, 0.3); border-radius: var(--radius-lg); padding: 2rem; text-align: center;">
-        <h3 style="color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <i data-lucide="sparkles" style="color: #c084fc;"></i>
-            Not finding your ideal career path?
-        </h3>
-        <p style="color: var(--text-muted); margin-bottom: 1.5rem; max-width: 600px; margin-inline: auto;">
-            Our AI can analyze your specific courses, major, and interests to suggest hyper-personalized niche tech careers that might be a better fit.
-        </p>
-        <button id="btn-ai-suggest" class="btn btn-outline" style="border-color: rgba(124, 58, 237, 0.5); color: #c084fc;">
+    <section class="ai-fallback-banner">
+        <h3><i data-lucide="sparkles"></i>Need a more specific path?</h3>
+        <p>Ask AI to analyze your courses, major, and interests for niche career suggestions beyond the preset rule engine.</p>
+        <button id="btn-ai-suggest" class="btn btn-outline">
             Use AI-Powered Suggestions
         </button>
-        
-        <!-- Loading State for AI Suggestions -->
-        <div id="ai-loading" style="display: none; margin-top: 1.5rem;">
-            <div class="spinner" style="width: 30px; height: 30px; border: 2px solid rgba(124, 58, 237, 0.1); border-top-color: #c084fc; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
-            <p style="color: var(--text-muted); margin-top: 0.75rem; font-size: 0.9rem;">Analyzing your curriculum...</p>
+        <div id="ai-loading" class="ai-loading">
+            <div class="spinner"></div>
+            <p>Analyzing your curriculum...</p>
         </div>
-    </div>
+    </section>
 
-    <!-- Container for AI Suggestions -->
-    <div id="ai-suggestions-container" class="dashboard-grid" style="display: none; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
-        <!-- Injected via JS -->
-    </div>
+    <div id="ai-suggestions-container" class="ai-suggestions-container"></div>
 
-    <!-- Floating Chatbot Widget -->
     <div id="chat-widget" class="chat-widget collapsed">
         <div class="chat-header" id="chat-header">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 24px; height: 24px; background: var(--gradient-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <i data-lucide="bot" style="width: 14px; height: 14px; color: white;"></i>
-                </div>
-                <span style="font-weight: 600; font-size: 0.95rem;">Career Assistant</span>
+            <div class="chat-header-title">
+                <span><i data-lucide="bot"></i></span>
+                <strong>Career Assistant</strong>
             </div>
             <i data-lucide="chevron-down" class="chat-toggle-icon"></i>
         </div>
         <div class="chat-body" id="chat-messages">
-            <div class="chat-msg bot-msg">
-                Hi! I'm powered by Llama 3 on Groq. I can help you decide which career path is best based on your profile. What's on your mind?
-            </div>
+            <div class="chat-msg bot-msg">Need help choosing the right path? Ask me about fit, skill gaps, or roadmap tradeoffs.</div>
         </div>
         <div class="chat-input-area">
-            <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off">
+            <input type="text" id="chat-input" placeholder="Ask about your matches..." autocomplete="off">
             <button id="chat-send"><i data-lucide="send"></i></button>
         </div>
     </div>
 </div>
 
-<!-- Insights Loading Overlay -->
-<div id="insights-loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 15, 20, 0.9); z-index: 9999; flex-direction: column; align-items: center; justify-content: center;">
-    <div class="spinner" style="width: 60px; height: 60px; border: 4px solid rgba(124, 58, 237, 0.1); border-top-color: #c084fc; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 24px;"></div>
-    <h2 style="color: white; font-size: 1.5rem; margin-bottom: 8px;">Generating Insights</h2>
-    <p id="insights-loading-text" style="color: var(--text-muted); font-size: 1rem; max-width: 400px; text-align: center;">Analyzing market trends, salary data, and core responsibilities for this role...</p>
+<div id="insights-loading-overlay" class="insights-loading-overlay">
+    <div class="spinner overlay-spinner"></div>
+    <h2>Generating Insights</h2>
+    <p id="insights-loading-text">Analyzing market trends, salary data, and core responsibilities for this role...</p>
 </div>
 
 <style>
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+.career-match-page {
+    max-width: 1220px;
+    margin: 0 auto;
+}
 
-    /* Chatbot Styles */
+.career-match-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.career-match-title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.career-match-icon {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(0, 212, 255, .12);
+    border: 1px solid rgba(0, 212, 255, .28);
+    color: var(--accent-cyan);
+    box-shadow: 0 0 28px rgba(0, 212, 255, .2);
+}
+
+.career-match-icon i {
+    width: 24px;
+    height: 24px;
+}
+
+.career-match-title h1 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: clamp(2rem, 4vw, 2.65rem);
+    line-height: 1.05;
+}
+
+.career-match-title p {
+    margin: 8px 0 0;
+    color: var(--text-secondary);
+}
+
+.compare-paths-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 10px;
+    border: 1px solid rgba(124, 111, 255, .35);
+    background: rgba(124, 111, 255, .09);
+    color: #c4b5fd;
+    text-decoration: none;
+    font-weight: 800;
+}
+
+.compare-paths-btn i {
+    width: 18px;
+    height: 18px;
+}
+
+.match-stage {
+    display: grid;
+    gap: 18px;
+}
+
+.match-section-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--text-primary);
+    font-size: .86rem;
+    font-weight: 900;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.match-section-label span {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.match-section-label i {
+    width: 18px;
+    height: 18px;
+    color: #fbbf24;
+}
+
+.match-section-label strong {
+    border-radius: 999px;
+    padding: 5px 14px;
+    background: rgba(124, 111, 255, .14);
+    color: #a78bfa;
+}
+
+.best-match-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 330px;
+    gap: 32px;
+    padding: 30px 32px;
+    border-radius: 16px;
+    background:
+        radial-gradient(circle at 88% 12%, rgba(124, 111, 255, .16), transparent 36%),
+        linear-gradient(145deg, rgba(15, 23, 42, .94), rgba(5, 12, 25, .92));
+    border: 1px solid rgba(148, 163, 184, .18);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, .24);
+    position: relative;
+    overflow: hidden;
+}
+
+.best-match-card::after {
+    content: "";
+    position: absolute;
+    top: 30px;
+    bottom: 30px;
+    left: calc(100% - 360px);
+    width: 1px;
+    background: rgba(148, 163, 184, .16);
+}
+
+.best-match-main,
+.match-side {
+    position: relative;
+    z-index: 1;
+}
+
+.match-category {
+    color: #a78bfa;
+    font-size: .78rem;
+    font-weight: 900;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.match-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.match-title-row h2 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: clamp(2rem, 3vw, 2.65rem);
+    line-height: 1.04;
+}
+
+.favorite-dot {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(124, 111, 255, .22);
+    color: #7c6fff;
+    border: 1px solid rgba(124, 111, 255, .26);
+}
+
+.favorite-dot i {
+    width: 18px;
+    height: 18px;
+}
+
+.match-description {
+    max-width: 680px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin: 0 0 22px;
+    font-size: .98rem;
+}
+
+.match-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(148, 163, 184, .14);
+}
+
+.match-meta-row span {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-secondary);
+    font-size: .92rem;
+}
+
+.match-meta-row i,
+.other-meta i {
+    width: 18px;
+    height: 18px;
+    color: #00f5c8;
+}
+
+.fit-groups {
+    display: grid;
+    gap: 16px;
+}
+
+.fit-group h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 9px;
+    color: var(--text-primary);
+    font-size: .86rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.fit-group h3 i {
+    width: 17px;
+    height: 17px;
+    color: #00d4ff;
+}
+
+.fit-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.fit-tag {
+    border-radius: 999px;
+    padding: 6px 12px;
+    background: rgba(124, 111, 255, .14);
+    border: 1px solid rgba(124, 111, 255, .22);
+    color: #c4b5fd;
+    font-size: .8rem;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.fit-tag-warning {
+    background: rgba(245, 158, 11, .1);
+    border-color: rgba(245, 158, 11, .24);
+    color: #fbbf24;
+}
+
+.match-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.match-ring {
+    position: relative;
+    width: 162px;
+    height: 162px;
+}
+
+.match-ring svg,
+.mini-match-ring svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    overflow: visible;
+}
+
+.match-ring-bg,
+.match-ring-fill,
+.mini-bg,
+.mini-fill {
+    fill: none;
+}
+
+.match-ring-bg {
+    stroke: rgba(255, 255, 255, .08);
+    stroke-width: 11;
+}
+
+.match-ring-fill {
+    stroke: url(#matchRingGrad);
+    stroke-linecap: round;
+    stroke-dasharray: 314;
+    stroke-width: 11;
+    filter: drop-shadow(0 0 12px rgba(124, 111, 255, .55));
+}
+
+.match-ring-label {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    color: var(--text-primary);
+}
+
+.match-ring-label strong {
+    display: block;
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.match-ring-label span {
+    color: var(--text-secondary);
+    font-size: .8rem;
+}
+
+.match-insights {
+    width: 100%;
+    border: 1px solid rgba(148, 163, 184, .16);
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(15, 23, 42, .58);
+}
+
+.match-insights div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(148, 163, 184, .10);
+    color: var(--text-secondary);
+    font-size: .88rem;
+}
+
+.match-insights div:last-child {
+    border-bottom: 0;
+}
+
+.match-insights strong {
+    color: var(--text-primary);
+    text-align: right;
+}
+
+.match-insights .readiness {
+    color: #34d399;
+}
+
+.match-actions {
+    display: grid;
+    width: 100%;
+    gap: 10px;
+}
+
+.match-action-primary {
+    width: 100%;
+    justify-content: center;
+    min-height: 48px;
+    font-weight: 900;
+}
+
+.other-label {
+    margin-top: 18px;
+}
+
+.other-match-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.other-match-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 112px;
+    gap: 16px;
+    padding: 20px;
+    border-radius: 14px;
+    background: linear-gradient(145deg, rgba(15, 23, 42, .88), rgba(5, 12, 25, .92));
+    border: 1px solid rgba(148, 163, 184, .15);
+}
+
+.other-match-card h3 {
+    margin: 0 0 8px;
+    color: var(--text-primary);
+    font-size: 1.15rem;
+}
+
+.other-match-card p {
+    color: var(--text-secondary);
+    font-size: .88rem;
+    line-height: 1.55;
+    margin: 0 0 16px;
+}
+
+.other-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    color: var(--text-secondary);
+    font-size: .8rem;
+}
+
+.other-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.other-meta i {
+    width: 14px;
+    height: 14px;
+}
+
+.mini-match-ring {
+    position: relative;
+    width: 92px;
+    height: 106px;
+    align-self: center;
+    justify-self: end;
+}
+
+.mini-match-ring svg {
+    width: 92px;
+    height: 92px;
+}
+
+.mini-bg {
+    stroke: rgba(255, 255, 255, .08);
+    stroke-width: 8;
+}
+
+.mini-fill {
+    stroke: url(#matchRingGrad);
+    stroke-linecap: round;
+    stroke-dasharray: 239;
+    stroke-width: 8;
+}
+
+.mini-match-ring strong,
+.mini-match-ring span {
+    position: absolute;
+    left: 0;
+    right: 0;
+    text-align: center;
+}
+
+.mini-match-ring strong {
+    top: 34px;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+.mini-match-ring span {
+    top: 56px;
+    color: var(--text-secondary);
+    font-size: .68rem;
+}
+
+.mini-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.mini-link {
+    color: #a78bfa;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: .82rem;
+}
+
+.mini-arrow {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(124, 111, 255, .28);
+    background: rgba(124, 111, 255, .12);
+    color: #c4b5fd;
+    display: inline-grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.mini-arrow i {
+    width: 16px;
+    height: 16px;
+}
+
+.empty-match-card {
+    text-align: center;
+    padding: 3rem 2rem;
+    margin-bottom: 2rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--bg-glass-border);
+    border-radius: var(--radius-lg);
+}
+
+.empty-icon {
+    width: 64px;
+    height: 64px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    background: rgba(124, 58, 237, 0.15);
+    color: #c084fc;
+}
+
+.empty-icon i {
+    width: 28px;
+    height: 28px;
+}
+
+.empty-match-card h3 {
+    color: var(--text-primary);
+}
+
+.empty-match-card p {
+    color: var(--text-muted);
+    max-width: 520px;
+    margin: 0 auto 1.5rem;
+    line-height: 1.6;
+}
+
+.empty-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.ai-fallback-banner {
+    margin-top: 3rem;
+    background: rgba(124, 58, 237, 0.05);
+    border: 1px dashed rgba(124, 58, 237, 0.3);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    text-align: center;
+}
+
+.ai-fallback-banner h3 {
+    color: var(--text-primary);
+    margin: 0 0 .5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.ai-fallback-banner h3 i {
+    color: #c084fc;
+}
+
+.ai-fallback-banner p {
+    color: var(--text-muted);
+    margin: 0 auto 1.5rem;
+    max-width: 620px;
+}
+
+.ai-loading {
+    display: none;
+    margin-top: 1.5rem;
+}
+
+.ai-loading p {
+    margin-top: .75rem;
+    font-size: .9rem;
+}
+
+.ai-suggestions-container {
+    display: none;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.ai-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.ai-card h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.15rem;
+}
+
+.ai-card p {
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.ai-why {
+    background: rgba(124, 58, 237, 0.1);
+    padding: 12px;
+    border-left: 3px solid #c084fc;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.9);
+}
+
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 2px solid rgba(124, 58, 237, 0.12);
+    border-top-color: #c084fc;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+.chat-widget {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 340px;
+    height: 450px;
+    background: #111827;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    overflow: hidden;
+}
+
+.chat-widget.collapsed {
+    height: 60px;
+    cursor: pointer;
+}
+
+.chat-widget.collapsed .chat-toggle-icon {
+    transform: rotate(180deg);
+}
+
+.chat-header {
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.chat-header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chat-header-title span {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--gradient-primary);
+}
+
+.chat-header-title i {
+    width: 14px;
+    height: 14px;
+    color: white;
+}
+
+.chat-header-title strong {
+    color: var(--text-primary);
+}
+
+.chat-body {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.chat-msg {
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.bot-msg {
+    background: rgba(0, 212, 255, 0.1);
+    color: var(--text-primary);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
+
+.user-msg {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+
+.chat-input-area {
+    padding: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    gap: 8px;
+    background: rgba(11, 15, 25, 0.5);
+}
+
+.chat-input-area input {
+    flex: 1;
+    min-width: 0;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 20px;
+    outline: none;
+}
+
+.chat-input-area button {
+    background: var(--gradient-primary);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.chat-input-area button i {
+    width: 16px;
+    height: 16px;
+}
+
+.insights-loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 15, 20, 0.9);
+    z-index: 9999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+}
+
+.overlay-spinner {
+    width: 60px;
+    height: 60px;
+    border-width: 4px;
+    margin-bottom: 24px;
+}
+
+.insights-loading-overlay h2 {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+}
+
+.insights-loading-overlay p {
+    color: var(--text-muted);
+    max-width: 400px;
+}
+
+body.theme-light .best-match-card,
+body.theme-light .other-match-card,
+body.theme-light .chat-widget {
+    background: rgba(255, 255, 255, .95);
+    border-color: rgba(0,0,0,.08);
+    box-shadow: 0 4px 12px rgba(0,0,0,.03);
+}
+
+body.theme-light .match-insights {
+    background: rgba(248,250,252,.8);
+    border-color: rgba(0,0,0,.08);
+}
+
+body.theme-light .match-ring-bg,
+body.theme-light .mini-bg {
+    stroke: rgba(0, 0, 0, .06);
+}
+
+body.theme-light .empty-match-card {
+    background: #ffffff;
+    border-color: rgba(0,0,0,.08);
+}
+
+body.theme-light .ai-fallback-banner {
+    background: rgba(124, 58, 237, 0.05);
+    border-color: rgba(124, 58, 237, 0.2);
+}
+
+body.theme-light .ai-card {
+    background: #ffffff;
+    border-color: rgba(124, 58, 237, 0.2);
+    box-shadow: 0 2px 8px rgba(0,0,0,.02);
+}
+
+body.theme-light .ai-why {
+    background: rgba(124, 58, 237, 0.08);
+    color: #4c1d95;
+}
+
+body.theme-light .chat-header {
+    background: #f8fafc;
+    border-bottom-color: rgba(0,0,0,.08);
+}
+
+body.theme-light .user-msg {
+    background: rgba(37,99,235,.1);
+    color: #1e3a8a;
+}
+
+body.theme-light .chat-input-area {
+    background: #ffffff;
+    border-top-color: rgba(0,0,0,.08);
+}
+
+body.theme-light .chat-input-area input {
+    background: #f1f5f9;
+    border-color: rgba(0,0,0,.1);
+    color: #0f172a;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 1050px) {
+    .best-match-card,
+    .other-match-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .best-match-card::after {
+        display: none;
+    }
+
+    .match-side {
+        align-items: stretch;
+    }
+
+    .match-ring {
+        margin-inline: auto;
+    }
+}
+
+@media (max-width: 640px) {
+    .best-match-card,
+    .other-match-card {
+        grid-template-columns: 1fr;
+        padding: 22px;
+    }
+
+    .mini-match-ring {
+        justify-self: start;
+    }
+
     .chat-widget {
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        width: 340px;
-        background: #111827;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-lg);
-        display: flex;
-        flex-direction: column;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 100;
-        overflow: hidden;
-        height: 450px;
+        left: 16px;
+        right: 16px;
+        width: auto;
     }
-
-    .chat-widget.collapsed {
-        height: 60px;
-        cursor: pointer;
-    }
-
-    .chat-widget.collapsed .chat-toggle-icon {
-        transform: rotate(180deg);
-    }
-
-    .chat-header {
-        padding: 16px;
-        background: rgba(255, 255, 255, 0.03);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        cursor: pointer;
-    }
-
-    .chat-body {
-        flex: 1;
-        padding: 16px;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .chat-msg {
-        max-width: 85%;
-        padding: 10px 14px;
-        border-radius: 12px;
-        font-size: 0.9rem;
-        line-height: 1.4;
-    }
-
-    .bot-msg {
-        background: rgba(0, 212, 255, 0.1);
-        color: var(--text-primary);
-        align-self: flex-start;
-        border-bottom-left-radius: 4px;
-    }
-
-    .user-msg {
-        background: rgba(255, 255, 255, 0.08);
-        color: white;
-        align-self: flex-end;
-        border-bottom-right-radius: 4px;
-    }
-
-    .chat-input-area {
-        padding: 12px;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        display: flex;
-        gap: 8px;
-        background: rgba(11, 15, 25, 0.5);
-    }
-
-    .chat-input-area input {
-        flex: 1;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: white;
-        padding: 8px 12px;
-        border-radius: 20px;
-        outline: none;
-        font-size: 0.9rem;
-    }
-
-    .chat-input-area button {
-        background: var(--gradient-primary);
-        border: none;
-        color: white;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-    }
-
-    /* AI Suggestion Card */
-    .ai-card {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(124, 58, 237, 0.2);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .ai-card:hover {
-        background: rgba(124, 58, 237, 0.05);
-        border-color: rgba(124, 58, 237, 0.4);
-        transform: translateY(-4px);
-    }
+}
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // ─── AI Suggestions Logic ───
     const btnSuggest = document.getElementById('btn-ai-suggest');
     const loadingState = document.getElementById('ai-loading');
     const aiContainer = document.getElementById('ai-suggestions-container');
 
-    btnSuggest.addEventListener('click', async () => {
-        btnSuggest.style.display = 'none';
-        loadingState.style.display = 'block';
+    if (btnSuggest) {
+        btnSuggest.addEventListener('click', async () => {
+            btnSuggest.style.display = 'none';
+            loadingState.style.display = 'block';
 
-        try {
-            const res = await fetch("{{ url_for('career.ai_suggest') }}", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" }
-            });
-            const data = await res.json();
-            
-            loadingState.style.display = 'none';
-            
-            if (data.success && data.suggestions) {
-                aiContainer.style.display = 'grid';
-                aiContainer.innerHTML = '';
-                
-                data.suggestions.forEach(career => {
-                    const card = document.createElement('div');
-                    card.className = 'ai-card';
-                    card.innerHTML = `
-                        <h3 style="margin:0; font-size: 1.2rem; color: white;">
-                            <i data-lucide="zap" style="color: #c084fc; width: 18px; height: 18px; margin-right: 6px;"></i>
-                            ${career.title}
-                        </h3>
-                        <p style="margin:0; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">${career.description}</p>
-                        <div style="background: rgba(124, 58, 237, 0.1); padding: 12px; border-left: 3px solid #c084fc; border-radius: 4px; font-size: 0.85rem; color: rgba(255,255,255,0.9);">
-                            <strong style="color: #c084fc; font-size: 0.75rem; text-transform: uppercase;">Why it fits:</strong><br>
-                            ${career.why_it_fits}
-                        </div>
-                        <button class="btn btn-outline" style="margin-top: auto; border-color: rgba(255,255,255,0.1); width: 100%;" onclick="selectAiCareer('${career.title.replace(/'/g, "\\'")}', '${career.description.replace(/'/g, "\\'")}')">
-                            Select & Generate Roadmap
-                        </button>
-                    `;
-                    aiContainer.appendChild(card);
+            try {
+                const res = await fetch("{{ url_for('career.ai_suggest') }}", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
                 });
-                lucide.createIcons();
-            } else {
-                alert("Error: " + data.error);
-                btnSuggest.style.display = 'inline-block';
-            }
-        } catch (e) {
-            loadingState.style.display = 'none';
-            btnSuggest.style.display = 'inline-block';
-            alert("Network error.");
-        }
-    });
+                const data = await res.json();
+                loadingState.style.display = 'none';
 
-    // ─── Chatbot Logic ───
+                if (data.success && data.suggestions) {
+                    aiContainer.style.display = 'grid';
+                    aiContainer.innerHTML = '';
+                    data.suggestions.forEach(career => {
+                        const card = document.createElement('div');
+                        card.className = 'ai-card';
+                        card.innerHTML = `
+                            <h3><i data-lucide="zap" style="color:#c084fc;width:18px;height:18px;margin-right:6px;"></i>${career.title}</h3>
+                            <p>${career.description}</p>
+                            <div class="ai-why"><strong style="color:#c084fc;font-size:.75rem;text-transform:uppercase;">Why it fits:</strong><br>${career.why_it_fits}</div>
+                            <button class="btn btn-outline" style="margin-top:auto;width:100%;justify-content:center;" onclick="selectAiCareer('${career.title.replace(/'/g, "\\'")}', '${career.description.replace(/'/g, "\\'")}')">
+                                Select & Generate Roadmap
+                            </button>
+                        `;
+                        aiContainer.appendChild(card);
+                    });
+                    lucide.createIcons();
+                } else {
+                    alert("Error: " + data.error);
+                    btnSuggest.style.display = 'inline-flex';
+                }
+            } catch (e) {
+                loadingState.style.display = 'none';
+                btnSuggest.style.display = 'inline-flex';
+                alert("Network error.");
+            }
+        });
+    }
+
     const chatWidget = document.getElementById('chat-widget');
     const chatHeader = document.getElementById('chat-header');
     const chatInput = document.getElementById('chat-input');
     const chatSend = document.getElementById('chat-send');
     const chatMessages = document.getElementById('chat-messages');
-
     let chatHistory = [];
 
     chatHeader.addEventListener('click', () => {
         chatWidget.classList.toggle('collapsed');
-        if (!chatWidget.classList.contains('collapsed')) {
-            chatInput.focus();
-        }
+        if (!chatWidget.classList.contains('collapsed')) chatInput.focus();
     });
 
     async function sendMessage() {
         const msg = chatInput.value.trim();
         if (!msg) return;
 
-        // Add user msg to UI
         const userDiv = document.createElement('div');
         userDiv.className = 'chat-msg user-msg';
         userDiv.textContent = msg;
@@ -436,12 +1166,10 @@ document.addEventListener('DOMContentLoaded', () => {
         chatInput.value = '';
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        // Loading indicator
         const loadDiv = document.createElement('div');
         loadDiv.className = 'chat-msg bot-msg';
-        loadDiv.innerHTML = '<div class="spinner" style="width: 14px; height: 14px; border: 2px solid rgba(0,212,255,0.2); border-top-color: var(--accent-cyan); border-radius: 50%; animation: spin 1s linear infinite;"></div>';
+        loadDiv.innerHTML = '<div class="spinner" style="width:14px;height:14px;"></div>';
         chatMessages.appendChild(loadDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
 
         try {
             const res = await fetch("{{ url_for('chatbot.chat') }}", {
@@ -450,7 +1178,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ message: msg, history: chatHistory })
             });
             const data = await res.json();
-            
             loadDiv.remove();
 
             if (data.reply) {
@@ -458,7 +1185,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 botDiv.className = 'chat-msg bot-msg';
                 botDiv.textContent = data.reply;
                 chatMessages.appendChild(botDiv);
-                
                 chatHistory.push({ role: "user", content: msg });
                 chatHistory.push({ role: "assistant", content: data.reply });
             } else {
@@ -498,7 +1224,6 @@ async function selectAiCareer(title, description) {
     }
 }
 
-// ─── Insights Loading Overlay ───
 function showInsightsLoading(careerTitle) {
     const overlay = document.getElementById('insights-loading-overlay');
     const textElem = document.getElementById('insights-loading-text');

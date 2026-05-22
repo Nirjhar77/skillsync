@@ -130,8 +130,12 @@
 .global-bar-fill  { height: 100%; border-radius: 8px; background: linear-gradient(90deg, #00d4ff, #7c6fff); transition: width 1s ease; }
 
 /* Light mode */
-body.theme-light .ms-card, body.theme-light .phase-header { background: #fff; }
+body.theme-light .ms-card { background: #fff; border-color: rgba(0,0,0,.08); box-shadow: 0 2px 4px rgba(0,0,0,.02); }
+body.theme-light .ms-card:hover { border-color: rgba(37,99,235,.3); box-shadow: 0 4px 12px rgba(0,0,0,.04); }
+body.theme-light .phase-header { background: #fff; border-color: rgba(0,0,0,.08); }
 body.theme-light .phase-bar-track, body.theme-light .global-bar-track { background: rgba(0,0,0,.07); }
+body.theme-light .task-row:hover { background: #f8fafc; }
+body.theme-light .task-row { border-color: rgba(0,0,0,.05); }
 </style>
 {% endblock %}
 

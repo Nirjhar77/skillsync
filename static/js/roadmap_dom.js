@@ -128,6 +128,7 @@ class RoadmapDOMRenderer {
       left:             node.x + 'px',
       top:              node.y + 'px',
       width:            node.w + 'px',
+      height:           node.h + 'px',
       minHeight:        node.h + 'px',
       // Store phase tokens for hover/select
       '--ph-hex':       hex,
@@ -183,13 +184,10 @@ class RoadmapDOMRenderer {
   }
 
   _applyIdleTopicStyle(el) {
-    const importanceCls  = el.classList.contains('rm-topic--optional');
-    const isOptional     = importanceCls;
-
     Object.assign(el.style, {
       background:   'rgba(255,255,255,.04)',
       borderWidth:  '1.5px',
-      borderStyle:  isOptional ? 'dashed' : 'solid',
+      borderStyle:  'solid',
       borderColor:  'rgba(255,255,255,.72)',
       borderRadius: '7px',
       color:        'var(--text-primary, #f1f5f9)',
@@ -199,15 +197,16 @@ class RoadmapDOMRenderer {
       alignItems:   'center',
       justifyContent: 'center',
       gap:           '4px',
-      padding:       '7px 12px',
+      padding:       '8px 12px',
       fontFamily:    'Inter, sans-serif',
-      fontSize:      '.78rem',
+      fontSize:      '.76rem',
       fontWeight:    '800',
-      lineHeight:    '1.3',
+      lineHeight:    '1.35',
       textAlign:     'center',
       backdropFilter:'none',
       transition:    'all .2s',
-      opacity:       isOptional ? '.72' : '1',
+      opacity:       '1',
+      boxSizing:     'border-box',
     });
   }
 
@@ -230,6 +229,15 @@ class RoadmapDOMRenderer {
       .rm-topic {
         will-change: transform, opacity;
         word-break: break-word;
+        overflow-wrap: anywhere;
+        hyphens: auto;
+      }
+      .rm-topic .rm-node-label {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.35;
       }
       .rm-neon-node {
         filter: drop-shadow(0 0 5px rgba(var(--ph-rgb), .18));

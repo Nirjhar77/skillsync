@@ -55,4 +55,3 @@ To run this application locally, you will need:
 //## Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 .\.venv\Scripts\activate
 python app.py
-YOU CAN JUST EVEN RUN THE FILE NAMED RUN.BAT TO RUNIT AUTOMATICALLY 

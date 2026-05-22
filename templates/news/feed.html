@@ -26,6 +26,11 @@
             <span class="news-source">
                 <i data-lucide="globe" style="width:11px;height:11px;"></i>
                 {{ article.source }}
+                {% if article.provider %}
+                <span class="provider-badge provider-{{ article.provider }}">
+                    {{ article.provider }}
+                </span>
+                {% endif %}
             </span>
             {% if article.published_at %}
             <span class="news-date">{{ article.published_at }}</span>
@@ -54,6 +59,30 @@
 <div class="news-empty">
     <i data-lucide="search-x"></i>
     <p>No articles found. Try a different search or category.</p>
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro render_hn_list(articles) %}
+{% if articles %}
+<div class="hn-list">
+    {% for article in articles %}
+    <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer" class="hn-item">
+        <div class="hn-content">
+            <p class="hn-title">{{ article.title }}</p>
+            <span class="hn-meta">
+                <i data-lucide="globe" style="width:11px;height:11px;display:inline-block;vertical-align:middle;margin-right:4px;"></i>
+                {{ article.source }} {% if article.description %} · {{ article.description }}{% endif %}
+            </span>
+        </div>
+        <i data-lucide="external-link" class="hn-link-icon" style="width:14px;height:14px;"></i>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="news-empty">
+    <i data-lucide="inbox"></i>
+    <p>No articles found.</p>
 </div>
 {% endif %}
 {% endmacro %}
@@ -147,110 +176,268 @@
         </div>
     </div>
 
-    <!-- ── Live search results (AJAX injected) ── -->
-    <div id="live-results">
-        <div class="news-section-header">
-            <h2 class="news-section-title">
-                <i data-lucide="search"></i>
-                Search Results
-                <span id="live-count" class="section-count">0</span>
-            </h2>
-        </div>
-        <div id="live-grid" class="news-grid"></div>
-    </div>
+    <!-- ── Main Grid Layout ── -->
+    <div class="news-feed-layout">
 
-    <!-- ── Server-side search results ── -->
-    {% if search_results %}
-    <div>
-        <div class="news-section-header">
-            <h2 class="news-section-title">
-                <i data-lucide="search"></i>
-                Results for "{{ search_query }}"
-                <span class="section-count">{{ search_results | length }}</span>
-            </h2>
-            <a href="{{ url_for('news.feed') }}" style="font-size:0.82rem; color:var(--text-muted);">Clear search</a>
-        </div>
-        {{ render_news_grid(search_results) }}
-    </div>
-    {% endif %}
-
-    <!-- ── Category filtered results ── -->
-    {% if category_articles and not search_results %}
-    <div>
-        <div class="news-section-header">
-            <h2 class="news-section-title">
-                <i data-lucide="filter"></i>
-                {{ active_category | title }} News
-                <span class="section-count">{{ category_articles | length }}</span>
-            </h2>
-        </div>
-        {{ render_news_grid(category_articles) }}
-    </div>
-    {% endif %}
-
-    <!-- ── "For You" (career-aware) section ── -->
-    {% if not search_results and not category_articles %}
-    <div class="for-you-section">
-        <div class="news-section-header">
-            <h2 class="news-section-title">
-                <i data-lucide="sparkles"></i>
-                For You · {{ career_label }}
-                <span class="section-count">{{ for_you | length }}</span>
-            </h2>
-        </div>
-        {% if for_you %}
-        <div class="news-grid news-grid-featured">
-            {% for article in for_you %}
-            {{ render_card(article) }}
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="news-empty">
-            <i data-lucide="wifi-off"></i>
-            <p>Could not load personalized news. Check your internet connection.</p>
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- ── Trending ── -->
-    <div>
-        <div class="news-section-header">
-            <h2 class="news-section-title">
-                <i data-lucide="trending-up"></i>
-                Trending in Tech
-                <span class="section-count">{{ trending | length }}</span>
-            </h2>
-        </div>
-        {% if trending %}
-        {% if has_gnews %}
-        <div class="news-grid">
-            {% for article in trending %}
-            {{ render_card(article) }}
-            {% endfor %}
-        </div>
-        {% else %}
-        <!-- HN fallback: list layout -->
-        <div class="hn-list">
-            {% for article in trending %}
-            <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer" class="hn-item">
-                <span class="hn-rank">#{{ loop.index }}</span>
-                <div class="hn-content">
-                    <p class="hn-title">{{ article.title }}</p>
-                    <span class="hn-meta">{{ article.description }} · {{ article.source }}</span>
+        <!-- Left Column: Main Streams -->
+        <div class="news-main-stream">
+            
+            <!-- Live search results (AJAX injected) -->
+            <div id="live-results">
+                <div class="news-section-header">
+                    <h2 class="news-section-title">
+                        <i data-lucide="search"></i>
+                        Search Results
+                        <span id="live-count" class="section-count">0</span>
+                    </h2>
                 </div>
-                <i data-lucide="external-link" style="width:14px;height:14px;color:var(--text-muted);flex-shrink:0;margin-top:4px;"></i>
-            </a>
-            {% endfor %}
+                <div id="live-grid" class="news-grid"></div>
+            </div>
+
+            <!-- Server-side search results -->
+            {% if search_results %}
+            <div class="news-section">
+                <div class="news-section-header">
+                    <h2 class="news-section-title">
+                        <i data-lucide="search"></i>
+                        Results for "{{ search_query }}"
+                        <span class="section-count">{{ search_results | length }}</span>
+                    </h2>
+                    <a href="{{ url_for('news.feed') }}" style="font-size:0.82rem; color:var(--text-muted);">Clear search</a>
+                </div>
+                {% if has_gnews %}
+                {{ render_news_grid(search_results) }}
+                {% else %}
+                {{ render_hn_list(search_results) }}
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Category filtered results -->
+            {% if category_articles and not search_results %}
+            <div class="news-section">
+                <div class="news-section-header">
+                    <h2 class="news-section-title">
+                        <i data-lucide="filter"></i>
+                        {{ active_category | title }} News
+                        <span class="section-count">{{ category_articles | length }}</span>
+                    </h2>
+                </div>
+                {% if has_gnews %}
+                {{ render_news_grid(category_articles) }}
+                {% else %}
+                {{ render_hn_list(category_articles) }}
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Standard Categories (For You, AI Industry, Innovation) -->
+            {% if not search_results and not category_articles %}
+            
+            <!-- "For You" (career-aware) section -->
+            <div class="news-section for-you-section">
+                <div class="news-section-header">
+                    <h2 class="news-section-title">
+                        <i data-lucide="sparkles"></i>
+                        For You · {{ career_label }}
+                        <span class="section-count">{{ for_you | length }}</span>
+                    </h2>
+                </div>
+                {% if for_you %}
+                {% if has_gnews %}
+                <div class="news-grid news-grid-featured">
+                    {% for article in for_you %}
+                    {{ render_card(article) }}
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ render_hn_list(for_you) }}
+                {% endif %}
+                {% else %}
+                <div class="news-empty">
+                    <i data-lucide="wifi-off"></i>
+                    <p>Could not load personalized news. Check your internet connection.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- AI Growth & Tech Industry section -->
+            <div class="news-section ai-industry-section">
+                <div class="news-section-header">
+                    <h2 class="news-section-title">
+                        <i data-lucide="cpu"></i>
+                        AI Growth & Tech Industry
+                        <span class="section-count">{{ ai_industry | length }}</span>
+                    </h2>
+                </div>
+                {% if ai_industry %}
+                {% if has_gnews %}
+                <div class="news-grid">
+                    {% for article in ai_industry %}
+                    {{ render_card(article) }}
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ render_hn_list(ai_industry) }}
+                {% endif %}
+                {% else %}
+                <div class="news-empty">
+                    <i data-lucide="wifi-off"></i>
+                    <p>Could not load tech industry news.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Tech Innovation & Society section -->
+            <div class="news-section innovation-section">
+                <div class="news-section-header">
+                    <h2 class="news-section-title">
+                        <i data-lucide="lightbulb"></i>
+                        Tech Innovation & Society
+                        <span class="section-count">{{ innovation | length }}</span>
+                    </h2>
+                </div>
+                {% if innovation %}
+                {% if has_gnews %}
+                <div class="news-grid">
+                    {% for article in innovation %}
+                    {{ render_card(article) }}
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ render_hn_list(innovation) }}
+                {% endif %}
+                {% else %}
+                <div class="news-empty">
+                    <i data-lucide="wifi-off"></i>
+                    <p>Could not load tech innovation news.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Cybersecurity & Privacy (Powered by NewsAPI) -->
+            {% if has_newsapi and security_news %}
+            <div class="news-section security-section">
+                <div class="news-section-header">
+                    <h2 class="news-section-title">
+                        <i data-lucide="shield"></i>
+                        Cybersecurity & Privacy
+                        <span class="section-count">{{ security_news | length }}</span>
+                    </h2>
+                </div>
+                <div class="news-grid">
+                    {% for article in security_news %}
+                    {{ render_card(article) }}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Startups & Venture Capital (Powered by NewsAPI) -->
+            {% if has_newsapi and startup_news %}
+            <div class="news-section startup-section">
+                <div class="news-section-header">
+                    <h2 class="news-section-title">
+                        <i data-lucide="rocket"></i>
+                        Startups & Tech Ventures
+                        <span class="section-count">{{ startup_news | length }}</span>
+                    </h2>
+                </div>
+                <div class="news-grid">
+                    {% for article in startup_news %}
+                    {{ render_card(article) }}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% endif %}
+
         </div>
-        {% endif %}
-        {% else %}
-        <div class="news-empty">
-            <i data-lucide="inbox"></i>
-            <p>No trending articles loaded.</p>
+
+        <!-- Right Column: Sidebar Widgets -->
+        <div class="news-sidebar-widgets">
+            
+            <!-- GitHub Trending Repos Widget -->
+            <div class="sidebar-widget github-widget">
+                <div class="widget-header">
+                    <div class="widget-title">
+                        <i data-lucide="github" class="widget-icon-git"></i>
+                        <span>GitHub Trending</span>
+                    </div>
+                    <span class="widget-tag">Hot repos</span>
+                </div>
+                <div class="widget-content">
+                    {% if github_repos %}
+                        {% for repo in github_repos %}
+                        <a href="{{ repo.url }}" target="_blank" rel="noopener noreferrer" class="repo-card">
+                            <div class="repo-meta">
+                                <span class="repo-owner">@{{ repo.owner }}</span>
+                                <span class="repo-stars">
+                                    <i data-lucide="star" style="width:12px;height:12px;fill:currentColor;stroke:none;"></i>
+                                    {{ "{:,}".format(repo.stars) if repo.stars else "0" }}
+                                </span>
+                            </div>
+                            <h4 class="repo-name">{{ repo.name }}</h4>
+                            <p class="repo-desc">{{ repo.description }}</p>
+                            <div class="repo-footer">
+                                <span class="repo-lang">
+                                    <span class="lang-dot lang-{{ repo.language.lower().replace('+', 'p').replace('#', 'sharp') }}"></span>
+                                    {{ repo.language }}
+                                </span>
+                                <i data-lucide="arrow-up-right" class="repo-link-icon"></i>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="widget-empty">
+                            <i data-lucide="github" style="width:24px;height:24px;opacity:0.4;"></i>
+                            <p>No trending repositories found.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Show HN Builds Widget -->
+            <div class="sidebar-widget showhn-widget">
+                <div class="widget-header">
+                    <div class="widget-title">
+                        <span class="hn-orange-badge">HN</span>
+                        <span>Show HN Builds</span>
+                    </div>
+                    <span class="widget-tag">Maker projects</span>
+                </div>
+                <div class="widget-content">
+                    {% if show_hn_builds %}
+                        <div class="showhn-list">
+                            {% for build in show_hn_builds %}
+                            <a href="{{ build.url }}" target="_blank" rel="noopener noreferrer" class="showhn-item">
+                                <div class="showhn-score-badge">
+                                    <span class="score-num">{{ build.score }}</span>
+                                    <span class="score-lbl">pts</span>
+                                </div>
+                                <div class="showhn-details">
+                                    <h4 class="showhn-title">{{ build.title }}</h4>
+                                    <span class="showhn-comments">
+                                        <i data-lucide="message-square" style="width:11px;height:11px;margin-right:3px;"></i>
+                                        {{ build.comments }} comments
+                                    </span>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="widget-empty">
+                            <i data-lucide="radio" style="width:24px;height:24px;opacity:0.4;"></i>
+                            <p>No maker builds found.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
         </div>
-        {% endif %}
+
     </div>
-    {% endif %}
 
 </div>
 

@@ -122,6 +122,37 @@ def fetch_gnews(query, max_results=10, lang="en"):
     _to_cache(cache_key, articles)
     return articles
 
+def fetch_newsapi(query, max_results=10, lang="en"):
+    """Fetch articles from NewsAPI.org. Returns list of article dicts."""
+    api_key = current_app.config.get("NEWSAPI_KEY", "")
+    if not api_key:
+        return []
+    cache_key = f"newsapi:{query}:{max_results}"
+    cached = _from_cache(cache_key)
+    if cached is not None:
+        return cached
+    encoded_q = urllib.parse.quote(query)
+    url = (
+        f"https://newsapi.org/v2/everything"
+        f"?q={encoded_q}&pageSize={max_results}&language={lang}&apiKey={api_key}"
+    )
+    data = _fetch_url(url)
+    if not data or "articles" not in data:
+        return []
+    articles = []
+    for a in data["articles"]:
+        articles.append({
+            "title": a.get("title", ""),
+            "description": a.get("description", ""),
+            "url": a.get("url", "#"),
+            "image": a.get("urlToImage", ""),
+            "source": a.get("source", {}).get("name", "Unknown"),
+            "published_at": a.get("publishedAt", "")[:10],
+            "provider": "newsapi",
+        })
+    _to_cache(cache_key, articles)
+    return articles
+
 
 # ────────────────────────────────────────────────────────────────────
 # Hacker News fetcher (no API key — always available as fallback)
@@ -162,11 +193,84 @@ def fetch_hackernews(limit=20):
 # Smart fetch — tries GNews first, falls back to HN
 # ────────────────────────────────────────────────────────────────────
 def smart_fetch(query, limit=12):
-    articles = fetch_gnews(query, max_results=limit)
+    articles = []
+    # Try GNews first if key available
+    if current_app.config.get("GNEWS_API_KEY"):
+        articles.extend(fetch_gnews(query, max_results=limit))
+    # Try NewsAPI.org if key available
+    if current_app.config.get("NEWSAPI_KEY"):
+        articles.extend(fetch_newsapi(query, max_results=limit))
+    # Trim to limit
+    if len(articles) > limit:
+        articles = articles[:limit]
+    # Fallback to Hacker News if still empty
     if not articles:
-        # No GNews key or quota exceeded — fall back to HN
         articles = fetch_hackernews(limit=limit)
     return articles
+
+
+def fetch_github_trending(limit=5):
+    """Fetch trending repositories on GitHub using search API."""
+    cache_key = f"github:trending:{limit}"
+    cached = _from_cache(cache_key)
+    if cached is not None:
+        return cached
+
+    import datetime
+    thirty_days_ago = (datetime.date.today() - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
+    
+    url = f"https://api.github.com/search/repositories?q=created:>{thirty_days_ago}&sort=stars&order=desc"
+    data = _fetch_url(url)
+    if not data or "items" not in data:
+        return []
+
+    repos = []
+    for item in data.get("items", [])[:limit]:
+        repos.append({
+            "name": item.get("name", ""),
+            "owner": item.get("owner", {}).get("login", ""),
+            "stars": item.get("stargazers_count", 0),
+            "description": item.get("description", "") or "No description provided.",
+            "language": item.get("language", "") or "Unknown",
+            "url": item.get("html_url", "#")
+        })
+
+    _to_cache(cache_key, repos)
+    return repos
+
+
+def fetch_show_hn(limit=5):
+    """Fetch recent Show HN builds from Hacker News."""
+    cache_key = f"hn:show:{limit}"
+    cached = _from_cache(cache_key)
+    if cached is not None:
+        return cached
+
+    ids_data = _fetch_url("https://hacker-news.firebaseio.com/v0/showstories.json")
+    if not ids_data:
+        return []
+
+    builds = []
+    for story_id in ids_data[:limit * 3]:
+        story = _fetch_url(f"https://hacker-news.firebaseio.com/v0/item/{story_id}.json")
+        if not story or story.get("type") != "story":
+            continue
+        title = story.get("title", "")
+        if title.lower().startswith("show hn:"):
+            title = title[8:].strip()
+            
+        builds.append({
+            "title": title,
+            "url": story.get("url") or f"https://news.ycombinator.com/item?id={story_id}",
+            "score": story.get("score", 0),
+            "comments": story.get("descendants", 0),
+            "id": story_id
+        })
+        if len(builds) >= limit:
+            break
+
+    _to_cache(cache_key, builds)
+    return builds
 
 
 def _get_career_query():
@@ -200,13 +304,27 @@ def _get_career_query():
 @login_required
 def feed():
     """Main news feed page."""
+    has_gnews = bool(current_app.config.get("GNEWS_API_KEY", ""))
+    has_newsapi = bool(current_app.config.get("NEWSAPI_KEY", ""))
     career_query = _get_career_query()
 
-    # "For You" section — career-targeted
-    for_you = smart_fetch(career_query, limit=6)
+    # Primary streams (use fetch_gnews if available, fallback to HN)
+    if has_gnews:
+        for_you = fetch_gnews(career_query, max_results=2) or fetch_hackernews(limit=2)
+        ai_industry = fetch_gnews("AI growth OR artificial intelligence OR LLM OR OpenAI OR Nvidia OR Anthropic OR tech layoffs OR corporate restructuring OR executive firing", max_results=2) or fetch_hackernews(limit=2)
+        innovation = fetch_gnews("tech innovation OR technology for good OR tech breakthrough OR open source software OR creative hacking OR green tech", max_results=2) or fetch_hackernews(limit=2)
+    else:
+        hn_all = fetch_hackernews(limit=10)
+        for_you = hn_all[0:2]
+        ai_industry = hn_all[2:4]
+        innovation = hn_all[4:6]
 
-    # Trending tech — broad
-    trending = smart_fetch("technology innovation AI", limit=12)
+    # Dedicated streams for NewsAPI (different tech subtopics, 2 per set in a row)
+    security_news = []
+    startup_news = []
+    if has_newsapi:
+        security_news = fetch_newsapi("cybersecurity OR hacking OR infosec OR data breach", max_results=2)
+        startup_news = fetch_newsapi("tech startup OR venture capital OR tech funding OR Y Combinator", max_results=2)
 
     # Active category filter (from query param)
     active_category = request.args.get("category", "")
@@ -220,6 +338,10 @@ def feed():
     if search_query:
         search_results = smart_fetch(search_query, limit=16)
 
+    # Sidebar items (always populated and cached)
+    github_repos = fetch_github_trending(limit=5)
+    show_hn_builds = fetch_show_hn(limit=5)
+
     # Resolve career display name
     career_label = "Tech"
     if current_user.nontech_profile and not current_user.profile:
@@ -231,12 +353,13 @@ def feed():
                 career_label = rm.career_path.title
                 break
 
-    has_gnews = bool(current_app.config.get("GNEWS_API_KEY", ""))
-
     return render_template(
         "news/feed.html",
         for_you=for_you,
-        trending=trending,
+        ai_industry=ai_industry,
+        innovation=innovation,
+        security_news=security_news,
+        startup_news=startup_news,
         category_articles=category_articles,
         search_results=search_results,
         categories=CATEGORY_QUERIES,
@@ -244,6 +367,9 @@ def feed():
         search_query=search_query,
         career_label=career_label,
         has_gnews=has_gnews,
+        has_newsapi=has_newsapi,
+        github_repos=github_repos,
+        show_hn_builds=show_hn_builds,
     )
 
 

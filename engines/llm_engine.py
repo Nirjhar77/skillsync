@@ -30,11 +30,12 @@ def _get_client(key_type="journey"):
     api_key = (
         current_app.config.get(config_key)
         or os.environ.get(config_key)
-        or current_app.config.get("GROQ_API_KEY")
-        or os.environ.get("GROQ_API_KEY", "")
     )
     if not api_key:
-        raise ValueError(f"{config_key} (and fallback GROQ_API_KEY) are not set. Please add them to your .env file.")
+        raise ValueError(
+            f"{config_key} is not set. Please add it to your .env file. "
+            f"Do NOT use the generic GROQ_API_KEY — that key is reserved exclusively for the Aptitude section."
+        )
     return Groq(api_key=api_key)
 
 

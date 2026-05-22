@@ -51,6 +51,29 @@ def index():
 
     avg_hours = round(total_hours / total_sessions, 1) if total_sessions > 0 else 0
 
+    # ── Day streak ────────────────────────────────────────────────────────────
+    # Count consecutive days going back from today that have at least one session
+    session_dates = sorted({s.session_date for s in sessions_all}, reverse=True)
+    current_streak = 0
+    check = date.today()
+    for d in session_dates:
+        if d == check:
+            current_streak += 1
+            check -= timedelta(days=1)
+        elif d < check:
+            break   # gap found
+
+    # ── Week hours by day (Mon-Sun of the current week) ───────────────────────
+    week_start = date.today() - timedelta(days=date.today().weekday())
+    day_names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    week_hours_by_day = {d: 0 for d in day_names}
+    for s in sessions_all:
+        if s.session_date >= week_start:
+            day_idx = s.session_date.weekday()  # 0=Mon … 6=Sun
+            week_hours_by_day[day_names[day_idx]] = round(
+                week_hours_by_day[day_names[day_idx]] + s.hours_logged, 1
+            )
+
     return render_template(
         "study_planner/index.html",
         roadmap=roadmap,
@@ -61,6 +84,8 @@ def index():
         total_sessions=total_sessions,
         hours_this_week=round(hours_this_week, 1),
         avg_hours=avg_hours,
+        current_streak=current_streak,
+        week_hours_by_day=week_hours_by_day,
         today=date.today().isoformat(),
     )
 

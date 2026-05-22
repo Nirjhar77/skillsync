@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 {% block title %}{% if generating %}Generating Your Roadmap{% else %}Your Learning Overview{% endif %} — SkillSync{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Hide the top app-header bar completely on this page */
+.app-header {
+    display: none !important;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 {% if generating %}
 

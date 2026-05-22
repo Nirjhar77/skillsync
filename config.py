@@ -19,3 +19,9 @@ class Config:
     GROQ_API_KEY_JOURNEY = os.environ.get("GROQ_API_KEY_JOURNEY", "")
     GROQ_API_KEY_VISUAL = os.environ.get("GROQ_API_KEY_VISUAL", "")
     GROQ_API_KEY_PROJECTS = os.environ.get("GROQ_API_KEY_PROJECTS", "")
+    GROQ_API_KEY_APTITUDE = os.environ.get("GROQ_API_KEY_APTITUDE", "")
+    THEIRSTACK_API_KEY   = os.environ.get("THEIRSTACK_API_KEY", "")
+    ADZUNA_APP_ID        = os.environ.get("ADZUNA_APP_ID", "")
+    ADZUNA_API_KEY       = os.environ.get("ADZUNA_API_KEY", "")
+    NEWSAPI_KEY          = os.environ.get("NEWSAPI_KEY", "")
+
