@@ -1029,3 +1029,69 @@
     overflow: visible;
   }
 }
+
+/* --- Light Mode Overrides for Mock Interview Session --- */
+body.theme-light .app-content:has(.iv-session) {
+    background: #f8fafc;
+}
+body.theme-light .iv-session {
+    --iv-card: #ffffff;
+    --iv-line: rgba(0, 0, 0, 0.08);
+    --iv-muted: #64748b;
+    --iv-text: #0f172a;
+}
+body.theme-light .iv-topbar {
+    background: linear-gradient(180deg, #ffffff, #f8fafc);
+}
+body.theme-light .iv-avatar-inner {
+    background: linear-gradient(160deg, #f1f5f9, #e2e8f0);
+    color: #7c3aed;
+}
+body.theme-light .iv-meta-row strong {
+    color: #0f172a;
+}
+body.theme-light .iv-flow-item {
+    background: rgba(0, 0, 0, 0.02);
+}
+body.theme-light .iv-flow-item.active {
+    background: rgba(124, 58, 237, 0.06);
+    border-color: rgba(124, 58, 237, 0.25);
+    color: #7c3aed;
+}
+body.theme-light .iv-card-head {
+    color: #0f172a;
+}
+body.theme-light .iv-bubble {
+    background: linear-gradient(145deg, rgba(124, 58, 237, 0.05), rgba(59, 130, 246, 0.03));
+    border-color: rgba(124, 58, 237, 0.15);
+    color: #334155;
+}
+body.theme-light .iv-textarea {
+    background: #f8fafc;
+    color: #0f172a;
+    border-color: rgba(0, 0, 0, 0.12);
+}
+body.theme-light .iv-textarea:focus {
+    background: #ffffff;
+    border-color: rgba(124, 58, 237, 0.5);
+}
+body.theme-light .iv-timer-value {
+    color: #0f172a;
+}
+body.theme-light .iv-lobby-card {
+    background: #ffffff;
+    border-color: rgba(124, 58, 237, 0.25);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.06), 0 0 40px rgba(124, 58, 237, 0.04);
+}
+body.theme-light .iv-lobby {
+    background: rgba(248, 250, 252, 0.85);
+}
+body.theme-light .iv-btn-resume {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #334155;
+}
+body.theme-light .iv-btn-resume:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
+

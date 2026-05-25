@@ -5,8 +5,10 @@
 {% block extra_css %}
 <style>
     .cv-builder-layout {
-        max-width: 860px;
+        max-width: 1120px;
         margin: 0 auto;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .cv-header-section {
@@ -14,8 +16,8 @@
     }
 
     .cv-header-section h1 {
-        font-size: 1.6rem;
-        font-weight: 700;
+        font-size: 1.8rem;
+        font-weight: 750;
         background: var(--gradient-primary);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -27,32 +29,109 @@
         margin-top: 6px;
     }
 
-    /* Steps indicator */
+    /* Steps indicator - modern tab grid */
     .steps-bar {
-        display: flex;
-        gap: 0;
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 12px;
         margin-bottom: 32px;
-        border-radius: var(--radius-sm);
-        overflow: hidden;
-        border: 1px solid rgba(255,255,255,0.07);
+        overflow: visible;
+        border: none;
+        background: transparent;
     }
 
     .step {
-        flex: 1;
-        padding: 12px;
-        text-align: center;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--text-muted);
-        background: rgba(255,255,255,0.02);
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius-md);
+        padding: 14px 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: pointer;
-        transition: all 0.2s;
-        border-right: 1px solid rgba(255,255,255,0.07);
+        text-align: center;
     }
 
-    .step:last-child { border-right: none; }
-    .step.active { background: rgba(var(--accent-rgb),0.1); color: var(--accent-cyan); }
-    .step.done { background: rgba(16,185,129,0.08); color: #10b981; }
+    .step-num {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        font-weight: 700;
+        transition: all 0.3s;
+    }
+
+    .step-lbl {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        transition: all 0.3s;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    .step:hover {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.12);
+        transform: translateY(-2px);
+    }
+
+    .step.active {
+        background: rgba(0, 212, 255, 0.05) !important;
+        border-color: var(--accent-cyan) !important;
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.15);
+    }
+
+    .step.active .step-num {
+        background: var(--accent-cyan);
+        color: #000;
+        font-weight: 800;
+    }
+
+    .step.active .step-lbl {
+        color: var(--accent-cyan);
+    }
+
+    .step.done {
+        background: rgba(16, 185, 129, 0.04) !important;
+        border-color: rgba(16, 185, 129, 0.3) !important;
+    }
+
+    .step.done .step-num {
+        background: #10b981;
+        color: #fff;
+    }
+
+    .step.done .step-lbl {
+        color: #10b981;
+    }
+
+    @media (max-width: 900px) {
+        .steps-bar {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+    }
+
+    @media (max-width: 580px) {
+        .steps-bar {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .step-lbl {
+            font-size: 0.74rem;
+        }
+    }
 
     /* Form Panels */
     .form-panel { display: none; }
@@ -61,14 +140,15 @@
     .panel-card {
         background: #111827;
         border: 1px solid rgba(255,255,255,0.07);
-        border-radius: var(--radius-md);
-        padding: var(--space-xl);
+        border-radius: var(--radius-lg);
+        padding: 32px 36px;
         margin-bottom: var(--space-lg);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
     }
 
     .panel-card h3 {
-        font-size: 1rem;
-        font-weight: 600;
+        font-size: 1.05rem;
+        font-weight: 700;
         margin-bottom: var(--space-lg);
         padding-bottom: var(--space-sm);
         border-bottom: 1px solid rgba(255,255,255,0.06);
@@ -81,36 +161,44 @@
         gap: var(--space-md);
     }
 
-    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: var(--space-md); }
+    .form-group { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 8px; 
+        margin-bottom: var(--space-lg); 
+    }
     .form-group:last-child { margin-bottom: 0; }
 
     .form-label {
-        font-size: 0.8rem;
-        font-weight: 600;
+        font-size: 0.76rem;
+        font-weight: 700;
         color: var(--text-secondary);
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.06em;
+        margin-bottom: 2px;
     }
 
     .form-input, .form-textarea, .form-select {
         background: rgba(255,255,255,0.04);
         border: 1px solid rgba(255,255,255,0.08);
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius-md);
         color: var(--text-primary);
         font-family: var(--font-family);
-        font-size: 0.9rem;
-        padding: 10px 14px;
-        transition: border-color 0.2s;
+        font-size: 0.92rem;
+        padding: 12px 16px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         outline: none;
         width: 100%;
+        box-sizing: border-box;
     }
 
     .form-input:focus, .form-textarea:focus, .form-select:focus {
         border-color: var(--accent-cyan);
         box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.08);
+        background: rgba(255,255,255,0.06);
     }
 
-    .form-textarea { resize: vertical; min-height: 80px; }
+    .form-textarea { resize: vertical; min-height: 100px; }
 
     /* Repeatable Item */
     .repeatable-list { display: flex; flex-direction: column; gap: var(--space-md); }
@@ -118,20 +206,20 @@
     .repeatable-item {
         background: rgba(255,255,255,0.02);
         border: 1px solid rgba(255,255,255,0.06);
-        border-radius: var(--radius-sm);
-        padding: var(--space-md);
+        border-radius: var(--radius-md);
+        padding: var(--space-lg);
         position: relative;
     }
 
     .remove-btn {
         position: absolute;
-        top: 10px;
-        right: 10px;
+        top: 15px;
+        right: 15px;
         background: rgba(239,68,68,0.1);
         border: 1px solid rgba(239,68,68,0.2);
         color: #ef4444;
         border-radius: 6px;
-        padding: 3px 8px;
+        padding: 5px 10px;
         font-size: 0.75rem;
         cursor: pointer;
         font-family: var(--font-family);
@@ -145,8 +233,8 @@
         background: rgba(var(--accent-rgb),0.05);
         border: 1px dashed rgba(var(--accent-rgb),0.3);
         color: var(--accent-cyan);
-        border-radius: var(--radius-sm);
-        padding: 10px;
+        border-radius: var(--radius-md);
+        padding: 12px;
         font-size: 0.85rem;
         font-weight: 600;
         cursor: pointer;
@@ -224,10 +312,10 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 11px 24px;
-        border-radius: var(--radius-sm);
+        padding: 12px 28px;
+        border-radius: var(--radius-md);
         font-family: var(--font-family);
-        font-size: 0.9rem;
+        font-size: 0.92rem;
         font-weight: 600;
         cursor: pointer;
         border: none;
@@ -259,16 +347,16 @@
         display: flex;
         align-items: center;
         gap: 20px;
-        padding: 16px;
+        padding: 18px;
         background: rgba(255,255,255,0.02);
         border: 1px solid rgba(255,255,255,0.06);
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius-md);
         margin-bottom: var(--space-lg);
     }
 
     .photo-preview {
-        width: 72px;
-        height: 72px;
+        width: 76px;
+        height: 76px;
         border-radius: 50%;
         border: 2px solid rgba(var(--accent-rgb),0.4);
         background: rgba(var(--accent-rgb),0.08);
@@ -301,8 +389,8 @@
         background: rgba(var(--accent-rgb),0.08);
         border: 1px solid rgba(var(--accent-rgb),0.3);
         color: var(--accent-cyan);
-        border-radius: var(--radius-sm);
-        padding: 8px 16px;
+        border-radius: var(--radius-md);
+        padding: 8px 18px;
         font-size: 0.85rem;
         font-weight: 600;
         cursor: pointer;
@@ -317,27 +405,179 @@
         color: var(--text-muted);
         margin: 0;
     }
+
+    /* ── Draft Status Bar ── */
+    .draft-status-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 16px;
+        background: rgba(16, 185, 129, 0.06);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        border-radius: var(--radius-md);
+        margin-bottom: 20px;
+        font-size: 0.82rem;
+        color: #10b981;
+        font-weight: 500;
+        opacity: 0;
+        transform: translateY(-6px);
+        transition: opacity 0.35s ease, transform 0.35s ease;
+        pointer-events: none;
+    }
+    .draft-status-bar.visible {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+    .draft-status-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .draft-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #10b981;
+        animation: draftPulse 2s infinite;
+    }
+    @keyframes draftPulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+    }
+    .draft-clear-btn {
+        background: rgba(239, 68, 68, 0.08);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        border-radius: 5px;
+        padding: 4px 12px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: var(--font-family);
+        transition: all 0.2s;
+    }
+    .draft-clear-btn:hover {
+        background: rgba(239, 68, 68, 0.15);
+    }
+    /* ── Draft Restore Toast ── */
+    .draft-toast {
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: #0f172a;
+        border: 1px solid rgba(16,185,129,0.4);
+        color: #e2e8f0;
+        padding: 12px 22px;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 9999;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s, transform 0.3s;
+    }
+    .draft-toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+        pointer-events: auto;
+    }
+    .draft-toast-icon {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: rgba(16,185,129,0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #10b981;
+        font-size: 13px;
+        flex-shrink: 0;
+    }
     /* ── Light Theme Overrides ── */
     body.theme-light .cv-builder-wrap { background: #f8fafc; }
-    body.theme-light .cv-nav, body.theme-light .cv-content { border-color: rgba(0,0,0,0.08); }
-    body.theme-light .cv-sidebar { background: #ffffff; border-color: rgba(0,0,0,0.08); }
-    body.theme-light .cv-topbar { background: #ffffff; border-color: rgba(0,0,0,0.08); }
-    body.theme-light .top-action.btn-secondary { background: #f1f5f9; border-color: rgba(0,0,0,0.1); color: #334155; }
-    body.theme-light .top-action.btn-secondary:hover { background: #e2e8f0; }
-    body.theme-light .nav-item { color: #64748b; }
-    body.theme-light .nav-item:hover { background: #f1f5f9; color: #0f172a; }
-    body.theme-light .nav-item.active { background: rgba(37,99,235,0.08); color: #2563eb; }
-    body.theme-light .section-panel { background: #ffffff; border-color: rgba(0,0,0,0.08); box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
-    body.theme-light .form-group input, body.theme-light .form-group textarea { background: #f8fafc; border-color: rgba(0,0,0,0.1); color: #0f172a; }
-    body.theme-light .entry-item { background: #f8fafc; border-color: rgba(0,0,0,0.06); }
-    body.theme-light .entry-handle { color: #94a3b8; }
-    body.theme-light .btn-outline { background: #ffffff; border-color: rgba(0,0,0,0.1); color: #334155; }
-    body.theme-light .btn-outline:hover { background: #f1f5f9; }
-    body.theme-light .preview-area { background: #e2e8f0; }
-    body.theme-light .cv-page-wrapper { box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-    body.theme-light .section-header { border-color: rgba(0,0,0,0.08); }
-    body.theme-light .photo-upload-area { border-color: rgba(0,0,0,0.1); background: #f8fafc; }
-    body.theme-light .photo-placeholder { background: #e2e8f0; border-color: rgba(0,0,0,0.1); }
+    body.theme-light .panel-card {
+        background: #ffffff;
+        border-color: rgba(0,0,0,0.08);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+    }
+    body.theme-light .panel-card h3 {
+        border-bottom-color: rgba(0,0,0,0.08);
+        color: #0f172a;
+    }
+    body.theme-light .form-label {
+        color: #475569;
+    }
+    body.theme-light .form-input, body.theme-light .form-textarea, body.theme-light .form-select {
+        background: #f8fafc;
+        border-color: rgba(0,0,0,0.12);
+        color: #0f172a;
+    }
+    body.theme-light .form-input:focus, body.theme-light .form-textarea:focus, body.theme-light .form-select:focus {
+        background: #ffffff;
+        border-color: var(--accent-cyan);
+    }
+    body.theme-light .repeatable-item {
+        background: #f8fafc;
+        border-color: rgba(0,0,0,0.08);
+    }
+    body.theme-light .step {
+        background: rgba(0,0,0,0.02);
+        border-color: rgba(0,0,0,0.06);
+    }
+    body.theme-light .step-num {
+        background: rgba(0,0,0,0.05);
+        color: #64748b;
+    }
+    body.theme-light .step-lbl {
+        color: #64748b;
+    }
+    body.theme-light .step:hover {
+        background: rgba(0,0,0,0.04);
+        border-color: rgba(0,0,0,0.1);
+    }
+    body.theme-light .step.active {
+        background: rgba(37,99,235,0.05) !important;
+        border-color: #2563eb !important;
+    }
+    body.theme-light .step.active .step-num {
+        background: #2563eb;
+        color: #ffffff;
+    }
+    body.theme-light .step.active .step-lbl {
+        color: #2563eb;
+    }
+    body.theme-light .step.done {
+        background: rgba(16,185,129,0.05) !important;
+        border-color: #10b981 !important;
+    }
+    body.theme-light .step.done .step-num {
+        background: #10b981;
+        color: #ffffff;
+    }
+    body.theme-light .step.done .step-lbl {
+        color: #10b981;
+    }
+    body.theme-light .photo-upload-section {
+        background: #f8fafc;
+        border-color: rgba(0,0,0,0.08);
+    }
+    body.theme-light .draft-status-bar {
+        background: rgba(16, 185, 129, 0.05);
+        border-color: rgba(16, 185, 129, 0.25);
+    }
+    body.theme-light .draft-toast {
+        background: #ffffff;
+        border-color: rgba(16,185,129,0.35);
+        color: #0f172a;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
 </style>
 {% endblock %}
 
@@ -349,19 +589,53 @@
         <p>Fill in your details step by step. Your resume preview will be generated at the end.</p>
     </div>
 
+    <!-- Draft Status Bar -->
+    <div class="draft-status-bar" id="draft-status-bar">
+        <div class="draft-status-left">
+            <span class="draft-dot"></span>
+            <span id="draft-status-text">Draft auto-saved</span>
+        </div>
+        <button type="button" class="draft-clear-btn" onclick="clearDraft()">✕ Clear Draft</button>
+    </div>
+
+    <!-- Draft Restore Toast -->
+    <div class="draft-toast" id="draft-toast">
+        <span class="draft-toast-icon">↺</span>
+        <span>Draft restored — your previous progress has been loaded.</span>
+        <button onclick="document.getElementById('draft-toast').classList.remove('show')" style="background:none;border:none;color:inherit;cursor:pointer;font-size:16px;padding:0 0 0 8px;opacity:0.6;">×</button>
+    </div>
+
     <!-- Steps Bar -->
     <div class="steps-bar">
-        <div class="step active" id="step-tab-1" onclick="goToStep(1)">1 · Basics</div>
-        <div class="step" id="step-tab-2" onclick="goToStep(2)">2 · Experience</div>
-        <div class="step" id="step-tab-3" onclick="goToStep(3)">3 · Education</div>
-        <div class="step" id="step-tab-4" onclick="goToStep(4)">4 · Skills</div>
-        <div class="step" id="step-tab-5" onclick="goToStep(5)">5 · Projects</div>
-        <div class="step" id="step-tab-6" onclick="goToStep(6)">6 · Style</div>
+        <div class="step active" id="step-tab-1" onclick="goToStep(1)">
+            <span class="step-num">1</span>
+            <span class="step-lbl">Basics & Socials</span>
+        </div>
+        <div class="step" id="step-tab-2" onclick="goToStep(2)">
+            <span class="step-num">2</span>
+            <span class="step-lbl">Experience & Extra</span>
+        </div>
+        <div class="step" id="step-tab-3" onclick="goToStep(3)">
+            <span class="step-num">3</span>
+            <span class="step-lbl">Education & Certs</span>
+        </div>
+        <div class="step" id="step-tab-4" onclick="goToStep(4)">
+            <span class="step-num">4</span>
+            <span class="step-lbl">Skills & Languages</span>
+        </div>
+        <div class="step" id="step-tab-5" onclick="goToStep(5)">
+            <span class="step-num">5</span>
+            <span class="step-lbl">Projects & Achievements</span>
+        </div>
+        <div class="step" id="step-tab-6" onclick="goToStep(6)">
+            <span class="step-num">6</span>
+            <span class="step-lbl">Stats & Style</span>
+        </div>
     </div>
 
     <form id="cv-form" method="POST" action="{{ url_for('cv.preview') }}" enctype="multipart/form-data">
 
-        <!-- ── STEP 1: Basics ───────────────────────────── -->
+        <!-- ── STEP 1: Basics & Socials ─────────────────── -->
         <div class="form-panel active" id="step-1">
             <div class="panel-card">
                 <h3>Personal Information</h3>
@@ -408,8 +682,8 @@
                         <input class="form-input" type="text" name="location" placeholder="Dhaka, Bangladesh">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Website / LinkedIn</label>
-                        <input class="form-input" type="url" name="website" placeholder="https://linkedin.com/in/you">
+                        <label class="form-label">Website / Portfolio</label>
+                        <input class="form-input" type="url" name="website" placeholder="https://example.com">
                     </div>
                 </div>
                 <div class="form-group">
@@ -418,13 +692,36 @@
                 </div>
             </div>
 
+            <div class="panel-card">
+                <h3>Social & Professional Links</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">GitHub Link</label>
+                        <input class="form-input" type="url" name="github_url" placeholder="https://github.com/yourusername">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">LinkedIn Link</label>
+                        <input class="form-input" type="url" name="linkedin_url" placeholder="https://linkedin.com/in/yourusername">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Twitter / X Link</label>
+                        <input class="form-input" type="url" name="twitter_url" placeholder="https://twitter.com/yourusername">
+                    </div>
+                    <div class="form-group">
+                        <!-- Spacer -->
+                    </div>
+                </div>
+            </div>
+
             <div class="nav-buttons">
                 <span></span>
-                <button type="button" class="btn-nav btn-next" onclick="goToStep(2)">Next: Experience →</button>
+                <button type="button" class="btn-nav btn-next" onclick="goToStep(2)">Next: Experience & Extra →</button>
             </div>
         </div>
 
-        <!-- ── STEP 2: Experience ───────────────────────── -->
+        <!-- ── STEP 2: Experience & Extracurriculars ──────── -->
         <div class="form-panel" id="step-2">
             <div class="panel-card">
                 <h3>Work Experience</h3>
@@ -446,13 +743,32 @@
                 <button type="button" class="add-btn" onclick="addExperience()">+ Add Another Experience</button>
             </div>
 
+            <div class="panel-card">
+                <h3>Extracurricular Activities / Volunteering</h3>
+                <div class="repeatable-list" id="extracurricular-list">
+                    <div class="repeatable-item">
+                        <button type="button" class="remove-btn" onclick="removeItem(this)">✕ Remove</button>
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Role / Activity Name</label><input class="form-input" type="text" name="extra_role[]" placeholder="e.g. Coding Club Member"></div>
+                            <div class="form-group"><label class="form-label">Organization</label><input class="form-input" type="text" name="extra_org[]" placeholder="e.g. Brac University"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Date / Year</label><input class="form-input" type="text" name="extra_date[]" placeholder="e.g. 2021 — Present"></div>
+                            <div class="form-group"></div>
+                        </div>
+                        <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" name="extra_description[]" placeholder="Describe your achievements or role details..."></textarea></div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addExtracurricular()">+ Add Activity</button>
+            </div>
+
             <div class="nav-buttons">
                 <button type="button" class="btn-nav btn-prev" onclick="goToStep(1)">← Back</button>
-                <button type="button" class="btn-nav btn-next" onclick="goToStep(3)">Next: Education →</button>
+                <button type="button" class="btn-nav btn-next" onclick="goToStep(3)">Next: Education & Certs →</button>
             </div>
         </div>
 
-        <!-- ── STEP 3: Education ────────────────────────── -->
+        <!-- ── STEP 3: Education & Certifications ────────── -->
         <div class="form-panel" id="step-3">
             <div class="panel-card">
                 <h3>Education</h3>
@@ -473,13 +789,31 @@
                 <button type="button" class="add-btn" onclick="addEducation()">+ Add Another Degree</button>
             </div>
 
+            <div class="panel-card">
+                <h3>Certifications</h3>
+                <div class="repeatable-list" id="certifications-list">
+                    <div class="repeatable-item">
+                        <button type="button" class="remove-btn" onclick="removeItem(this)">✕ Remove</button>
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Certification Name</label><input class="form-input" type="text" name="cert_name[]" placeholder="e.g. Responsive Web Design"></div>
+                            <div class="form-group"><label class="form-label">Issuer</label><input class="form-input" type="text" name="cert_issuer[]" placeholder="e.g. freeCodeCamp"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Year / Date</label><input class="form-input" type="text" name="cert_date[]" placeholder="e.g. 2024"></div>
+                            <div class="form-group"></div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addCertification()">+ Add Certification</button>
+            </div>
+
             <div class="nav-buttons">
                 <button type="button" class="btn-nav btn-prev" onclick="goToStep(2)">← Back</button>
-                <button type="button" class="btn-nav btn-next" onclick="goToStep(4)">Next: Skills →</button>
+                <button type="button" class="btn-nav btn-next" onclick="goToStep(4)">Next: Skills & Languages →</button>
             </div>
         </div>
 
-        <!-- ── STEP 4: Skills ───────────────────────────── -->
+        <!-- ── STEP 4: Skills & Languages ─────────────────── -->
         <div class="form-panel" id="step-4">
             <div class="panel-card">
                 <h3>Skills</h3>
@@ -519,13 +853,26 @@
                 <button type="button" class="add-btn" onclick="addLanguage()">+ Add Language</button>
             </div>
 
+            <div class="panel-card">
+                <h3>Interests / Hobbies</h3>
+                <div class="repeatable-list" id="interests-list">
+                    <div class="repeatable-item">
+                        <button type="button" class="remove-btn" onclick="removeItem(this)">✕ Remove</button>
+                        <div class="form-group" style="margin-bottom:0">
+                            <input class="form-input" type="text" name="interest_name[]" placeholder="e.g. Open Source">
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addInterest()">+ Add Interest Pill</button>
+            </div>
+
             <div class="nav-buttons">
                 <button type="button" class="btn-nav btn-prev" onclick="goToStep(3)">← Back</button>
-                <button type="button" class="btn-nav btn-next" onclick="goToStep(5)">Next: Projects →</button>
+                <button type="button" class="btn-nav btn-next" onclick="goToStep(5)">Next: Projects & Achievements →</button>
             </div>
         </div>
 
-        <!-- ── STEP 5: Projects ─────────────────────────── -->
+        <!-- ── STEP 5: Projects & Achievements ────────────── -->
         <div class="form-panel" id="step-5">
             <div class="panel-card">
                 <h3>Projects</h3>
@@ -543,14 +890,54 @@
                 <button type="button" class="add-btn" onclick="addProject()">+ Add Another Project</button>
             </div>
 
+            <div class="panel-card">
+                <h3>Key Achievements</h3>
+                <div class="repeatable-list" id="achievements-list">
+                    <div class="repeatable-item">
+                        <button type="button" class="remove-btn" onclick="removeItem(this)">✕ Remove</button>
+                        <div class="form-group" style="margin-bottom:0">
+                            <input class="form-input" type="text" name="ach_desc[]" placeholder="e.g. Winner of BUET HackFest 2023 out of 100+ teams">
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addAchievement()">+ Add Achievement</button>
+            </div>
+
             <div class="nav-buttons">
                 <button type="button" class="btn-nav btn-prev" onclick="goToStep(4)">← Back</button>
-                <button type="button" class="btn-nav btn-next" onclick="goToStep(6)">Next: Style →</button>
+                <button type="button" class="btn-nav btn-next" onclick="goToStep(6)">Next: Stats & Style →</button>
             </div>
         </div>
 
-        <!-- ── STEP 6: Style ────────────────────────────── -->
+        <!-- ── STEP 6: Stats & Style ──────────────────────── -->
         <div class="form-panel" id="step-6">
+            <div class="panel-card">
+                <h3>KPI Stats Cards</h3>
+                <p style="font-size:0.85rem; color: var(--text-secondary); margin-bottom: 16px;">Configure up to 4 quick metrics cards shown under your header.</p>
+                <div class="form-row" style="grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                    <div class="form-group" style="border: 1px solid rgba(255,255,255,0.06); padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.01);">
+                        <label class="form-label" style="font-size: 0.7rem; color: var(--accent-cyan);">Stat 1 (Experience)</label>
+                        <input class="form-input" type="text" name="stat_val1" placeholder="e.g. 2+" value="2+" style="padding: 6px; font-size: 0.85rem; margin-bottom: 6px;">
+                        <input class="form-input" type="text" name="stat_lbl1" placeholder="e.g. Experience" value="Years Experience" style="padding: 6px; font-size: 0.85rem;">
+                    </div>
+                    <div class="form-group" style="border: 1px solid rgba(255,255,255,0.06); padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.01);">
+                        <label class="form-label" style="font-size: 0.7rem; color: var(--accent-cyan);">Stat 2 (Projects)</label>
+                        <input class="form-input" type="text" name="stat_val2" placeholder="e.g. 10+" value="10+" style="padding: 6px; font-size: 0.85rem; margin-bottom: 6px;">
+                        <input class="form-input" type="text" name="stat_lbl2" placeholder="e.g. Projects" value="Projects Completed" style="padding: 6px; font-size: 0.85rem;">
+                    </div>
+                    <div class="form-group" style="border: 1px solid rgba(255,255,255,0.06); padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.01);">
+                        <label class="form-label" style="font-size: 0.7rem; color: var(--accent-cyan);">Stat 3 (Certs)</label>
+                        <input class="form-input" type="text" name="stat_val3" placeholder="e.g. 3" value="3" style="padding: 6px; font-size: 0.85rem; margin-bottom: 6px;">
+                        <input class="form-input" type="text" name="stat_lbl3" placeholder="e.g. Certifications" value="Certifications" style="padding: 6px; font-size: 0.85rem;">
+                    </div>
+                    <div class="form-group" style="border: 1px solid rgba(255,255,255,0.06); padding: 8px; border-radius: 6px; background: rgba(255,255,255,0.01);">
+                        <label class="form-label" style="font-size: 0.7rem; color: var(--accent-cyan);">Stat 4 (CGPA/Grade)</label>
+                        <input class="form-input" type="text" name="stat_val4" placeholder="e.g. 4.00" value="4.00" style="padding: 6px; font-size: 0.85rem; margin-bottom: 6px;">
+                        <input class="form-input" type="text" name="stat_lbl4" placeholder="e.g. CGPA" value="CGPA" style="padding: 6px; font-size: 0.85rem;">
+                    </div>
+                </div>
+            </div>
+
             <div class="panel-card">
                 <h3>Accent Color</h3>
                 <p style="font-size:0.85rem; color: var(--text-secondary); margin-bottom: 16px;">Choose a color for headings and timeline accents.</p>
@@ -579,16 +966,235 @@
 <script>
 let currentStep = 1;
 const totalSteps = 6;
+const DRAFT_KEY = 'skillsync_cv_draft';
+let draftSaveTimer = null;
+let draftIsDirty = false;
+
+// ── Draft Save & Restore ─────────────────────────────────────────
+function serializeRepeatableList(listId, fieldNames) {
+    const list = document.getElementById(listId);
+    if (!list) return [];
+    const items = list.querySelectorAll('.repeatable-item');
+    const result = [];
+    items.forEach(item => {
+        const obj = {};
+        fieldNames.forEach(name => {
+            const el = item.querySelector(`[name="${name}[]"]`);
+            if (el) obj[name] = el.tagName === 'SELECT' ? el.value : el.value;
+        });
+        result.push(obj);
+    });
+    return result;
+}
+
+function collectDraft() {
+    const form = document.getElementById('cv-form');
+    if (!form) return null;
+    const data = {};
+    // Simple named fields (non-array)
+    const simpleNames = ['name','title','email','phone','location','website','summary',
+        'github_url','linkedin_url','twitter_url','accent_color',
+        'stat_val1','stat_lbl1','stat_val2','stat_lbl2',
+        'stat_val3','stat_lbl3','stat_val4','stat_lbl4'];
+    simpleNames.forEach(n => {
+        const el = form.querySelector(`[name="${n}"]`);
+        if (el) data[n] = el.value;
+    });
+    // Repeatable sections
+    data.experience     = serializeRepeatableList('experience-list',    ['exp_role','exp_company','exp_start','exp_end','exp_location','exp_description']);
+    data.extracurricular= serializeRepeatableList('extracurricular-list',['extra_role','extra_org','extra_date','extra_description']);
+    data.education      = serializeRepeatableList('education-list',     ['edu_degree','edu_institution','edu_start','edu_end','edu_description']);
+    data.certifications = serializeRepeatableList('certifications-list', ['cert_name','cert_issuer','cert_date']);
+    data.skills         = serializeRepeatableList('skills-list',        ['skill_name','skill_level']);
+    data.languages      = serializeRepeatableList('languages-list',     ['lang_name','lang_level']);
+    data.interests      = serializeRepeatableList('interests-list',     ['interest_name']);
+    data.projects       = serializeRepeatableList('projects-list',      ['proj_name','proj_url','proj_tech','proj_description']);
+    data.achievements   = serializeRepeatableList('achievements-list',  ['ach_desc']);
+    data._savedAt = new Date().toISOString();
+    return data;
+}
+
+function saveDraft() {
+    const data = collectDraft();
+    if (!data) return;
+    try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+        showDraftBar(data._savedAt);
+    } catch(e) { /* quota exceeded — ignore */ }
+}
+
+function showDraftBar(isoTime) {
+    const bar = document.getElementById('draft-status-bar');
+    const txt = document.getElementById('draft-status-text');
+    if (!bar) return;
+    const d = isoTime ? new Date(isoTime) : new Date();
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mm = String(d.getMinutes()).padStart(2,'0');
+    txt.textContent = `Draft auto-saved at ${hh}:${mm}`;
+    bar.classList.add('visible');
+}
+
+function scheduleSave() {
+    if (draftSaveTimer) clearTimeout(draftSaveTimer);
+    draftSaveTimer = setTimeout(() => saveDraft(), 600);
+}
+
+function clearDraft() {
+    if (!confirm('Clear your saved draft? All form data will be reset.')) return;
+    localStorage.removeItem(DRAFT_KEY);
+    document.getElementById('draft-status-bar').classList.remove('visible');
+    document.getElementById('cv-form').reset();
+    // Reset repeatable lists to single empty item each
+    ['experience-list','extracurricular-list','education-list',
+     'certifications-list','skills-list','languages-list',
+     'interests-list','projects-list','achievements-list'].forEach(id => {
+        const list = document.getElementById(id);
+        if (!list) return;
+        const items = list.querySelectorAll('.repeatable-item');
+        items.forEach((it, i) => { if (i > 0) it.remove(); });
+        // clear remaining first item
+        list.querySelectorAll('input, textarea').forEach(el => {
+            el.value = el.type === 'range' ? '70' : '';
+        });
+        list.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
+        list.querySelectorAll('.skill-level-display').forEach(el => el.textContent = '70%');
+    });
+    // reset accent
+    selectColor('#2563eb', document.querySelector('.color-swatch'));
+    goToStep(1);
+}
+
+function restoreDraft() {
+    let raw;
+    try { raw = localStorage.getItem(DRAFT_KEY); } catch(e) { return; }
+    if (!raw) return;
+    let data;
+    try { data = JSON.parse(raw); } catch(e) { return; }
+
+    const form = document.getElementById('cv-form');
+    if (!form) return;
+
+    // Restore simple fields
+    const simpleNames = ['name','title','email','phone','location','website','summary',
+        'github_url','linkedin_url','twitter_url',
+        'stat_val1','stat_lbl1','stat_val2','stat_lbl2',
+        'stat_val3','stat_lbl3','stat_val4','stat_lbl4'];
+    simpleNames.forEach(n => {
+        const el = form.querySelector(`[name="${n}"]`);
+        if (el && data[n] !== undefined) el.value = data[n];
+    });
+
+    // Restore accent color
+    if (data.accent_color) {
+        const swatch = document.querySelector(`.color-swatch[style*="${data.accent_color}"]`);
+        selectColor(data.accent_color, swatch || document.querySelector('.color-swatch'));
+    }
+
+    // Helper: restore a repeatable list
+    function restoreList(listId, rows, fieldNames, addFn) {
+        if (!rows || !rows.length) return;
+        const list = document.getElementById(listId);
+        if (!list) return;
+        // Ensure enough items exist
+        const existing = list.querySelectorAll('.repeatable-item');
+        for (let i = existing.length; i < rows.length; i++) addFn();
+        const items = list.querySelectorAll('.repeatable-item');
+        rows.forEach((row, idx) => {
+            const item = items[idx];
+            if (!item) return;
+            fieldNames.forEach(name => {
+                const el = item.querySelector(`[name="${name}[]"]`);
+                if (!el || row[name] === undefined) return;
+                if (el.tagName === 'SELECT') {
+                    const opt = [...el.options].find(o => o.value === row[name]);
+                    if (opt) el.value = row[name];
+                } else if (el.type === 'range') {
+                    el.value = row[name];
+                    const disp = el.nextElementSibling;
+                    if (disp && disp.classList.contains('skill-level-display'))
+                        disp.textContent = row[name] + '%';
+                } else {
+                    el.value = row[name];
+                }
+            });
+        });
+    }
+
+    restoreList('experience-list',     data.experience,      ['exp_role','exp_company','exp_start','exp_end','exp_location','exp_description'], addExperience);
+    restoreList('extracurricular-list',data.extracurricular, ['extra_role','extra_org','extra_date','extra_description'], addExtracurricular);
+    restoreList('education-list',      data.education,       ['edu_degree','edu_institution','edu_start','edu_end','edu_description'], addEducation);
+    restoreList('certifications-list', data.certifications,  ['cert_name','cert_issuer','cert_date'], addCertification);
+    restoreList('skills-list',         data.skills,          ['skill_name','skill_level'], addSkill);
+    restoreList('languages-list',      data.languages,       ['lang_name','lang_level'], addLanguage);
+    restoreList('interests-list',      data.interests,       ['interest_name'], addInterest);
+    restoreList('projects-list',       data.projects,        ['proj_name','proj_url','proj_tech','proj_description'], addProject);
+    restoreList('achievements-list',   data.achievements,    ['ach_desc'], addAchievement);
+
+    // Update initials preview from restored name
+    const nameEl = form.querySelector('[name="name"]');
+    const initialsEl = document.getElementById('photo-initials');
+    if (nameEl && initialsEl && nameEl.value) {
+        const parts = nameEl.value.trim().split(' ');
+        initialsEl.textContent = parts.length >= 2
+            ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+            : nameEl.value[0].toUpperCase();
+    }
+
+    showDraftBar(data._savedAt);
+
+    // Show restore toast briefly
+    const toast = document.getElementById('draft-toast');
+    if (toast) {
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 4500);
+    }
+}
+
+function switchStepVisuals(from, to) {
+    const fromPanel = document.getElementById(`step-${from}`);
+    const fromTab = document.getElementById(`step-tab-${from}`);
+    const toPanel = document.getElementById(`step-${to}`);
+    const toTab = document.getElementById(`step-tab-${to}`);
+    if (fromPanel) fromPanel.classList.remove('active');
+    if (fromTab) fromTab.classList.remove('active');
+    if (toPanel) toPanel.classList.add('active');
+    if (toTab) toTab.classList.add('active');
+}
 
 function goToStep(step) {
-    document.getElementById(`step-${currentStep}`).classList.remove('active');
-    document.getElementById(`step-tab-${currentStep}`).classList.remove('active');
-    if (currentStep < step) document.getElementById(`step-tab-${currentStep}`).classList.add('done');
+    // If going forward, validate all steps between currentStep and target step
+    if (step > currentStep) {
+        for (let s = currentStep; s < step; s++) {
+            const panel = document.getElementById(`step-${s}`);
+            if (panel) {
+                const inputs = panel.querySelectorAll('input, textarea, select');
+                for (const input of inputs) {
+                    if (!input.checkValidity()) {
+                        if (s !== currentStep) {
+                            switchStepVisuals(currentStep, s);
+                            currentStep = s;
+                        }
+                        input.reportValidity();
+                        return; // Block navigation
+                    }
+                }
+            }
+        }
+    }
+
+    switchStepVisuals(currentStep, step);
+
+    // Update done classes for steps
+    for (let i = 1; i < step; i++) {
+        const tab = document.getElementById(`step-tab-${i}`);
+        if (tab) tab.classList.add('done');
+    }
+    for (let i = step; i <= totalSteps; i++) {
+        const tab = document.getElementById(`step-tab-${i}`);
+        if (tab) tab.classList.remove('done');
+    }
 
     currentStep = step;
-    document.getElementById(`step-${step}`).classList.add('active');
-    document.getElementById(`step-tab-${step}`).classList.add('active');
-    document.getElementById(`step-tab-${step}`).classList.remove('done');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -617,6 +1223,7 @@ function addExperience() {
     list.appendChild(template);
 }
 
+// Ensure first items don't block validation if empty
 function addEducation() {
     const list = document.getElementById('education-list');
     const template = list.querySelector('.repeatable-item').cloneNode(true);
@@ -632,6 +1239,7 @@ function addSkill() {
     list.appendChild(template);
 }
 
+// Add language and project dynamic creation
 function addLanguage() {
     const list = document.getElementById('languages-list');
     const template = list.querySelector('.repeatable-item').cloneNode(true);
@@ -643,6 +1251,34 @@ function addProject() {
     const list = document.getElementById('projects-list');
     const template = list.querySelector('.repeatable-item').cloneNode(true);
     template.querySelectorAll('input, textarea').forEach(el => el.value = '');
+    list.appendChild(template);
+}
+
+function addExtracurricular() {
+    const list = document.getElementById('extracurricular-list');
+    const template = list.querySelector('.repeatable-item').cloneNode(true);
+    template.querySelectorAll('input, textarea').forEach(el => el.value = '');
+    list.appendChild(template);
+}
+
+function addCertification() {
+    const list = document.getElementById('certifications-list');
+    const template = list.querySelector('.repeatable-item').cloneNode(true);
+    template.querySelectorAll('input').forEach(el => el.value = '');
+    list.appendChild(template);
+}
+
+function addInterest() {
+    const list = document.getElementById('interests-list');
+    const template = list.querySelector('.repeatable-item').cloneNode(true);
+    template.querySelectorAll('input').forEach(el => el.value = '');
+    list.appendChild(template);
+}
+
+function addAchievement() {
+    const list = document.getElementById('achievements-list');
+    const template = list.querySelector('.repeatable-item').cloneNode(true);
+    template.querySelectorAll('input').forEach(el => el.value = '');
     list.appendChild(template);
 }
 
@@ -660,8 +1296,48 @@ function previewPhoto(input) {
     }
 }
 
-// Update the preview circle initials as user types their name
+// ── Initialise on DOM ready ───────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+    // Restore any saved draft first
+    restoreDraft();
+
+    const form = document.getElementById('cv-form');
+    if (form) {
+        // Submit validation
+        form.addEventListener('submit', (e) => {
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                const firstInvalid = form.querySelector(':invalid');
+                if (firstInvalid) {
+                    const panel = firstInvalid.closest('.form-panel');
+                    if (panel) {
+                        const stepNum = parseInt(panel.id.replace('step-', ''));
+                        if (!isNaN(stepNum)) {
+                            goToStep(stepNum);
+                            setTimeout(() => {
+                                firstInvalid.focus();
+                                form.reportValidity();
+                            }, 50);
+                        }
+                    }
+                }
+            }
+        });
+
+        // Auto-save on any change inside the form
+        form.addEventListener('input', scheduleSave);
+        form.addEventListener('change', scheduleSave);
+
+        // Flush any unsaved changes immediately before navigating away
+        window.addEventListener('beforeunload', () => {
+            if (draftSaveTimer) {
+                clearTimeout(draftSaveTimer);
+                saveDraft();
+            }
+        });
+    }
+
+    // Live initials preview as user types name
     const nameInput = document.querySelector('input[name="name"]');
     const initialsEl = document.getElementById('photo-initials');
     if (nameInput) {

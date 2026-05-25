@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillSync – AI-Powered Career Navigator | Promo Video</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue-deep:   #1a1f6e;
+      --blue-mid:    #2a52cc;
+      --blue-light:  #3b82f6;
+      --teal:        #19c6c6;
+      --teal-light:  #5ee7e7;
+      --white:       #ffffff;
+      --off-white:   #f0f4ff;
+      --gray-light:  #c8d3ee;
+      --gray-mid:    #8892b0;
+      --bg-dark:     #070b1a;
+      --bg-card:     rgba(255,255,255,0.05);
+      --accent:      #6ee7f7;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background: var(--bg-dark);
+      font-family: 'Inter', 'DM Sans', sans-serif;
+      color: var(--white);
+    }
+
+    /* ─── SCENE SYSTEM ─────────────────────────────── */
+    .scene {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s cubic-bezier(.4,0,.2,1);
+    }
+    .scene.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* ─── GLOBAL BACKGROUND MESH ────────────────────── */
+    .bg-mesh {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 900px 600px at 10% 20%, rgba(42,82,204,.22) 0%, transparent 70%),
+        radial-gradient(ellipse 700px 500px at 90% 80%, rgba(25,198,198,.18) 0%, transparent 70%),
+        linear-gradient(160deg, #070b1a 0%, #0c1535 60%, #071a2a 100%);
+      z-index: 0;
+    }
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,.06) 1px, transparent 1px);
+      background-size: 80px 80px;
+      z-index: 0;
+    }
+    .particle {
+      position: fixed;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--teal) 0%, transparent 70%);
+      opacity: 0.18;
+      animation: floatParticle linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes floatParticle {
+      0%   { transform: translateY(100vh) scale(0.5); opacity: 0; }
+      10%  { opacity: 0.18; }
+      90%  { opacity: 0.18; }
+      100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+    }
+
+    /* ─── SCENE 1: LOGO REVEAL ──────────────────────── */
+    #scene-1 {
+      flex-direction: column;
+      gap: 0;
+      background: transparent;
+      z-index: 1;
+    }
+    .logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+    .logo-ring {
+      position: relative;
+      width: 200px;
+      height: 200px;
+    }
+    .logo-ring-svg {
+      position: absolute;
+      inset: -20px;
+      animation: spinRing 4s linear infinite;
+    }
+    @keyframes spinRing {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    .logo-img {
+      width: 160px;
+      height: 160px;
+      object-fit: contain;
+      border-radius: 28px;
+      box-shadow: 0 0 60px rgba(42,82,204,.5), 0 0 120px rgba(25,198,198,.2);
+      animation: logoGlow 3s ease-in-out infinite alternate;
+      background: #fff;
+      padding: 10px;
+    }
+    @keyframes logoGlow {
+      from { box-shadow: 0 0 40px rgba(42,82,204,.4), 0 0 80px rgba(25,198,198,.15); }
+      to   { box-shadow: 0 0 80px rgba(42,82,204,.7), 0 0 160px rgba(25,198,198,.35); }
+    }
+    .scene1-title {
+      font-size: 88px;
+      font-weight: 900;
+      letter-spacing: -3px;
+      background: linear-gradient(135deg, #fff 0%, var(--teal-light) 50%, var(--blue-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: titleReveal 1.2s cubic-bezier(.22,1,.36,1) both;
+      animation-delay: 0.4s;
+    }
+    @keyframes titleReveal {
+      from { opacity: 0; transform: translateY(40px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .scene1-sub {
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--gray-light);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      animation: fadeUp 1.2s ease both;
+      animation-delay: 0.8s;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .scene1-tagline {
+      font-size: 22px;
+      font-weight: 300;
+      color: var(--teal-light);
+      margin-top: 8px;
+      animation: fadeUp 1.2s ease both;
+      animation-delay: 1.2s;
+      font-style: italic;
+    }
+
+    /* ─── SCENE 2: PROBLEM STATEMENT ───────────────── */
+    #scene-2 {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 48px;
+      z-index: 1;
+      padding: 80px 200px;
+    }
+    .problem-header {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--teal);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      animation: fadeUp 0.8s ease both;
+    }
+    .problem-title {
+      font-size: 72px;
+      font-weight: 800;
+      line-height: 1.1;
+      text-align: center;
+      animation: fadeUp 0.9s ease both;
+      animation-delay: 0.15s;
+    }
+    .problem-title span {
+      background: linear-gradient(90deg, var(--blue-light), var(--teal));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .problem-cards {
+      display: flex;
+      gap: 32px;
+      margin-top: 16px;
+    }
+    .problem-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 20px;
+      padding: 36px 40px;
+      width: 400px;
+      backdrop-filter: blur(12px);
+      animation: cardSlideUp 0.8s cubic-bezier(.22,1,.36,1) both;
+      position: relative;
+      overflow: hidden;
+    }
+    .problem-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--blue-light), var(--teal));
+      border-radius: 3px 3px 0 0;
+    }
+    .problem-card:nth-child(1) { animation-delay: 0.3s; }
+    .problem-card:nth-child(2) { animation-delay: 0.5s; }
+    .problem-card:nth-child(3) { animation-delay: 0.7s; }
+    @keyframes cardSlideUp {
+      from { opacity: 0; transform: translateY(50px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .problem-card-icon {
+      font-size: 44px;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .problem-card h3 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+    .problem-card p {
+      font-size: 16px;
+      color: var(--gray-light);
+      line-height: 1.7;
+    }
+
+    /* ─── SCENE 3: SOLUTION ─────────────────────────── */
+    #scene-3 {
+      flex-direction: row;
+      gap: 80px;
+      padding: 80px 160px;
+      align-items: center;
+      z-index: 1;
+    }
+    .solution-left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+    .solution-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(42,82,204,.25);
+      border: 1px solid rgba(59,130,246,.4);
+      border-radius: 100px;
+      padding: 8px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--blue-light);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      width: fit-content;
+      animation: fadeUp 0.8s ease both;
+    }
+    .solution-title {
+      font-size: 66px;
+      font-weight: 800;
+      line-height: 1.1;
+      animation: fadeUp 0.9s ease both;
+      animation-delay: 0.15s;
+    }
+    .solution-title em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--teal-light), var(--blue-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .solution-desc {
+      font-size: 20px;
+      color: var(--gray-light);
+      line-height: 1.8;
+      font-weight: 400;
+      animation: fadeUp 0.9s ease both;
+      animation-delay: 0.3s;
+    }
+    .solution-right {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Video mockup frame */
+    .mockup-frame {
+      width: 700px;
+      height: 460px;
+      background: rgba(255,255,255,.04);
+      border: 1.5px solid rgba(255,255,255,.12);
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 40px 120px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.05);
+      animation: mockupReveal 1s cubic-bezier(.22,1,.36,1) both;
+      animation-delay: 0.4s;
+    }
+    @keyframes mockupReveal {
+      from { opacity: 0; transform: perspective(1200px) rotateY(15deg) translateX(60px); }
+      to   { opacity: 1; transform: perspective(1200px) rotateY(0deg) translateX(0); }
+    }
+    .mockup-titlebar {
+      height: 40px;
+      background: rgba(255,255,255,.06);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #ffbd2e; }
+    .dot-g { background: #28ca41; }
+    .mockup-content {
+      width: 100%;
+      height: calc(100% - 40px);
+      background: linear-gradient(135deg, #0d1533 0%, #0c2040 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      color: var(--gray-mid);
+      font-size: 15px;
+    }
+    .mockup-content video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .mockup-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      opacity: 0.5;
+    }
+    .play-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(59,130,246,.3);
+      border: 2px solid var(--blue-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    /* ─── SCENE 4: FEATURE — LOGIN ──────────────────── */
+    .feature-scene {
+      flex-direction: column;
+      gap: 0;
+      padding: 0;
+      z-index: 1;
+      position: relative;
+    }
+    .feature-header {
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 10;
+    }
+    .feature-label {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 12px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .feature-title {
+      font-size: 52px;
+      font-weight: 800;
+      animation: fadeUp 0.7s ease both;
+      animation-delay: 0.1s;
+      white-space: nowrap;
+    }
+    .feature-title span {
+      background: linear-gradient(90deg, var(--blue-light), var(--teal));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .feature-video-area {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1500px;
+      height: 780px;
+    }
+    .feature-video-frame {
+      width: 100%;
+      height: 100%;
+      background: rgba(10,15,40,.8);
+      border-radius: 24px 24px 0 0;
+      border: 1.5px solid rgba(255,255,255,.1);
+      border-bottom: none;
+      overflow: hidden;
+      box-shadow: 0 -30px 100px rgba(42,82,204,.2);
+      position: relative;
+    }
+    .feature-video-frame video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .feature-video-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      background: linear-gradient(160deg, #0d1533 0%, #061022 100%);
+    }
+    .placeholder-text {
+      font-size: 18px;
+      color: var(--gray-mid);
+      font-weight: 500;
+    }
+    .footage-badge {
+      background: rgba(25,198,198,.15);
+      border: 1px solid rgba(25,198,198,.4);
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-size: 14px;
+      color: var(--teal-light);
+      font-weight: 600;
+    }
+
+    /* ─── FEATURE BULLET STRIPS ─────────────────────── */
+    .feature-bullets {
+      position: absolute;
+      right: 80px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .bullet-pill {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 100px;
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--white);
+      animation: slideInRight 0.6s cubic-bezier(.22,1,.36,1) both;
+      backdrop-filter: blur(8px);
+    }
+    .bullet-pill:nth-child(1) { animation-delay: 0.2s; }
+    .bullet-pill:nth-child(2) { animation-delay: 0.35s; }
+    .bullet-pill:nth-child(3) { animation-delay: 0.5s; }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(40px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .bullet-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue-mid), var(--teal));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    /* ─── SCENE: STAT BAR (career match) ────────────── */
+    #scene-career {
+      flex-direction: row;
+      gap: 80px;
+      padding: 80px 160px;
+      align-items: center;
+      z-index: 1;
+    }
+    .stat-left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+    .stat-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .stat-card {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 16px;
+      padding: 28px;
+      animation: cardSlideUp 0.7s cubic-bezier(.22,1,.36,1) both;
+    }
+    .stat-card:nth-child(1) { animation-delay: 0.2s; }
+    .stat-card:nth-child(2) { animation-delay: 0.35s; }
+    .stat-card:nth-child(3) { animation-delay: 0.5s; }
+    .stat-card:nth-child(4) { animation-delay: 0.65s; }
+    .stat-num {
+      font-size: 52px;
+      font-weight: 900;
+      background: linear-gradient(90deg, var(--blue-light), var(--teal));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 15px;
+      color: var(--gray-light);
+      margin-top: 8px;
+      font-weight: 500;
+    }
+    .readiness-bar {
+      margin-top: 8px;
+      height: 6px;
+      background: rgba(255,255,255,.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .readiness-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue-mid), var(--teal));
+      border-radius: 3px;
+      animation: barFill 1.5s cubic-bezier(.22,1,.36,1) both;
+      animation-delay: 0.8s;
+    }
+    @keyframes barFill {
+      from { width: 0%; }
+    }
+
+    /* ─── SCENE: AI EXPLAINER ───────────────────────── */
+    #scene-ai {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      padding: 60px 160px;
+      z-index: 1;
+    }
+    .ai-chat-container {
+      width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .ai-bubble {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      animation: fadeUp 0.6s ease both;
+    }
+    .ai-bubble.user { flex-direction: row-reverse; }
+    .ai-bubble:nth-child(1) { animation-delay: 0.2s; }
+    .ai-bubble:nth-child(2) { animation-delay: 0.6s; }
+    .ai-bubble:nth-child(3) { animation-delay: 1s; }
+    .ai-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .ai-avatar.bot {
+      background: linear-gradient(135deg, var(--blue-mid), var(--teal));
+    }
+    .ai-avatar.user-av {
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.2);
+    }
+    .ai-msg {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 16px;
+      padding: 18px 24px;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--white);
+      max-width: 680px;
+      backdrop-filter: blur(8px);
+    }
+    .ai-bubble.user .ai-msg {
+      background: rgba(42,82,204,.25);
+      border-color: rgba(59,130,246,.3);
+    }
+    .ai-typing {
+      display: flex;
+      gap: 5px;
+      padding: 8px 0;
+    }
+    .ai-typing span {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--teal);
+      animation: typingDot 1.2s ease-in-out infinite;
+    }
+    .ai-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .ai-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingDot {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ─── SCENE: FEATURES GRID ──────────────────────── */
+    #scene-features {
+      flex-direction: column;
+      align-items: center;
+      gap: 48px;
+      padding: 60px 120px;
+      z-index: 1;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      width: 100%;
+    }
+    .feat-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      padding: 36px 28px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s;
+      animation: cardSlideUp 0.7s cubic-bezier(.22,1,.36,1) both;
+    }
+    .feat-card:nth-child(1) { animation-delay: 0.1s; }
+    .feat-card:nth-child(2) { animation-delay: 0.2s; }
+    .feat-card:nth-child(3) { animation-delay: 0.3s; }
+    .feat-card:nth-child(4) { animation-delay: 0.4s; }
+    .feat-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--blue-mid), var(--teal));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+    .feat-card:hover::after { transform: scaleX(1); }
+    .feat-card:hover { border-color: rgba(59,130,246,.3); transform: translateY(-4px); }
+    .feat-icon-wrap {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(42,82,204,.4), rgba(25,198,198,.3));
+      border: 1px solid rgba(255,255,255,.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+    .feat-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .feat-card p {
+      font-size: 14px;
+      color: var(--gray-light);
+      line-height: 1.7;
+    }
+
+    /* ─── SCENE: CTA / OUTRO ────────────────────────── */
+    #scene-cta {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      z-index: 1;
+    }
+    .cta-eyebrow {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--teal);
+      animation: fadeUp 0.6s ease both;
+    }
+    .cta-title {
+      font-size: 96px;
+      font-weight: 900;
+      letter-spacing: -4px;
+      text-align: center;
+      line-height: 1;
+      animation: fadeUp 0.8s ease both;
+      animation-delay: 0.15s;
+    }
+    .cta-title .highlight {
+      background: linear-gradient(135deg, var(--teal-light) 0%, var(--blue-light) 50%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .cta-sub {
+      font-size: 22px;
+      color: var(--gray-light);
+      font-weight: 400;
+      text-align: center;
+      animation: fadeUp 0.8s ease both;
+      animation-delay: 0.3s;
+    }
+    .cta-buttons {
+      display: flex;
+      gap: 20px;
+      animation: fadeUp 0.8s ease both;
+      animation-delay: 0.45s;
+    }
+    .btn-primary {
+      padding: 18px 48px;
+      background: linear-gradient(135deg, var(--blue-mid), var(--teal));
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 8px 32px rgba(42,82,204,.4);
+      letter-spacing: 0.5px;
+    }
+    .btn-secondary {
+      padding: 18px 48px;
+      background: transparent;
+      border: 2px solid rgba(255,255,255,.2);
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--white);
+      cursor: pointer;
+    }
+    .cta-logo-small {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      animation: fadeUp 0.8s ease both;
+      animation-delay: 0.6s;
+    }
+    .cta-logo-img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 12px;
+      padding: 4px;
+    }
+    .cta-logo-text {
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+
+    /* ─── PROGRESS BAR ──────────────────────────────── */
+    #progress-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--blue-mid), var(--teal));
+      transition: width 0.8s cubic-bezier(.4,0,.2,1);
+      z-index: 100;
+    }
+
+    /* ─── SCENE COUNTER ─────────────────────────────── */
+    #scene-counter {
+      position: fixed;
+      bottom: 24px;
+      right: 40px;
+      font-size: 13px;
+      color: rgba(255,255,255,.35);
+      font-weight: 500;
+      letter-spacing: 2px;
+      z-index: 100;
+    }
+
+    /* ─── NAVIGATION ────────────────────────────────── */
+    #nav-dots {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 100;
+    }
+    .nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(255,255,255,.25);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .nav-dot.active {
+      background: var(--teal);
+      width: 28px;
+    }
+
+    /* ─── SKIP / PLAY CONTROLS ──────────────────────── */
+    #controls {
+      position: fixed;
+      top: 30px;
+      right: 40px;
+      display: flex;
+      gap: 12px;
+      z-index: 100;
+    }
+    .ctrl-btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(255,255,255,.08);
+      color: var(--white);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: background 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .ctrl-btn:hover { background: rgba(255,255,255,.15); }
+    .ctrl-btn.active-ctrl {
+      background: rgba(42,82,204,.4);
+      border-color: var(--blue-light);
+      color: var(--blue-light);
+    }
+
+    /* ─── TIMELINE TICKER ───────────────────────────── */
+    #timeline-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: rgba(255,255,255,.06);
+      z-index: 100;
+    }
+    #timeline-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue-mid), var(--teal));
+      width: 0%;
+      transition: width 0.5s linear;
+    }
+
+    /* ─── ANIMATED COUNTER ──────────────────────────── */
+    .counter-num { display: inline-block; }
+
+    /* ─── SCENE 8: IQ / APTITUDE ─────────────────────  */
+    #scene-iq {
+      flex-direction: row;
+      gap: 80px;
+      padding: 80px 160px;
+      align-items: center;
+      z-index: 1;
+    }
+    .iq-visual {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 20px;
+      height: 520px;
+    }
+    .iq-card {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      animation: cardSlideUp 0.7s cubic-bezier(.22,1,.36,1) both;
+    }
+    .iq-card:nth-child(1) { animation-delay: 0.15s; border-top: 2px solid var(--blue-light); }
+    .iq-card:nth-child(2) { animation-delay: 0.3s;  border-top: 2px solid var(--teal); }
+    .iq-card:nth-child(3) { animation-delay: 0.45s; border-top: 2px solid #a78bfa; }
+    .iq-card:nth-child(4) { animation-delay: 0.6s;  border-top: 2px solid #f59e0b; }
+    .iq-card-icon { font-size: 32px; }
+    .iq-card-title { font-size: 16px; font-weight: 700; }
+    .iq-card-desc { font-size: 13px; color: var(--gray-light); line-height: 1.6; }
+    .iq-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* ─── SCENE 9: CV / MOCK INTERVIEW ──────────────── */
+    #scene-cv {
+      flex-direction: row;
+      gap: 80px;
+      padding: 80px 160px;
+      align-items: center;
+      z-index: 1;
+    }
+    .cv-preview {
+      flex: 1;
+      height: 600px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 40px 100px rgba(0,0,0,.5);
+      overflow: hidden;
+      animation: mockupReveal 1s cubic-bezier(.22,1,.36,1) both;
+      animation-delay: 0.3s;
+      position: relative;
+    }
+    .cv-header-bar {
+      height: 100px;
+      background: linear-gradient(135deg, #1a2f8a, #19c6c6);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      gap: 20px;
+    }
+    .cv-avatar {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    .cv-name-block { color: #fff; }
+    .cv-name-block h2 { font-size: 20px; font-weight: 700; }
+    .cv-name-block p  { font-size: 13px; opacity: 0.8; }
+    .cv-body { padding: 24px 32px; display: flex; flex-direction: column; gap: 16px; }
+    .cv-section-title { font-size: 12px; font-weight: 700; color: #2a52cc; text-transform: uppercase; letter-spacing: 2px; border-bottom: 2px solid #2a52cc; padding-bottom: 6px; }
+    .cv-line { height: 10px; background: #e8ecf8; border-radius: 5px; }
+    .cv-line.short { width: 60%; }
+    .cv-line.med { width: 80%; }
+    .cv-line.full { width: 100%; }
+    .cv-skill-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .cv-pill { padding: 4px 12px; background: #eef2ff; border-radius: 100px; font-size: 11px; color: #2a52cc; font-weight: 600; }
+    .cv-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+    /* Mock interview bubbles */
+    .interview-bubbles {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 12px;
+    }
+    .int-bubble {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      animation: fadeUp 0.6s ease both;
+    }
+    .int-bubble:nth-child(1) { animation-delay: 0.3s; }
+    .int-bubble:nth-child(2) { animation-delay: 0.6s; }
+    .int-av {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .int-av.interviewer { background: linear-gradient(135deg, var(--blue-mid), var(--teal)); }
+    .int-av.candidate  { background: rgba(255,255,255,.15); }
+    .int-msg {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--white);
+    }
+
+    /* ─── WATERMARK / BRAND STRIP ───────────────────── */
+    #brand-strip {
+      position: fixed;
+      top: 28px;
+      left: 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 100;
+    }
+    #brand-strip img {
+      width: 38px; height: 38px;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 8px;
+      padding: 2px;
+    }
+    #brand-strip span {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: rgba(255,255,255,.85);
+    }
+
+    /* ─── TRANSITION OVERLAY ────────────────────────── */
+    #transition-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-dark);
+      z-index: 200;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+    #transition-overlay.flash { opacity: 1; }
+
+    /* ─── SCENE TITLE TOOLTIP ───────────────────────── */
+    #scene-label {
+      position: fixed;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 100px;
+      padding: 8px 24px;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,.6);
+      letter-spacing: 1px;
+      backdrop-filter: blur(12px);
+      z-index: 100;
+      transition: opacity 0.5s;
+    }
+
+    /* ─── GRAPH VISUAL (knowledge graph mini) ────────── */
+    .graph-svg {
+      width: 100%;
+      height: 100%;
+    }
+    .graph-node {
+      animation: nodePulse 3s ease-in-out infinite;
+    }
+    @keyframes nodePulse {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- BACKGROUND LAYER                                   -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="bg-mesh"></div>
+<div class="bg-grid"></div>
+
+<!-- Floating particles -->
+<div class="particle" style="width:300px;height:300px;left:5%;animation-duration:22s;animation-delay:0s;"></div>
+<div class="particle" style="width:200px;height:200px;left:20%;animation-duration:28s;animation-delay:4s;background:radial-gradient(circle,#3b82f6 0%,transparent 70%)"></div>
+<div class="particle" style="width:250px;height:250px;left:70%;animation-duration:25s;animation-delay:8s;"></div>
+<div class="particle" style="width:180px;height:180px;left:85%;animation-duration:30s;animation-delay:2s;background:radial-gradient(circle,#6ee7f7 0%,transparent 70%)"></div>
+<div class="particle" style="width:120px;height:120px;left:50%;animation-duration:18s;animation-delay:12s;"></div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- UI CHROME                                          -->
+<!-- ══════════════════════════════════════════════════ -->
+<div id="timeline-bar"><div id="timeline-fill"></div></div>
+
+<div id="brand-strip">
+  <img src="../SKillsyncLOgo.png" alt="SkillSync" />
+  <span>SkillSync</span>
+</div>
+
+<div id="scene-label">Intro</div>
+
+<div id="controls">
+  <button class="ctrl-btn" onclick="prevScene()">← Prev</button>
+  <button class="ctrl-btn active-ctrl" id="play-pause-btn" onclick="togglePlayPause()">⏸ Pause</button>
+  <button class="ctrl-btn" onclick="nextScene()">Next →</button>
+</div>
+
+<div id="nav-dots"></div>
+<div id="scene-counter">1 / 8</div>
+<div id="progress-bar" style="width:0%"></div>
+<div id="transition-overlay"></div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCENE 1 — LOGO REVEAL                             -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="scene active" id="scene-1" data-label="Introduction" data-duration="5000">
+  <div class="logo-container">
+    <div class="logo-ring">
+      <svg class="logo-ring-svg" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="120" cy="120" r="110" stroke="url(#ringGrad)" stroke-width="2.5" stroke-dasharray="12 8" />
+        <defs>
+          <linearGradient id="ringGrad" x1="0" y1="0" x2="240" y2="240" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#3b82f6" />
+            <stop offset="50%" stop-color="#19c6c6" />
+            <stop offset="100%" stop-color="#3b82f6" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <img class="logo-img" src="../SKillsyncLOgo.png" alt="SkillSync Logo" />
+    </div>
+    <h1 class="scene1-title">SkillSync</h1>
+    <p class="scene1-sub">AI-Powered Career Navigator</p>
+    <p class="scene1-tagline">"Your path from student to industry professional"</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCENE 2 — THE PROBLEM                             -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="scene" id="scene-2" data-label="The Problem" data-duration="6000">
+  <p class="problem-header">🎯 The Challenge</p>
+  <h2 class="problem-title">
+    Students struggle to bridge the gap<br />
+    between <span>university</span> and <span>industry</span>
+  </h2>
+  <div class="problem-cards">
+    <div class="problem-card">
+      <span class="problem-card-icon">😵‍💫</span>
+      <h3>Overwhelmed by options</h3>
+      <p>Hundreds of technologies, frameworks, and career paths — with no clear direction on where to start or focus.</p>
+    </div>
+    <div class="problem-card">
+      <span class="problem-card-icon">💸</span>
+      <h3>Expensive career advice</h3>
+      <p>Quality mentorship and career counseling is inaccessible to most students without significant financial resources.</p>
+    </div>
+    <div class="problem-card">
+      <span class="problem-card-icon">📚</span>
+      <h3>Generic learning paths</h3>
+      <p>One-size-fits-all roadmaps ignore your specific major, skills, and career goals — wasting your time and effort.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCENE 3 — THE SOLUTION                            -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="scene" id="scene-3" data-label="The Solution" data-duration="6000">
+  <div class="solution-left">
+    <div class="solution-badge">✦ Meet SkillSync</div>
+    <h2 class="solution-title">
+      Your personal<br/>
+      <em>AI Career Advisor</em><br/>
+      — always available.
+    </h2>
+    <p class="solution-desc">
+      SkillSync uses advanced AI to analyze your academic background,
+      match you to the right career paths, and generate a personalized
+      step-by-step roadmap — completely free, always personalized.
+    </p>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;animation:fadeUp 0.9s ease both;animation-delay:0.5s;">
+      <div style="display:flex;align-items:center;gap:8px;font-size:15px;color:var(--teal-light);">
+        <span>✓</span> Personalized to your major
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:15px;color:var(--teal-light);">
+        <span>✓</span> AI-powered roadmaps
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:15px;color:var(--teal-light);">
+        <span>✓</span> Free, instant, intelligent
+      </div>
+    </div>
+  </div>
+  <div class="solution-right">
+    <div class="mockup-frame">
+      <div class="mockup-titlebar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <span style="margin-left:8px;font-size:12px;color:rgba(255,255,255,.3);">skillsync.app</span>
+      </div>
+      <div class="mockup-content" id="mockup-3">
+        <!-- Replace with: <video autoplay muted loop src="footage/login.mp4"></video> -->
+        <div class="mockup-placeholder">
+          <div class="play-btn">▶</div>
+          <span style="font-size:14px;font-weight:600;">[ Landing Page Footage ]</span>
+          <span style="font-size:12px;opacity:.6;">Replace with your screen recording</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCENE 4 — PROFILE SETUP (footage scene)           -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="scene feature-scene" id="scene-4" data-label="Profile Setup" data-duration="7000">
+  <div class="feature-header">
+    <p class="feature-label">✦ Feature 1</p>
+    <h2 class="feature-title">Smart <span>Profile Setup</span></h2>
+  </div>
+  <div class="feature-video-area">
+    <div class="feature-video-frame" id="vid-frame-4">
+      <!-- Replace with: <video autoplay muted loop src="footage/profile_setup.mp4" style="width:100%;height:100%;object-fit:cover;"></video> -->
+      <div class="feature-video-placeholder">
+        <div class="footage-badge">📹 INSERT: Profile Setup Screen Recording</div>
+        <p class="placeholder-text">Record: Entering your major, semester, and skills</p>
+      </div>
+    </div>
+  </div>
+  <div class="feature-bullets" style="top:220px;bottom:auto;transform:none;right:80px;">
+    <div class="bullet-pill"><div class="bullet-icon">🎓</div> Enter your major & semester</div>
+    <div class="bullet-pill"><div class="bullet-icon">⚡</div> List your current skills</div>
+    <div class="bullet-pill"><div class="bullet-icon">🧠</div> AI analyzes your profile</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCENE 5 — CAREER MATCHING & READINESS             -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="scene" id="scene-career" data-label="Career Matching" data-duration="7000">
+  <div class="stat-left">
+    <p class="feature-label" style="animation:fadeUp 0.6s ease both;">✦ Feature 2</p>
+    <h2 class="solution-title" style="font-size:58px;animation:fadeUp 0.7s ease both;animation-delay:.1s;">
+      Career <em>Matching</em><br/>& Readiness Score
+    </h2>
+    <p class="solution-desc" style="font-size:17px;animation:fadeUp 0.8s ease both;animation-delay:.25s;">
+      Our intelligent algorithm compares your skills against industry requirements, calculates your readiness score, and identifies exactly what you need to learn.
+    </p>
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-num counter-num" data-target="85">0</div>%
+        <div class="stat-label">Average Readiness Score</div>
+        <div class="readiness-bar"><div class="readiness-fill" style="width:85%;"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num counter-num" data-target="50">0</div>+
+        <div class="stat-label">Career Paths Available</div>
+        <div class="readiness-bar"><div class="readiness-fill" style="width:70%;"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num counter-num" data-target="200">0</div>+
+        <div class="stat-label">Skills in Database</div>
+        <div class="readiness-bar"><div class="readiness-fill" style="width:90%;"></div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num counter-num" data-target="100">0</div>%
+        <div class="stat-label">Personalized Results</div>
+        <div class="readiness-bar"><div class="readiness-fill" style="width:100%;"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="solution-right">
+    <div class="mockup-frame" style="width:660px;height:500px;">
+      <div class="mockup-titlebar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      </div>
+      <div class="mockup-content" id="mockup-career">
+        <!-- Replace with: <video autoplay muted loop src="footage/career_match.mp4"></video> -->
+        <div class="mockup-placeholder">
+          <div class="play-btn">▶</div>
+          <span style="font-size:14px;font-weight:600;">[ Career Matching Footage ]</span>
+          <span style="font-size:12px;opacity:.6;">Show readiness score + matched careers</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCENE 6 — INTERACTIVE KNOWLEDGE GRAPH             -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="scene feature-scene" id="scene-5" data-label="Knowledge Graph" data-duration="7000">
+  <div class="feature-header">
+    <p class="feature-label">✦ Feature 3</p>
+    <h2 class="feature-title">Interactive <span>Visual Knowledge Graph</span></h2>
+  </div>
+  <div class="feature-video-area">
+    <div class="feature-video-frame" id="vid-frame-5">
+      <!-- Replace with: <video autoplay muted loop src="footage/knowledge_graph.mp4" style="width:100%;height:100%;object-fit:cover;"></video> -->
+      <div class="feature-video-placeholder">
+        <div class="footage-badge">📹 INSERT: Knowledge Graph Screen Recording</div>
+        <p class="placeholder-text">Record: Interacting with the node graph, clicking topics</p>
+      </div>
+    </div>
+  </div>
+  <div class="feature-bullets" style="top:220px;bottom:auto;transform:none;left:80px;right:auto;">
+    <div class="bullet-pill"><div class="bullet-icon">🕸️</div> Visual node-based roadmap</div>
+    <div class="bullet-pill"><div class="bullet-icon">🔗</div> See topic dependencies</div>
+    <div class="bullet-pill"><div class="bullet-icon">👆</div> Click any topic to explore</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCENE 7 — AI TOPIC EXPLAINER                      -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="scene" id="scene-ai" data-label="AI Tutor" data-duration="7000">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:32px;width:100%;padding:0 160px;">
+    <div style="text-align:center;">
+      <p class="feature-label" style="animation:fadeUp 0.6s ease both;">✦ Feature 4</p>
+      <h2 class="solution-title" style="font-size:58px;animation:fadeUp 0.7s ease both;animation-delay:.1s;">
+        Live <em style="background:linear-gradient(90deg,var(--teal-light),var(--blue-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-style:normal;">AI Topic Explainer</em>
+      </h2>
+    </div>
+    <div style="display:flex;gap:60px;align-items:flex-start;width:100%;">
+      <div class="ai-chat-container">
+        <div class="ai-bubble">
+          <div class="ai-avatar user-av">👤</div>
+          <div class="ai-msg">Can you explain what Docker is and why I need it for my DevOps career?</div>
+        </div>
+        <div class="ai-bubble">
+          <div class="ai-avatar bot">🤖</div>
+          <div class="ai-msg">
+            <strong style="color:var(--teal-light);">Docker</strong> is a containerization platform that packages your applications with all their dependencies into isolated, portable units called <em>containers</em>.<br/><br/>
+            For DevOps, it solves the classic "it works on my machine" problem, enabling consistent deployments across development, staging, and production environments.
+          </div>
+        </div>
+        <div class="ai-bubble">
+          <div class="ai-avatar user-av">👤</div>
+          <div class="ai-msg">What free resources do you recommend to learn it?</div>
+        </div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:20px;">
+        <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:28px;animation:cardSlideUp 0.7s ease both;animation-delay:0.4s;">
+          <h3 style="font-size:16px;font-weight:700;margin-bottom:16px;color:var(--teal-light);">📹 INSERT: AI Panel Recording</h3>
+          <p style="font-size:14px;color:var(--gray-light);line-height:1.7;">Record yourself clicking on a knowledge graph node and the AI explanation panel sliding in on the right side.</p>
+        </div>
+        <div style="background:rgba(42,82,204,.15);border:1px solid rgba(59,130,246,.3);border-radius:16px;padding:24px;animation:cardSlideUp 0.7s ease both;animation-delay:0.6s;">
+          <p style="font-size:14px;font-weight:600;color:var(--blue-light);margin-bottom:12px;">🎯 AI Tutor provides:</p>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="font-size:14px;color:var(--gray-light);">✓ Topic overview & importance</div>
+            <div style="font-size:14px;color:var(--gray-light);">✓ Step-by-step learning guide</div>
+            <div style="font-size:14px;color:var(--gray-light);">✓ Common mistakes to avoid</div>
+            <div style="font-size:14px;color:var(--gray-light);">✓ Free curated resources</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCENE 8 — IQ / APTITUDE & MOCK INTERVIEW          -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="scene" id="scene-iq" data-label="IQ & Mock Interview" data-duration="7000">
+  <div class="iq-right">
+    <p class="feature-label" style="animation:fadeUp 0.6s ease both;">✦ Feature 5 & 6</p>
+    <h2 class="solution-title" style="font-size:54px;animation:fadeUp 0.7s ease both;animation-delay:.1s;">
+      Assess. Practice. <em>Succeed.</em>
+    </h2>
+    <p class="solution-desc" style="font-size:17px;animation:fadeUp 0.8s ease both;animation-delay:.25s;">
+      Take AI-proctored IQ & aptitude tests, then practice with realistic mock interviews — all tailored to your target career path.
+    </p>
+    <div class="interview-bubbles">
+      <div class="int-bubble">
+        <div class="int-av interviewer">🤖</div>
+        <div class="int-msg">"Tell me about your experience with RESTful APIs and how you've used them in projects."</div>
+      </div>
+      <div class="int-bubble">
+        <div class="int-av candidate">👤</div>
+        <div class="int-msg">"In my final year project, I designed a REST API using Flask with JWT authentication and connected it to a React frontend..."</div>
+      </div>
+    </div>
+  </div>
+  <div class="iq-visual">
+    <div class="iq-card">
+      <span class="iq-card-icon">🧠</span>
+      <p class="iq-card-title">IQ Assessment</p>
+      <p class="iq-card-desc">Adaptive cognitive tests that measure logical, verbal, and numerical reasoning.</p>
+    </div>
+    <div class="iq-card">
+      <span class="iq-card-icon">📊</span>
+      <p class="iq-card-title">Aptitude Tests</p>
+      <p class="iq-card-desc">Skill-specific aptitude challenges aligned to your chosen career track.</p>
+    </div>
+    <div class="iq-card">
+      <span class="iq-card-icon">🎤</span>
+      <p class="iq-card-title">Mock Interviews</p>
+      <p class="iq-card-desc">AI-powered interview sessions with real-time feedback and scoring.</p>
+    </div>
+    <div class="iq-card">
+      <span class="iq-card-icon">📹 INSERT</span>
+      <p class="iq-card-title" style="font-size:13px;">IQ / Mock Interview Recording</p>
+      <p class="iq-card-desc">Record: Taking a test, then mock interview session</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCENE 9 — CV GENERATOR                            -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="scene" id="scene-cv" data-label="CV Generator" data-duration="7000">
+  <div class="cv-preview">
+    <div class="cv-header-bar">
+      <div class="cv-avatar">👤</div>
+      <div class="cv-name-block">
+        <h2>Ahmad Hassan</h2>
+        <p>Computer Science, Semester 7 · Full Stack Developer</p>
+      </div>
+    </div>
+    <div class="cv-body">
+      <div class="cv-section-title">Education</div>
+      <div class="cv-line full"></div>
+      <div class="cv-line med"></div>
+      <div class="cv-section-title" style="margin-top:8px;">Skills</div>
+      <div class="cv-skill-pills">
+        <div class="cv-pill">Python</div><div class="cv-pill">Flask</div>
+        <div class="cv-pill">React</div><div class="cv-pill">SQL</div>
+        <div class="cv-pill">Docker</div><div class="cv-pill">REST APIs</div>
+        <div class="cv-pill">Machine Learning</div>
+      </div>
+      <div class="cv-section-title" style="margin-top:8px;">Experience</div>
+      <div class="cv-line full"></div>
+      <div class="cv-line short"></div>
+      <div class="cv-section-title" style="margin-top:8px;">Projects</div>
+      <div class="cv-line full"></div>
+      <div class="cv-line med"></div>
+      <div class="cv-line short"></div>
+    </div>
+    <!-- Footage overlay hint -->
+    <div style="position:absolute;inset:0;background:rgba(7,11,26,.85);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;">
+      <div class="footage-badge" style="font-size:16px;padding:12px 28px;">📹 INSERT: CV Generator Screen Recording</div>
+      <p style="font-size:14px;color:var(--gray-mid);">Record: Generating and previewing your CV</p>
+    </div>
+  </div>
+  <div class="cv-right">
+    <p class="feature-label" style="animation:fadeUp 0.6s ease both;">✦ Feature 7</p>
+    <h2 class="solution-title" style="font-size:60px;animation:fadeUp 0.7s ease both;animation-delay:.1s;">
+      AI-Generated <em>CV</em><br/>in Seconds
+    </h2>
+    <p class="solution-desc" style="font-size:17px;animation:fadeUp 0.8s ease both;animation-delay:.25s;">
+      SkillSync auto-generates a professional, tailored CV using your profile, skills, and completed roadmap milestones — ready to download and send.
+    </p>
+    <div style="display:flex;flex-direction:column;gap:14px;animation:fadeUp 0.9s ease both;animation-delay:.4s;">
+      <div class="bullet-pill"><div class="bullet-icon">✨</div> Populated from your profile automatically</div>
+      <div class="bullet-pill"><div class="bullet-icon">📄</div> Professional PDF export</div>
+      <div class="bullet-pill"><div class="bullet-icon">🎯</div> Tailored to your target career</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- SCENE 10 — CTA / OUTRO                            -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="scene" id="scene-cta" data-label="Call to Action" data-duration="8000">
+  <p class="cta-eyebrow">✦ The Future of Career Guidance</p>
+  <h2 class="cta-title">
+    Start Your Journey<br/>
+    with <span class="highlight">SkillSync</span>
+  </h2>
+  <p class="cta-sub">
+    From student to industry professional — personalized, AI-powered, and completely free.
+  </p>
+  <div class="cta-buttons">
+    <button class="btn-primary">🚀 Try SkillSync Now</button>
+    <button class="btn-secondary">📖 View Demo</button>
+  </div>
+  <div class="cta-logo-small" style="margin-top:20px;">
+    <img class="cta-logo-img" src="../SKillsyncLOgo.png" alt="SkillSync" />
+    <span class="cta-logo-text">SkillSync</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT ENGINE                                  -->
+<!-- ══════════════════════════════════════════════════ -->
+<script>
+  // ── Scene Registry ──────────────────────────────────
+  const scenes = Array.from(document.querySelectorAll('.scene'));
+  const labels = scenes.map(s => s.dataset.label || '');
+  const durations = scenes.map(s => parseInt(s.dataset.duration) || 5000);
+  const totalScenes = scenes.length;
+
+  let currentScene = 0;
+  let isPlaying = true;
+  let autoTimer = null;
+  const overlay = document.getElementById('transition-overlay');
+  const sceneLabelEl = document.getElementById('scene-label');
+  const progressBar = document.getElementById('progress-bar');
+  const sceneCounter = document.getElementById('scene-counter');
+  const timelineFill = document.getElementById('timeline-fill');
+  const playPauseBtn = document.getElementById('play-pause-btn');
+
+  // ── Nav Dots ─────────────────────────────────────────
+  const navDotsEl = document.getElementById('nav-dots');
+  scenes.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goToScene(i);
+    navDotsEl.appendChild(dot);
+  });
+
+  function updateDots() {
+    document.querySelectorAll('.nav-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === currentScene);
+    });
+  }
+
+  // ── Counter Animation ────────────────────────────────
+  function animateCounters() {
+    document.querySelectorAll('.counter-num').forEach(el => {
+      const target = parseInt(el.dataset.target) || 0;
+      let current = 0;
+      const step = target / 40;
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = Math.round(current);
+        if (current >= target) clearInterval(timer);
+      }, 30);
+    });
+  }
+
+  // ── Timeline Progress ─────────────────────────────────
+  let progressStart = null;
+  let progressRAF = null;
+
+  function startProgress(duration) {
+    cancelAnimationFrame(progressRAF);
+    progressStart = performance.now();
+    function tick(now) {
+      if (!isPlaying) return;
+      const elapsed = now - progressStart;
+      const pct = Math.min((elapsed / duration) * 100, 100);
+      timelineFill.style.width = pct + '%';
+      if (pct < 100) progressRAF = requestAnimationFrame(tick);
+    }
+    progressRAF = requestAnimationFrame(tick);
+  }
+
+  // ── Go To Scene ───────────────────────────────────────
+  function goToScene(index) {
+    if (index < 0 || index >= totalScenes) return;
+
+    // Flash transition
+    overlay.classList.add('flash');
+    setTimeout(() => overlay.classList.remove('flash'), 350);
+
+    scenes[currentScene].classList.remove('active');
+    currentScene = index;
+    scenes[currentScene].classList.add('active');
+
+    // Update UI
+    updateDots();
+    sceneLabelEl.textContent = labels[currentScene];
+    sceneCounter.textContent = `${currentScene + 1} / ${totalScenes}`;
+    progressBar.style.width = `${((currentScene) / (totalScenes - 1)) * 100}%`;
+    timelineFill.style.width = '0%';
+
+    // Trigger counter animation on stats scene
+    if (scenes[currentScene].id === 'scene-career') {
+      setTimeout(animateCounters, 400);
+    }
+
+    // Auto-advance
+    clearTimeout(autoTimer);
+    if (isPlaying) {
+      const dur = durations[currentScene];
+      startProgress(dur);
+      autoTimer = setTimeout(() => {
+        if (currentScene < totalScenes - 1) goToScene(currentScene + 1);
+        else isPlaying = false;
+      }, dur);
+    }
+  }
+
+  function nextScene() {
+    clearTimeout(autoTimer);
+    if (currentScene < totalScenes - 1) goToScene(currentScene + 1);
+  }
+
+  function prevScene() {
+    clearTimeout(autoTimer);
+    if (currentScene > 0) goToScene(currentScene - 1);
+  }
+
+  function togglePlayPause() {
+    isPlaying = !isPlaying;
+    playPauseBtn.textContent = isPlaying ? '⏸ Pause' : '▶ Play';
+    playPauseBtn.classList.toggle('active-ctrl', isPlaying);
+    if (isPlaying) {
+      const dur = durations[currentScene];
+      startProgress(dur);
+      autoTimer = setTimeout(() => {
+        if (currentScene < totalScenes - 1) goToScene(currentScene + 1);
+      }, dur);
+    } else {
+      clearTimeout(autoTimer);
+      cancelAnimationFrame(progressRAF);
+    }
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextScene(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevScene(); }
+    if (e.key === 'p' || e.key === 'P') togglePlayPause();
+  });
+
+  // ── Auto-start ────────────────────────────────────────
+  (() => {
+    const dur = durations[0];
+    startProgress(dur);
+    autoTimer = setTimeout(() => goToScene(1), dur);
+  })();
+</script>
+</body>
+</html>

@@ -95,7 +95,7 @@ body:has(main.main-content.auth-page) {
   font-size: 0.875rem; font-weight: 600; padding: 9px 20px;
   border-radius: 8px; transition: background 0.2s, transform 0.15s;
 }
-.nav-signup-btn:hover { background: #5254cc; transform: translateY(-1px); }
+.nav-signup-btn:hover { background: #4f46e5; transform: translateY(-1px); }
 
 /* ─── SHARED ─── */
 .lp-container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
@@ -183,9 +183,9 @@ body:has(main.main-content.auth-page) {
   background: var(--accent); color: #fff; text-decoration: none;
   font-size: 0.95rem; font-weight: 700; padding: 13px 28px;
   border-radius: 10px; transition: all 0.2s;
-  box-shadow: 0 0 24px rgba(99,102,241,0.35);
+  box-shadow: 0 4px 14px rgba(99,102,241,0.18);
 }
-.lp-btn-primary:hover { background: #5254cc; transform: translateY(-2px); box-shadow: 0 0 32px rgba(99,102,241,0.5); }
+.lp-btn-primary:hover { background: #4f46e5; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(99,102,241,0.3); }
 .lp-btn-primary svg { width: 18px; height: 18px; }
 .lp-btn-ghost {
   display: inline-flex; align-items: center; gap: 8px;

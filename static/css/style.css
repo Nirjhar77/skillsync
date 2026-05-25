@@ -128,7 +128,8 @@ a {
 }
 
 a:hover {
-    color: var(--accent-purple);
+    color: var(--text-primary);
+    /* No purple hover to keep button colors consistent */
 }
 
 /* --- Glass Card --- */
@@ -296,6 +297,11 @@ a:hover {
     margin: 0 auto;
     padding: var(--space-xl);
     min-height: calc(100vh - 64px);
+    animation: fadeInUp 0.45s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+.app-content {
+    animation: fadeInUp 0.45s cubic-bezier(0.25, 1, 0.5, 1) both;
 }
 
 .auth-page {
@@ -2753,3 +2759,111 @@ body.theme-light .loader-progress-bar {
     0% { left: -30%; }
     100% { left: 100%; }
 }
+
+/* --- Premium Staggered Page Entry Animations --- */
+@keyframes pageElementFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.career-match-page > *,
+.arena-shell > *,
+.setup-form > *,
+.nontech-intake-page > *,
+.tracker-wrap > *,
+.planner-layout > *,
+.no-roadmap-msg,
+.tutor-wrap > *,
+.visual-learner-page > * {
+    animation: pageElementFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Staggered animation delays for items in order of visual structure */
+.career-match-page > *:nth-child(1),
+.arena-shell > *:nth-child(1),
+.setup-form > *:nth-child(1),
+.nontech-intake-page > *:nth-child(1),
+.tracker-wrap > *:nth-child(1),
+.planner-layout > *:nth-child(1),
+.tutor-wrap > *:nth-child(1),
+.visual-learner-page > *:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.career-match-page > *:nth-child(2),
+.arena-shell > *:nth-child(2),
+.setup-form > *:nth-child(2),
+.nontech-intake-page > *:nth-child(2),
+.tracker-wrap > *:nth-child(2),
+.planner-layout > *:nth-child(2),
+.tutor-wrap > *:nth-child(2),
+.visual-learner-page > *:nth-child(2) {
+    animation-delay: 0.12s;
+}
+
+.career-match-page > *:nth-child(3),
+.arena-shell > *:nth-child(3),
+.setup-form > *:nth-child(3),
+.nontech-intake-page > *:nth-child(3),
+.tracker-wrap > *:nth-child(3),
+.planner-layout > *:nth-child(3),
+.tutor-wrap > *:nth-child(3),
+.visual-learner-page > *:nth-child(3) {
+    animation-delay: 0.18s;
+}
+
+.career-match-page > *:nth-child(4),
+.arena-shell > *:nth-child(4),
+.setup-form > *:nth-child(4),
+.nontech-intake-page > *:nth-child(4),
+.tracker-wrap > *:nth-child(4),
+.planner-layout > *:nth-child(4),
+.tutor-wrap > *:nth-child(4),
+.visual-learner-page > *:nth-child(4) {
+    animation-delay: 0.24s;
+}
+
+.career-match-page > *:nth-child(5),
+.arena-shell > *:nth-child(5),
+.setup-form > *:nth-child(5),
+.nontech-intake-page > *:nth-child(5),
+.tracker-wrap > *:nth-child(5),
+.planner-layout > *:nth-child(5),
+.tutor-wrap > *:nth-child(5),
+.visual-learner-page > *:nth-child(5) {
+    animation-delay: 0.3s;
+}
+
+.career-match-page > *:nth-child(6),
+.arena-shell > *:nth-child(6),
+.setup-form > *:nth-child(6),
+.nontech-intake-page > *:nth-child(6),
+.tracker-wrap > *:nth-child(6),
+.planner-layout > *:nth-child(6),
+.tutor-wrap > *:nth-child(6),
+.visual-learner-page > *:nth-child(6) {
+    animation-delay: 0.36s;
+}
+
+/* --- Theme Light Alignment Fixes --- */
+body.theme-light .brand-logo,
+body.theme-light .bg-logo {
+    content: url('../images/Logoforwhite.png');
+}
+
+body.theme-light .navbar {
+    background: rgba(255, 255, 255, 0.85);
+    border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+body.theme-light .glass-card:hover {
+    border-color: rgba(0, 0, 0, 0.12);
+}
+
+

@@ -4141,15 +4141,15 @@
         /* Mission card concept proportions: big glow orb, spacious copy, CTA cluster */
         .dash-v2-mission {
             --mission-orb-x: 89px;
-            grid-template-columns: 132px minmax(240px, 1fr) auto !important;
+            grid-template-columns: 160px minmax(240px, 1fr) auto !important;
             min-height: 156px !important;
             padding: 24px 30px !important;
-            gap: 22px !important;
+            gap: 24px !important;
             align-items: center !important;
             background:
-                radial-gradient(circle at var(--mission-orb-x) 50%, rgba(0, 184, 255, .34) 0, rgba(16, 91, 185, .22) 16%, rgba(13, 52, 112, .08) 34%, transparent 52%),
-                radial-gradient(ellipse 430px 210px at 92% 68%, rgba(109, 40, 217, .24) 0%, rgba(60, 20, 133, .16) 36%, transparent 72%),
-                linear-gradient(102deg, #061a34 0%, #050b19 44%, #080719 72%, #12072c 100%);
+                radial-gradient(circle at var(--mission-orb-x) 50%, rgba(0, 190, 255, .38) 0, rgba(16, 91, 185, .23) 15%, rgba(13, 52, 112, .08) 32%, transparent 48%),
+                radial-gradient(ellipse 420px 205px at 88% 72%, rgba(126, 34, 206, .24) 0%, rgba(76, 29, 149, .15) 36%, transparent 72%),
+                linear-gradient(101deg, #061b37 0%, #050b18 40%, #050714 67%, #100426 100%);
             box-shadow:
                 inset 0 1px 0 rgba(255, 255, 255, .06),
                 inset 0 0 0 1px rgba(0, 212, 255, .045),
@@ -4160,7 +4160,7 @@
         .dash-v2-mission::before {
             background:
                 radial-gradient(ellipse 240px 184px at var(--mission-orb-x) 50%, rgba(0, 212, 255, .20), transparent 68%),
-                radial-gradient(ellipse 620px 190px at 88% 116%, rgba(124, 58, 237, .34), transparent 62%),
+                radial-gradient(ellipse 660px 178px at 88% 118%, rgba(124, 58, 237, .42), transparent 60%),
                 radial-gradient(ellipse 520px 150px at 62% 30%, rgba(14, 165, 233, .055), transparent 72%),
                 linear-gradient(90deg, rgba(0, 212, 255, .07), transparent 39%, rgba(124, 111, 255, .07));
             opacity: .88;
@@ -4168,8 +4168,8 @@
 
         .dash-v2-mission::after {
             background:
-                radial-gradient(circle at var(--mission-orb-x) 50%, transparent 0 48px, rgba(0, 212, 255, .22) 49px 50px, transparent 52px 72px, rgba(0, 212, 255, .11) 73px 74px, transparent 76px 96px, rgba(0, 212, 255, .06) 97px 98px, transparent 100px),
-                radial-gradient(ellipse 520px 120px at 86% 101%, rgba(147, 51, 234, .18), transparent 68%),
+                radial-gradient(circle at var(--mission-orb-x) 50%, transparent 0 44px, rgba(0, 212, 255, .22) 45px 46px, transparent 48px 64px, rgba(0, 212, 255, .11) 65px 66px, transparent 68px 86px, rgba(0, 212, 255, .06) 87px 88px, transparent 90px),
+                radial-gradient(ellipse 620px 132px at 86% 101%, rgba(147, 51, 234, .21), transparent 66%),
                 linear-gradient(118deg, transparent 0%, rgba(255, 255, 255, .025) 44%, transparent 64%);
             opacity: .78;
         }
@@ -4192,11 +4192,11 @@
         }
 
         .dash-v2-mission-icon::before {
-            inset: -26px;
+            inset: -20px;
         }
 
         .dash-v2-mission-icon::after {
-            inset: -50px;
+            inset: -34px;
         }
 
         .dash-v2-mission-icon svg {
@@ -4254,7 +4254,7 @@
         @media (max-width: 1380px) {
             .dash-v2-mission {
                 --mission-orb-x: 68px;
-                grid-template-columns: 104px minmax(220px, 1fr) auto !important;
+                grid-template-columns: 132px minmax(220px, 1fr) auto !important;
                 min-height: 142px !important;
                 padding: 22px 24px !important;
                 gap: 22px !important;
@@ -4275,7 +4275,7 @@
         @media (max-width: 980px) {
             .dash-v2-mission {
                 --mission-orb-x: 64px;
-                grid-template-columns: 88px minmax(0, 1fr) !important;
+                grid-template-columns: 116px minmax(0, 1fr) !important;
                 min-height: 148px !important;
             }
 
@@ -4306,6 +4306,19 @@
             .dash-v2-mission-actions {
                 grid-column: auto;
             }
+        }
+
+        /* Keep row-two dashboard cards aligned */
+        .dash-v2-content-grid .dash-v2-career,
+        .dash-v2-content-grid .dash-v2-job-pulse {
+            align-self: stretch;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dash-v2-job-pulse .jmp-card {
+            flex: 1 1 auto;
         }
     </style>
 

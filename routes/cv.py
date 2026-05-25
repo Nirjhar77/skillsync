@@ -42,7 +42,7 @@ def preview():
         photo_file.save(os.path.join(save_dir, unique_name))
         photo_url = url_for("static", filename=f"uploads/cv/{unique_name}")
 
-    # ── Basics ──────────────────────────────────────────
+    # ── Basics & Socials ─────────────────────────────────
     data = {
         "name":         form.get("name", "").strip(),
         "title":        form.get("title", "").strip(),
@@ -50,12 +50,29 @@ def preview():
         "phone":        form.get("phone", "").strip(),
         "location":     form.get("location", "").strip(),
         "website":      form.get("website", "").strip(),
+        "github_url":   form.get("github_url", "").strip(),
+        "linkedin_url": form.get("linkedin_url", "").strip(),
+        "twitter_url":  form.get("twitter_url", "").strip(),
         "summary":      form.get("summary", "").strip(),
         "accent_color": form.get("accent_color", "#2563eb"),
         "photo_url":    photo_url,
     }
 
-    # ── Experience (repeating fields with [] suffix) ─────
+    # ── KPI Stats ────────────────────────────────────────
+    data["stats"] = []
+    for idx in range(1, 5):
+        val = form.get(f"stat_val{idx}", "").strip()
+        lbl = form.get(f"stat_lbl{idx}", "").strip()
+        if val:
+            # Match Lucide icons for each box
+            icons = ["briefcase", "folder", "award", "graduation-cap"]
+            data["stats"].append({
+                "value": val,
+                "label": lbl,
+                "icon": icons[idx-1]
+            })
+
+    # ── Experience ───────────────────────────────────────
     exp_roles       = form.getlist("exp_role[]")
     exp_companies   = form.getlist("exp_company[]")
     exp_starts      = form.getlist("exp_start[]")
@@ -73,7 +90,24 @@ def preview():
             "description": exp_descs[i],
         }
         for i in range(len(exp_roles))
-        if exp_roles[i].strip()          # skip blank rows
+        if exp_roles[i].strip()
+    ]
+
+    # ── Extracurricular Activities ───────────────────────
+    extra_roles = form.getlist("extra_role[]")
+    extra_orgs  = form.getlist("extra_org[]")
+    extra_dates = form.getlist("extra_date[]")
+    extra_descs = form.getlist("extra_description[]")
+
+    data["extracurriculars"] = [
+        {
+            "role":        extra_roles[i],
+            "organization":extra_orgs[i],
+            "date":        extra_dates[i],
+            "description": extra_descs[i],
+        }
+        for i in range(len(extra_roles))
+        if extra_roles[i].strip()
     ]
 
     # ── Education ────────────────────────────────────────
@@ -93,6 +127,21 @@ def preview():
         }
         for i in range(len(edu_degrees))
         if edu_degrees[i].strip()
+    ]
+
+    # ── Certifications ───────────────────────────────────
+    cert_names   = form.getlist("cert_name[]")
+    cert_issuers = form.getlist("cert_issuer[]")
+    cert_dates   = form.getlist("cert_date[]")
+
+    data["certifications"] = [
+        {
+            "name":   cert_names[i],
+            "issuer": cert_issuers[i],
+            "date":   cert_dates[i],
+        }
+        for i in range(len(cert_names))
+        if cert_names[i].strip()
     ]
 
     # ── Skills ───────────────────────────────────────────
@@ -118,6 +167,14 @@ def preview():
         if lang_names[i].strip()
     ]
 
+    # ── Interests ────────────────────────────────────────
+    interest_names = form.getlist("interest_name[]")
+    data["interests"] = [
+        interest_names[i].strip()
+        for i in range(len(interest_names))
+        if interest_names[i].strip()
+    ]
+
     # ── Projects ─────────────────────────────────────────
     proj_names  = form.getlist("proj_name[]")
     proj_urls   = form.getlist("proj_url[]")
@@ -133,6 +190,14 @@ def preview():
         }
         for i in range(len(proj_names))
         if proj_names[i].strip()
+    ]
+
+    # ── Achievements ─────────────────────────────────────
+    ach_descs = form.getlist("ach_desc[]")
+    data["achievements"] = [
+        ach_descs[i].strip()
+        for i in range(len(ach_descs))
+        if ach_descs[i].strip()
     ]
 
     return render_template("cv/azurill.html", **data)

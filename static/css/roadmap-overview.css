@@ -227,3 +227,54 @@
         max-height: 260px;
     }
 }
+
+/* --- Light Mode Overrides for Roadmap Overview --- */
+body.theme-light .overview-shell {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+body.theme-light .overview-map {
+    background: #f8fafc;
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.theme-light .graph-node {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.12);
+    color: #0f172a;
+}
+
+body.theme-light .graph-node.phase-node {
+    background: linear-gradient(180deg, #f1f5f9, #e2e8f0);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+body.theme-light .graph-node-kicker {
+    color: #64748b;
+}
+
+body.theme-light .topic-sidebar {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.theme-light .overview-edges .milestone-link {
+    stroke: rgba(100, 116, 139, 0.18);
+}
+
+body.theme-light .graph-btn {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.12);
+    color: #0f172a;
+}
+
+body.theme-light .topic-section {
+    border-top-color: rgba(0, 0, 0, 0.08);
+}
+
+body.theme-light .topic-section h4 {
+    color: #1e3a8a;
+}
+

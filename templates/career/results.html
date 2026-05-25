@@ -189,30 +189,9 @@
     </section>
 
     <div id="ai-suggestions-container" class="ai-suggestions-container"></div>
-
-    <div id="chat-widget" class="chat-widget collapsed">
-        <div class="chat-header" id="chat-header">
-            <div class="chat-header-title">
-                <span><i data-lucide="bot"></i></span>
-                <strong>Career Assistant</strong>
-            </div>
-            <i data-lucide="chevron-down" class="chat-toggle-icon"></i>
-        </div>
-        <div class="chat-body" id="chat-messages">
-            <div class="chat-msg bot-msg">Need help choosing the right path? Ask me about fit, skill gaps, or roadmap tradeoffs.</div>
-        </div>
-        <div class="chat-input-area">
-            <input type="text" id="chat-input" placeholder="Ask about your matches..." autocomplete="off">
-            <button id="chat-send"><i data-lucide="send"></i></button>
-        </div>
-    </div>
 </div>
 
-<div id="insights-loading-overlay" class="insights-loading-overlay">
-    <div class="spinner overlay-spinner"></div>
-    <h2>Generating Insights</h2>
-    <p id="insights-loading-text">Analyzing market trends, salary data, and core responsibilities for this role...</p>
-</div>
+
 
 <style>
 .career-match-page {
@@ -1233,4 +1212,29 @@ function showInsightsLoading(careerTitle) {
     overlay.style.display = 'flex';
 }
 </script>
+{% endblock %}
+
+{% block extra_content %}
+<div id="chat-widget" class="chat-widget collapsed">
+    <div class="chat-header" id="chat-header">
+        <div class="chat-header-title">
+            <span><i data-lucide="bot"></i></span>
+            <strong>Career Assistant</strong>
+        </div>
+        <i data-lucide="chevron-down" class="chat-toggle-icon"></i>
+    </div>
+    <div class="chat-body" id="chat-messages">
+        <div class="chat-msg bot-msg">Need help choosing the right path? Ask me about fit, skill gaps, or roadmap tradeoffs.</div>
+    </div>
+    <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Ask about your matches..." autocomplete="off">
+        <button id="chat-send"><i data-lucide="send"></i></button>
+    </div>
+</div>
+
+<div id="insights-loading-overlay" class="insights-loading-overlay">
+    <div class="spinner overlay-spinner"></div>
+    <h2>Generating Insights</h2>
+    <p id="insights-loading-text">Analyzing market trends, salary data, and core responsibilities for this role...</p>
+</div>
 {% endblock %}
